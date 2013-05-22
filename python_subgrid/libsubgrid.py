@@ -36,6 +36,7 @@ os_name = os.name
 # Load DLL into memory.
 lib_path_from_environment = os.path.expanduser(os.environ.get('SUBGRID_PATH', ''))
 libname = 'libsubgrid' + SUFFIX
+
 if lib_path_from_environment:
     logging.info("Using SUBGRID_PATH: {}".format(lib_path_from_environment))
     subgrid = ctypes.cdll.LoadLibrary(
@@ -51,6 +52,7 @@ else:
             subgrid = ctypes.cdll.LoadLibrary(
                 os.path.join(lib_path, libname)
             )
+            break
     else:
         raise RuntimeError("library not found")
 
