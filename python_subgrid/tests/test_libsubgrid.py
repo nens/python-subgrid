@@ -6,8 +6,8 @@ each of the test is a mini program and all should run without anything crashing
 Run it:
 $ python test.py
 """
-from libsubgrid import subgrid
-import libsubgrid
+from ..libsubgrid import subgrid
+
 
 import unittest
 import sys
@@ -81,7 +81,9 @@ class LibSubgridTest(unittest.TestCase):
         print
         print '########### test array pointer'
         import numpy as np
-        a = libsubgrid.arraytype()
+        a = ndpointer(
+            dtype='double', ndim=3, shape=(2,3,4), flags='F')
+
         subgrid.subgrid_arraypointer(ctypes.byref(a))
         print np.reshape(np.asarray(a).ravel(), [2,3,4], order='F')
         """
