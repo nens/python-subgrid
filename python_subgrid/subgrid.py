@@ -5,4 +5,4 @@ from __future__ import absolute_import
 
 
 # TODO
-bla=Bla*bla
+bla=3*'bla'
