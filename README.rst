@@ -1,6 +1,14 @@
 Python wrapper for the 3di subgrid library
 ==========================================
 
+Setup
+-----
+
+   $ export SUBGRID_PATH=/home/user/svn/3di/trunk/subgridf90/src/.libs
+
+Usage
+-----
+
 
 Automatic tests
 ---------------
