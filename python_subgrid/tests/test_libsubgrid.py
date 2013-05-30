@@ -6,7 +6,7 @@ each of the test is a mini program and all should run without anything crashing
 Run it:
 $ python test.py
 """
-from python_subgrid.libsubgrid import subgrid
+from python_subgrid.wrapper import subgrid
 
 from numpy.ctypeslib import ndpointer
 
