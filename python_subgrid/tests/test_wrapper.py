@@ -352,11 +352,3 @@ class LibSubgridTest(unittest.TestCase):
     # #     #     x, y, level, mode)
 
     # #     #libsubgrid.funcall('finalizemodel')
-
-
-def main():
-    unittest.main()
-
-
-if __name__ == '__main__':
-    main()
