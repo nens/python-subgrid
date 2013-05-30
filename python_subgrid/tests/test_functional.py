@@ -131,6 +131,15 @@ class LibSubgridTest(unittest.TestCase):
 
         #libsubgrid.funcall('finalizemodel')
 
+    def xtest_manhole(self):
+        print
+        print '############ test manhole'
+        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
+        subgrid.initmodel()
+        self.model_initialized = True
+        manhole_name = ctypes.create_string_buffer('test_manhole')
+        subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 1.0)
+
     # def test_get_water_level(self):
     #     print
     #     print '########### test get water level'

@@ -66,6 +66,9 @@ subgrid.subgrid_arraypointer.restype = None
 subgrid.changebathy.argtypes = [ctypes.c_double] * 5
 subgrid.changebathy.restype = ctypes.c_int
 
+subgrid.discharge.argtypes = [ctypes.c_double, ctypes.c_double, c_char_p, ctypes.c_int, ctypes.c_double]
+subgrid.discharge.restype = ctypes.c_int
+
 # TODO
 # subgrid.get_0d_double.argtypes = [POINTER(c_double)]
 # subgrid.get_0d_double.restype = None
