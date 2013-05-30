@@ -6,7 +6,7 @@ each of the test is a mini program and all should run without anything crashing
 Run it:
 $ python test.py
 """
-from ..libsubgrid import subgrid
+from python_subgrid.libsubgrid import subgrid
 
 from numpy.ctypeslib import ndpointer
 
@@ -67,22 +67,22 @@ class LibSubgridTest(unittest.TestCase):
     def test_info(self):
         print subgrid.subgrid_info()
 
-    # def test_load(self):
-    #     print
-    #     print '########### test load'
-    #     for i in xrange(20):
-    #         print 'test load %r' % i
-    #         abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
-    #         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-    #         subgrid.initmodel()
-    #         subgrid.finalizemodel()  # Need to finalize before re-initializing
+    def test_load(self):
+        print
+        print '########### test load'
+        for i in xrange(3):
+            print 'test load %r' % i
+            abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+            load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
+            subgrid.initmodel()
+            subgrid.finalizemodel()  # Need to finalize before re-initializing
 
     def test_init(self):
         print
         print '########### test init: we try to initialize multiple times'
         abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        for i in xrange(20):
+        for i in xrange(3):
             print 'test initmodel %r' % i
             subgrid.initmodel()
         self.model_initialized = True
@@ -107,20 +107,20 @@ class LibSubgridTest(unittest.TestCase):
     #     [ 2.  2.  2.  2.]]]
     #     """
 
-    # def test_timesteps(self):
-    #     print
-    #     print '########### test timesteps'
-    #     abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
-    #     load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-    #     subgrid.initmodel()
-    #     self.model_initialized = True
+    def test_timesteps(self):
+        print
+        print '########### test timesteps'
+        abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
+        subgrid.initmodel()
+        self.model_initialized = True
 
-    #     for i in xrange(10):
-    #         print 'doing %d...' % i
-    #         # print libsubgrid.funcall('update','ctypes.byref(ctypes.c_double(-1))') # -1 = use default model timestep.
-    #         print subgrid.update(-1) # -1 = use default model timestep.
+        for i in xrange(10):
+            print 'doing %d...' % i
+            # print libsubgrid.funcall('update','ctypes.byref(ctypes.c_double(-1))') # -1 = use default model timestep.
+            print subgrid.update(ctypes.c_double(-1)) # -1 = use default model timestep.
 
-    #     #libsubgrid.funcall('finalizemodel')
+        #libsubgrid.funcall('finalizemodel')
 
     # def test_get_water_level(self):
     #     print
@@ -229,7 +229,7 @@ class LibSubgridTest(unittest.TestCase):
 
     # #     #libsubgrid.funcall('finalizemodel')
 
-    def test_floodfill(self):
+    def xtest_floodfill(self):
         print
         print '########### test floodfill'
         abs_path = os.path.join(root_path, scenarios['betondorp']['path'])
