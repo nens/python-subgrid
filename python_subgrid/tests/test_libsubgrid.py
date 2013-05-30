@@ -60,8 +60,10 @@ def load_model(path, mdu_filename):
 
 
 class LibSubgridTest(unittest.TestCase):
+
     def setUp(self):
         #libsubgrid.funcall('startup')
+        self.startdir = os.getcwd()
         subgrid.startup()
         self.model_initialized = False
 
@@ -69,6 +71,7 @@ class LibSubgridTest(unittest.TestCase):
         if self.model_initialized:
             subgrid.finalizemodel()
         subgrid.shutdown()
+        os.chdir(self.startdir)
 
     def test_info(self):
         print subgrid.subgrid_info()
