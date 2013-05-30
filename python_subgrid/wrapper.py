@@ -20,11 +20,12 @@ TYPEMAP = {
 
 
 def _libname():
-    SUFFIXES = collections.defaultdict(lambda: '.so')
-    SUFFIXES['Darwin'] = '.dylib'
-    SUFFIXES['Windows'] = '.dll'
-    SUFFIX = SUFFIXES[platform.system()]
-    return 'libsubgrid' + SUFFIX
+    suffix = '.so'
+    if platform.system() == 'Darwin':
+        suffix = '.dylib'
+    if platform.system() == 'Windows':
+        suffix = '.dll'
+    return 'libsubgrid' + suffix
 
 
 lib_path_from_environment = os.path.expanduser(
