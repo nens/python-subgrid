@@ -38,8 +38,14 @@ scenarios = {
         },
     }
 DEFAULT_SCENARIO = 'DelflandiPad'
-root_path = os.getcwd()
-print 'root path: %s' % root_path
+
+# By default, we look for scenario dirs in the current working directory. This
+# means you need to create symlinks to them. An alternative is to set the
+# SCENARIO_BASEDIR environment variable.
+scenario_basedir = os.getcwd()
+if 'SCENARIO_BASEDIR' in os.environ:
+    scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
+print 'Scenario base dir: %s' % scenario_basedir
 
 
 def load_model(path, mdu_filename):
@@ -72,7 +78,7 @@ class LibSubgridTest(unittest.TestCase):
         print '########### test load'
         for i in xrange(3):
             print 'test load %r' % i
-            abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+            abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
             load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
             subgrid.initmodel()
             subgrid.finalizemodel()  # Need to finalize before re-initializing
@@ -80,7 +86,7 @@ class LibSubgridTest(unittest.TestCase):
     def test_init(self):
         print
         print '########### test init: we try to initialize multiple times'
-        abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+        abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
         for i in xrange(3):
             print 'test initmodel %r' % i
@@ -110,7 +116,7 @@ class LibSubgridTest(unittest.TestCase):
     def test_timesteps(self):
         print
         print '########### test timesteps'
-        abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+        abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
         subgrid.initmodel()
         self.model_initialized = True
@@ -125,7 +131,7 @@ class LibSubgridTest(unittest.TestCase):
     # def test_get_water_level(self):
     #     print
     #     print '########### test get water level'
-    #     abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+    #     abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
     #     load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
     #     subgrid.initmodel()
     #     self.model_initialized = True
@@ -183,7 +189,7 @@ class LibSubgridTest(unittest.TestCase):
     # def test_changebathy(self):
     #     print
     #     print '########### test change bathy'
-    #     abs_path = os.path.join(root_path, scenarios[DEFAULT_SCENARIO]['path'])
+    #     abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
     #     load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
     #     subgrid.initmodel()
     #     self.model_initialized = True
@@ -211,7 +217,7 @@ class LibSubgridTest(unittest.TestCase):
     # #     """Known crashing case"""
     # #     print
     # #     print '########### test change bathy2'
-    # #     abs_path = os.path.join(root_path, scenarios['betondorp']['path'])
+    # #     abs_path = os.path.join(scenario_basedir, scenarios['betondorp']['path'])
     # #     load_model(abs_path, scenarios['betondorp']['mdu_filename'])
     # #     libsubgrid.funcall('initmodel')
     # #     self.model_initialized = True
@@ -232,7 +238,7 @@ class LibSubgridTest(unittest.TestCase):
     def xtest_floodfill(self):
         print
         print '########### test floodfill'
-        abs_path = os.path.join(root_path, scenarios['betondorp']['path'])
+        abs_path = os.path.join(scenario_basedir, scenarios['betondorp']['path'])
         load_model(abs_path, scenarios['betondorp']['mdu_filename'])
         subgrid.initmodel()
         self.model_initialized = True
