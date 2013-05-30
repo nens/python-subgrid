@@ -139,8 +139,14 @@ class LibSubgridTest(unittest.TestCase):
         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
         subgrid.initmodel()
         self.model_initialized = True
+
         manhole_name = ctypes.create_string_buffer('test_manhole')
-        subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 1.0)
+        x = ctypes.c_double(85830.97071920538)
+        y = ctypes.c_double(448605.8983910042)
+        discharge_value = ctypes.c_double(100.0)
+        itype = ctypes.c_int(1)
+        #subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+        subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     # def test_get_water_level(self):
     #     print
