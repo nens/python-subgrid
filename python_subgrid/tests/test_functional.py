@@ -134,6 +134,8 @@ class LibSubgridTest(unittest.TestCase):
     def xtest_manhole(self):
         print
         print '############ test manhole'
+        abs_path = os.path.join(scenario_basedir,
+                                scenarios[DEFAULT_SCENARIO]['path'])
         load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
         subgrid.initmodel()
         self.model_initialized = True
