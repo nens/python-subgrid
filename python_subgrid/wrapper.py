@@ -23,9 +23,6 @@ TYPEMAP = {
     "float": "float32"
 }
 
-# posix for linux, nt for windows
-os_name = os.name
-
 # Load DLL into memory.
 lib_path_from_environment = os.path.expanduser(
     os.environ.get('SUBGRID_PATH', ''))
