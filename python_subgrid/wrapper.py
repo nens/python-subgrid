@@ -11,11 +11,6 @@ from numpy.ctypeslib import ndpointer
 import numpy as np
 
 
-SUFFIXES = collections.defaultdict(lambda: '.so')
-SUFFIXES['Darwin'] = '.dylib'
-SUFFIXES['Windows'] = '.dll'
-SUFFIX = SUFFIXES[platform.system()]
-
 MAXDIMS = 6
 TYPEMAP = {
     "int": "int32",
@@ -23,15 +18,21 @@ TYPEMAP = {
     "float": "float32"
 }
 
-# Load DLL into memory.
+
+def _libname():
+    SUFFIXES = collections.defaultdict(lambda: '.so')
+    SUFFIXES['Darwin'] = '.dylib'
+    SUFFIXES['Windows'] = '.dll'
+    SUFFIX = SUFFIXES[platform.system()]
+    return 'libsubgrid' + SUFFIX
+
+
 lib_path_from_environment = os.path.expanduser(
     os.environ.get('SUBGRID_PATH', ''))
-libname = 'libsubgrid' + SUFFIX
-
 if lib_path_from_environment:
     logging.info("Using SUBGRID_PATH: {}".format(lib_path_from_environment))
     subgrid = ctypes.cdll.LoadLibrary(
-        os.path.join(lib_path_from_environment, libname)
+        os.path.join(lib_path_from_environment, _libname())
     )
 else:
     # Do not add your own path here!
@@ -39,10 +40,10 @@ else:
                    '/opt/3di/lib', '~/local/lib']
     known_paths = [os.path.expanduser(path) for path in known_paths]
     for lib_path in known_paths:
-        if os.path.exists(os.path.join(lib_path, libname)):
+        if os.path.exists(os.path.join(lib_path, _libname())):
             logging.info("Using known path: {}".format(lib_path))
             subgrid = ctypes.cdll.LoadLibrary(
-                os.path.join(lib_path, libname)
+                os.path.join(lib_path, _libname())
             )
             break
     else:
