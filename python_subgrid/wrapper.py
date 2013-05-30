@@ -1,40 +1,34 @@
-#import time
 from __future__ import print_function
-
-import functools
-import os
-import sys
-import platform
+from ctypes import POINTER, create_string_buffer, byref, c_int, c_char_p
 import collections
-import logging
-
 import ctypes
-from ctypes import POINTER, create_string_buffer, addressof, pointer, byref, c_int, c_char_p, c_double, c_void_p, c_float
-from ctypes.util import find_library
+import functools
+import logging
+import os
+import platform
 
+from numpy.ctypeslib import ndpointer
 import numpy as np
-from numpy.ctypeslib import ndpointer, as_array
 
 
-SUFFIXES = collections.defaultdict(lambda:'.so')
+SUFFIXES = collections.defaultdict(lambda: '.so')
 SUFFIXES['Darwin'] = '.dylib'
 SUFFIXES['Windows'] = '.dll'
 SUFFIX = SUFFIXES[platform.system()]
-
 
 MAXDIMS = 6
 TYPEMAP = {
     "int": "int32",
     "double": "double",
     "float": "float32"
-
 }
 
 # posix for linux, nt for windows
 os_name = os.name
 
 # Load DLL into memory.
-lib_path_from_environment = os.path.expanduser(os.environ.get('SUBGRID_PATH', ''))
+lib_path_from_environment = os.path.expanduser(
+    os.environ.get('SUBGRID_PATH', ''))
 libname = 'libsubgrid' + SUFFIX
 
 if lib_path_from_environment:
@@ -44,8 +38,9 @@ if lib_path_from_environment:
     )
 else:
     # Do not add your own path here!
-    known_paths = ['/usr/lib', '/usr/local/lib',  '/opt/3di/lib', '~/local/lib']
-    known_paths = [os.path.expanduser(x) for x in known_paths]
+    known_paths = ['/usr/lib', '/usr/local/lib',
+                   '/opt/3di/lib', '~/local/lib']
+    known_paths = [os.path.expanduser(path) for path in known_paths]
     for lib_path in known_paths:
         if os.path.exists(os.path.join(lib_path, libname)):
             logging.info("Using known path: {}".format(lib_path))
@@ -67,7 +62,7 @@ subgrid.getwaterlevel.argtypes = [ctypes.POINTER(ctypes.c_double)] * 3
 subgrid.getwaterlevel.restype = ctypes.c_int
 
 arraytype = ndpointer(
-    dtype='double', ndim=3, shape=(2,3,4), flags='F')
+    dtype='double', ndim=3, shape=(2, 3, 4), flags='F')
 subgrid.subgrid_arraypointer.argtypes = [ctypes.POINTER(arraytype)]
 subgrid.subgrid_arraypointer.restype = None
 
@@ -85,12 +80,10 @@ arraytype = ndpointer(dtype='int32',
                       ndim=1,
                       shape=(MAXDIMS,),
                       flags='F')
-shape = np.empty((MAXDIMS,) ,dtype='int32', order='fortran')
+shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
 subgrid.get_var_shape.argtypes = [c_char_p, arraytype]
-
-
-
 subgrid.get_var_type.argtypes = [c_char_p, c_char_p]
+
 
 def get_nd(subgrid, name):
     name = create_string_buffer(name)
@@ -104,7 +97,7 @@ def get_nd(subgrid, name):
                           flags='F')
     # Create a pointer to the array type
     data = arraytype()
-    get_nd_type_ = getattr(subgrid, 'get_nd'.format(rank=rank, type= type_))
+    get_nd_type_ = getattr(subgrid, 'get_nd'.format(rank=rank, type=type_))
     get_nd_type_.argtypes = [c_char_p, POINTER(arraytype)]
     get_nd_type_.restype = None
     # Get the array
@@ -113,10 +106,5 @@ def get_nd(subgrid, name):
     # Not sure why we need this....
     array = np.reshape(array.ravel(), shape, order='F')
     return array
+
 subgrid.get_nd = functools.partial(get_nd, subgrid=subgrid)
-
-
-if __name__ == '__main__':
-    #            'ctypes.c_double(args[1]), ctypes.c_double(args[2]), ctypes.c_double(args[3]), ctypes.c_double(args[4]), ctypes.c_int(args[5])',
-    res = subgrid.changebathy(0.0, 0.0, 0.0, 0.0)
-    print('res %r' % res)
