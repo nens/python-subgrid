@@ -1,10 +1,5 @@
 """
-test the library on desired behavior
-
-each of the test is a mini program and all should run without anything crashing
-
-Run it:
-$ python test.py
+Test the library on desired behavior by running it on several models.
 """
 from python_subgrid.wrapper import subgrid
 
