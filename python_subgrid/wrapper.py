@@ -19,6 +19,7 @@ TYPEMAP = {
 
 
 def _libname():
+    """Return platform-specific subgridf90 shared library name."""
     suffix = '.so'
     if platform.system() == 'Darwin':
         suffix = '.dylib'
@@ -27,28 +28,27 @@ def _libname():
     return 'libsubgrid' + suffix
 
 
-lib_path_from_environment = os.path.expanduser(
-    os.environ.get('SUBGRID_PATH', ''))
-if lib_path_from_environment:
-    logging.info("Using SUBGRID_PATH: {}".format(lib_path_from_environment))
-    subgrid = ctypes.cdll.LoadLibrary(
-        os.path.join(lib_path_from_environment, _libname())
-    )
-else:
-    # Do not add your own path here!
-    known_paths = ['/usr/lib', '/usr/local/lib',
-                   '/opt/3di/lib', '~/local/lib']
-    known_paths = [os.path.expanduser(path) for path in known_paths]
-    for lib_path in known_paths:
-        if os.path.exists(os.path.join(lib_path, _libname())):
-            logging.info("Using known path: {}".format(lib_path))
-            subgrid = ctypes.cdll.LoadLibrary(
-                os.path.join(lib_path, _libname())
-            )
-            break
-    else:
-        raise RuntimeError("library not found")
+def _library_path():
+    """Return full path to subgridf90 shared library."""
 
+    lib_path_from_environment = os.path.expanduser(
+        os.environ.get('SUBGRID_PATH', ''))
+    if lib_path_from_environment:
+        logging.info("Using SUBGRID_PATH: {}".format(lib_path_from_environment))
+        return os.path.join(lib_path_from_environment, _libname())
+    else:
+        # Do not add your own path here!
+        known_paths = ['/usr/lib', '/usr/local/lib',
+                       '/opt/3di/lib', '~/local/lib']
+        known_paths = [os.path.expanduser(path) for path in known_paths]
+        for lib_path in known_paths:
+            if os.path.exists(os.path.join(lib_path, _libname())):
+                logging.info("Using known path: {}".format(lib_path))
+                return os.path.join(lib_path, _libname())
+    raise RuntimeError("library not found")
+
+
+subgrid = ctypes.cdll.LoadLibrary(_library_path())
 
 subgrid.changebathy.argtypes = [ctypes.c_double] * 4
 subgrid.changebathy.restype = ctypes.c_int
