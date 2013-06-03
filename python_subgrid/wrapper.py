@@ -1,6 +1,5 @@
 from __future__ import print_function
 from ctypes import POINTER, create_string_buffer, byref, c_int, c_char_p
-import collections
 import ctypes
 import functools
 import logging
@@ -68,9 +67,9 @@ subgrid.subgrid_arraypointer.restype = None
 subgrid.changebathy.argtypes = [ctypes.c_double] * 5
 subgrid.changebathy.restype = ctypes.c_int
 
-subgrid.discharge.argtypes = [ctypes.POINTER(ctypes.c_double), 
-                              ctypes.POINTER(ctypes.c_double), c_char_p, 
-                              ctypes.POINTER(ctypes.c_int), 
+subgrid.discharge.argtypes = [ctypes.POINTER(ctypes.c_double),
+                              ctypes.POINTER(ctypes.c_double), c_char_p,
+                              ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_double)]
 subgrid.discharge.restype = ctypes.c_int
 
