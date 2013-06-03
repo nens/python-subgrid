@@ -131,7 +131,7 @@ class LibSubgridTest(unittest.TestCase):
 
         #libsubgrid.funcall('finalizemodel')
 
-    def xtest_manhole(self):
+    def test_manhole(self):
         print
         print '############ test manhole'
         abs_path = os.path.join(scenario_basedir,
