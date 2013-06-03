@@ -1,5 +1,4 @@
 from __future__ import print_function
-from ctypes import POINTER, create_string_buffer, byref, c_int, c_char_p
 import ctypes
 import functools
 import logging
@@ -67,7 +66,7 @@ subgrid.changebathy.restype = ctypes.c_int
 
 subgrid.discharge.argtypes = [ctypes.POINTER(ctypes.c_double),
                               ctypes.POINTER(ctypes.c_double),
-                              c_char_p,
+                              ctypes.c_char_p,
                               ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_double)]
 subgrid.discharge.restype = ctypes.c_int
@@ -76,7 +75,8 @@ subgrid.discharge.restype = ctypes.c_int
 # subgrid.get_0d_double.argtypes = [POINTER(c_double)]
 # subgrid.get_0d_double.restype = None
 
-subgrid.get_var_rank.argtypes = [c_char_p, POINTER(c_int)]
+subgrid.get_var_rank.argtypes = [ctypes.c_char_p,
+                                 ctypes.POINTER(ctypes.c_int)]
 subgrid.get_var_rank.restype = None
 
 arraytype2 = ndpointer(dtype='int32',
@@ -84,12 +84,12 @@ arraytype2 = ndpointer(dtype='int32',
                        shape=(MAXDIMS,),
                        flags='F')
 shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
-subgrid.get_var_shape.argtypes = [c_char_p, arraytype2]
-subgrid.get_var_type.argtypes = [c_char_p, c_char_p]
+subgrid.get_var_shape.argtypes = [ctypes.c_char_p, arraytype2]
+subgrid.get_var_type.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
 
 
 def get_nd(subgrid, name):
-    name = create_string_buffer(name)
+    name = ctypes.create_string_buffer(name)
     rank = subgrid.get_var_rank(name)
     shape = subgrid.get_var_shape(name)
     type_ = subgrid.get_var_type(name)
@@ -101,10 +101,10 @@ def get_nd(subgrid, name):
     # Create a pointer to the array type
     data = arraytype()
     get_nd_type_ = getattr(subgrid, 'get_nd'.format(rank=rank, type=type_))
-    get_nd_type_.argtypes = [c_char_p, POINTER(arraytype)]
+    get_nd_type_.argtypes = [ctypes.c_char_p, ctypes.POINTER(arraytype)]
     get_nd_type_.restype = None
     # Get the array
-    get_nd_type_(name, byref(data))
+    get_nd_type_(name, ctypes.byref(data))
     array = np.asarray(data)
     # Not sure why we need this....
     array = np.reshape(array.ravel(), shape, order='F')
