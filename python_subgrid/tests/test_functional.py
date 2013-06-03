@@ -81,7 +81,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.finalizemodel()  # Need to finalize before re-initializing
 
-    def xtest_init(self):
+    def test_init(self):
         print
         print '########### test init: we try to initialize multiple times'
         abs_path = os.path.join(scenario_basedir,
@@ -131,7 +131,7 @@ class LibSubgridTest(unittest.TestCase):
 
         #libsubgrid.funcall('finalizemodel')
 
-    def test_manhole(self):
+    def xtest_manhole(self):
         print
         print '############ test manhole'
         abs_path = os.path.join(scenario_basedir,
@@ -259,7 +259,7 @@ class LibSubgridTest(unittest.TestCase):
     # #         xc, yc, sz, bval, bmode)
     # #     #libsubgrid.funcall('finalizemodel')
 
-    def xtest_floodfill(self):
+    def test_floodfill(self):
         print
         print '########### test floodfill'
         abs_path = os.path.join(scenario_basedir,
