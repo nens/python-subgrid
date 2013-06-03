@@ -49,9 +49,6 @@ def _library_path():
 
 subgrid = ctypes.cdll.LoadLibrary(_library_path())
 
-subgrid.changebathy.argtypes = [ctypes.c_double] * 4
-subgrid.changebathy.restype = ctypes.c_int
-
 subgrid.update.argtypes = [ctypes.c_double]
 subgrid.update.restype = ctypes.c_int
 
