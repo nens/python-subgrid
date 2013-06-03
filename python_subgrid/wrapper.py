@@ -48,56 +48,61 @@ def _library_path():
 
 subgrid = ctypes.cdll.LoadLibrary(_library_path())
 
-arraytype1 = ndpointer(dtype='double',
-                       ndim=3,
-                       shape=(2, 3, 4),
-                       flags='F')
-arraytype2 = ndpointer(dtype='int32',
+
+shapearray = ndpointer(dtype='int32',
                        ndim=1,
                        shape=(MAXDIMS,),
                        flags='F')
 
 FUNCTIONS = [
-    {'name': 'update',
-     'argtypes': [ctypes.c_double],
-     'restype': ctypes.c_int,
-     },
-    {'name': 'getwaterlevel',
-     'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
-     'restype': ctypes.c_int,
-     },
-    {'name': 'subgrid_arraypointer',
-     'argtypes': [ctypes.POINTER(arraytype1)],
-     'restype': None,
-     },
-    {'name': 'changebathy',
-     'argtypes': [ctypes.c_double] * 5,
-     'restype': ctypes.c_int,
-     },
-    {'name': 'discharge',
-     'argtypes': [ctypes.POINTER(ctypes.c_double),
-                  ctypes.POINTER(ctypes.c_double),
-                  ctypes.c_char_p,
-                  ctypes.POINTER(ctypes.c_int),
-                  ctypes.POINTER(ctypes.c_double)],
-     'restype': ctypes.c_int,
-     },
-    {'name': 'get_var_rank',
-     'argtypes': [ctypes.c_char_p,
-                  ctypes.POINTER(ctypes.c_int)],
-     'restype': None,
-     },
-    {'name': 'get_var_shape',
-     'argtypes': [ctypes.c_char_p,
-                  arraytype2],
-     'restype': None,  # TODO: check this! Originally unspecified.
-     },
-    {'name': 'get_var_type',
-     'argtypes': [ctypes.c_char_p,
-                  ctypes.c_char_p],
-     'restype': None,  # TODO: check this! Originally unspecified.
-     },
-    ]
+    {
+        'name': 'update',
+        'argtypes': [ctypes.c_double],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'getwaterlevel',
+        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'changebathy',
+        'argtypes': [ctypes.c_double] * 5,
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'discharge',
+        'argtypes': [ctypes.POINTER(ctypes.c_double),
+                     ctypes.POINTER(ctypes.c_double),
+                     ctypes.c_char_p,
+                     ctypes.POINTER(ctypes.c_int),
+                     ctypes.POINTER(ctypes.c_double)],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'dropinstantrain',
+        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 4,
+        'restype': ctypes.c_int
+    },
+    {
+        'name': 'get_var_rank',
+        'argtypes': [ctypes.c_char_p,
+                     ctypes.POINTER(ctypes.c_int)],
+        'restype': None,
+    },
+    {
+        'name': 'get_var_shape',
+        'argtypes': [ctypes.c_char_p,
+                     shapearray],
+        'restype': None,  # Subroutine (no return type)
+    },
+    {
+        'name': 'get_var_type',
+        'argtypes': [ctypes.c_char_p,
+                     ctypes.c_char_p],
+        'restype': None,  # subroutine
+    }
+]
 
 for function in FUNCTIONS:
     api_function = getattr(subgrid, function['name'])
