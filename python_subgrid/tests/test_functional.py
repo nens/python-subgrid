@@ -39,7 +39,9 @@ DEFAULT_SCENARIO = 'DelflandiPad'
 scenario_basedir = os.getcwd()
 if 'SCENARIO_BASEDIR' in os.environ:
     scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
-print 'Scenario base dir: %s' % scenario_basedir
+
+MODELS_AVAILABLE = os.path.exists(os.path.join(scenario_basedir,
+                                               DEFAULT_SCENARIO))
 
 
 def load_model(path, mdu_filename):
@@ -53,6 +55,7 @@ def load_model(path, mdu_filename):
         # TODO: Jack: raise exception, or something else?
 
 
+@unittest.skipIf(not MODELS_AVAILABLE, "Scenario models not available")
 class LibSubgridTest(unittest.TestCase):
 
     def setUp(self):
