@@ -48,47 +48,70 @@ def _library_path():
 
 subgrid = ctypes.cdll.LoadLibrary(_library_path())
 
-subgrid.update.argtypes = [ctypes.c_double]
-subgrid.update.restype = ctypes.c_int
-
-subgrid.getwaterlevel.argtypes = [ctypes.POINTER(ctypes.c_double)] * 3
-subgrid.getwaterlevel.restype = ctypes.c_int
-
 arraytype1 = ndpointer(dtype='double',
                        ndim=3,
                        shape=(2, 3, 4),
                        flags='F')
-subgrid.subgrid_arraypointer.argtypes = [ctypes.POINTER(arraytype1)]
-subgrid.subgrid_arraypointer.restype = None
+arraytype2 = ndpointer(dtype='int32',
+                       ndim=1,
+                       shape=(MAXDIMS,),
+                       flags='F')
 
-subgrid.changebathy.argtypes = [ctypes.c_double] * 5
-subgrid.changebathy.restype = ctypes.c_int
+FUNCTIONS = [
+    {'name': 'update',
+     'argtypes': [ctypes.c_double],
+     'restype': ctypes.c_int,
+     },
+    {'name': 'getwaterlevel',
+     'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
+     'restype': ctypes.c_int,
+     },
+    {'name': 'subgrid_arraypointer',
+     'argtypes': [ctypes.POINTER(arraytype1)],
+     'restype': None,
+     },
+    {'name': 'changebathy',
+     'argtypes': [ctypes.c_double] * 5,
+     'restype': ctypes.c_int,
+     },
+    {'name': 'discharge',
+     'argtypes': [ctypes.POINTER(ctypes.c_double),
+                  ctypes.POINTER(ctypes.c_double),
+                  ctypes.c_char_p,
+                  ctypes.POINTER(ctypes.c_int),
+                  ctypes.POINTER(ctypes.c_double)],
+     'restype': ctypes.c_int,
+     },
+    {'name': 'get_var_rank',
+     'argtypes': [ctypes.c_char_p,
+                  ctypes.POINTER(ctypes.c_int)],
+     'restype': None,
+     },
+    {'name': 'get_var_shape',
+     'argtypes': [ctypes.c_char_p,
+                  arraytype2],
+     'restype': None,  # TODO: check this! Originally unspecified.
+     },
+    {'name': 'get_var_type',
+     'argtypes': [ctypes.c_char_p,
+                  ctypes.c_char_p],
+     'restype': None,  # TODO: check this! Originally unspecified.
+     },
+    ]
 
-subgrid.discharge.argtypes = [ctypes.POINTER(ctypes.c_double),
-                              ctypes.POINTER(ctypes.c_double),
-                              ctypes.c_char_p,
-                              ctypes.POINTER(ctypes.c_int),
-                              ctypes.POINTER(ctypes.c_double)]
-subgrid.discharge.restype = ctypes.c_int
+for function in FUNCTIONS:
+    api_function = getattr(subgrid, function['name'])
+    api_function.argtypes = function['argtypes']
+    api_function.restype = function['restype']
+
 
 # TODO
 # subgrid.get_0d_double.argtypes = [POINTER(c_double)]
 # subgrid.get_0d_double.restype = None
 
-subgrid.get_var_rank.argtypes = [ctypes.c_char_p,
-                                 ctypes.POINTER(ctypes.c_int)]
-subgrid.get_var_rank.restype = None
-
-arraytype2 = ndpointer(dtype='int32',
-                       ndim=1,
-                       shape=(MAXDIMS,),
-                       flags='F')
-shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
-subgrid.get_var_shape.argtypes = [ctypes.c_char_p, arraytype2]
-subgrid.get_var_type.argtypes = [ctypes.c_char_p, ctypes.c_char_p]
-
 
 def get_nd(subgrid, name):
+    shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
     name = ctypes.create_string_buffer(name)
     rank = subgrid.get_var_rank(name)
     shape = subgrid.get_var_shape(name)

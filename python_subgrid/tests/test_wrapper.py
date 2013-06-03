@@ -1,3 +1,4 @@
+import ctypes
 import unittest
 
 import mock
@@ -29,3 +30,14 @@ class TestHelperFunctions(unittest.TestCase):
     @mock.patch('os.environ', {'SUBGRID_PATH': 'somewhere'})
     def test_library_path2(self):
         self.assertTrue('libsubgrid' in wrapper._library_path())
+
+
+class TestWrappedFunctions(unittest.TestCase):
+
+    def test_update1(self):
+        self.assertEquals(wrapper.subgrid.update.argtypes,
+                          [ctypes.c_double])
+
+    def test_update2(self):
+        self.assertEquals(wrapper.subgrid.update.restype,
+                          ctypes.c_int)
