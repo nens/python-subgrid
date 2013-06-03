@@ -55,16 +55,19 @@ subgrid.update.restype = ctypes.c_int
 subgrid.getwaterlevel.argtypes = [ctypes.POINTER(ctypes.c_double)] * 3
 subgrid.getwaterlevel.restype = ctypes.c_int
 
-arraytype = ndpointer(
-    dtype='double', ndim=3, shape=(2, 3, 4), flags='F')
-subgrid.subgrid_arraypointer.argtypes = [ctypes.POINTER(arraytype)]
+arraytype1 = ndpointer(dtype='double',
+                       ndim=3,
+                       shape=(2, 3, 4),
+                       flags='F')
+subgrid.subgrid_arraypointer.argtypes = [ctypes.POINTER(arraytype1)]
 subgrid.subgrid_arraypointer.restype = None
 
 subgrid.changebathy.argtypes = [ctypes.c_double] * 5
 subgrid.changebathy.restype = ctypes.c_int
 
 subgrid.discharge.argtypes = [ctypes.POINTER(ctypes.c_double),
-                              ctypes.POINTER(ctypes.c_double), c_char_p,
+                              ctypes.POINTER(ctypes.c_double),
+                              c_char_p,
                               ctypes.POINTER(ctypes.c_int),
                               ctypes.POINTER(ctypes.c_double)]
 subgrid.discharge.restype = ctypes.c_int
@@ -76,12 +79,12 @@ subgrid.discharge.restype = ctypes.c_int
 subgrid.get_var_rank.argtypes = [c_char_p, POINTER(c_int)]
 subgrid.get_var_rank.restype = None
 
-arraytype = ndpointer(dtype='int32',
-                      ndim=1,
-                      shape=(MAXDIMS,),
-                      flags='F')
+arraytype2 = ndpointer(dtype='int32',
+                       ndim=1,
+                       shape=(MAXDIMS,),
+                       flags='F')
 shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
-subgrid.get_var_shape.argtypes = [c_char_p, arraytype]
+subgrid.get_var_shape.argtypes = [c_char_p, arraytype2]
 subgrid.get_var_type.argtypes = [c_char_p, c_char_p]
 
 
