@@ -37,3 +37,5 @@ the ``SCENARIO_BASEDIR`` environment variable. Either set it globally or run
 the tests like this, for instance::
 
     $ SCENARIO_BASEDIR=../subgridf90/testcases bin/test
+
+If the scenarios cannot be found, the functional model tests are skipped, btw.
