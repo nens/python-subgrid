@@ -147,12 +147,10 @@ class SubgridWrapper(object):
 
     def _load_model(self):
         os.chdir(os.path.dirname(self.mdu))
-        mdu_filename = ctypes.create_string_buffer(self.mdu)
-        exit_code = self.library.loadmodel(mdu_filename)
+        exit_code = self.library.loadmodel(self.mdu)
         if exit_code:
-            msg = "Loading model {mdu_filename} failed with exit code {code}"
-            raise RuntimeError(msg.format(mdu_filename=mdu_filename,
-                                          code=exit_code))
+            msg = "Loading model {mdu} failed with exit code {code}"
+            raise RuntimeError(msg.format(mdu=self.mdu, code=exit_code))
 
     def __enter__(self):
         self.library = self._load_library()
