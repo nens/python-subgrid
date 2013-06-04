@@ -20,6 +20,20 @@ environment variable::
 Usage
 -----
 
+The library is loaded with a context manager::
+
+    >>> from python_subgrid.wrapper import SubgridWrapper
+    >>> with SubgridWrapper() as subgrid:
+    ...     # subgrid is the actual fortran library.
+    ...     subgrid.something()
+
+Most often you want to load a model. All the model initialization/teardown is
+handled for you, including changing directory to the model's directory (and
+back afterwards). Just pass the full path to the ``*.mdu`` file::
+
+    >>> with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
+    ...     subgrid.something()
+
 
 Automatic tests
 ---------------

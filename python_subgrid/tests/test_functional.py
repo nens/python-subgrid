@@ -5,7 +5,7 @@ import unittest
 import os
 import ctypes
 
-from python_subgrid.wrapper import subgrid
+from python_subgrid.wrapper import SubgridWrapper
 # from numpy.ctypeslib import ndpointer
 
 
@@ -44,56 +44,31 @@ MODELS_AVAILABLE = os.path.exists(os.path.join(scenario_basedir,
                                                DEFAULT_SCENARIO))
 
 
-def load_model(path, mdu_filename):
-    os.chdir(path)
-    #mdu_filename_20 = '%-20s' % mdu_filename
-    mdu_string_buffer = ctypes.create_string_buffer(mdu_filename)
-    #ierr = libsubgrid.funcall('loadmodel', "args[1]", mdu_string_buffer)
-    ierr = subgrid.loadmodel(mdu_string_buffer)
-    if ierr != 0:
-        print 'ERROR!'
-        # TODO: Jack: raise exception, or something else?
-
-
 @unittest.skipIf(not MODELS_AVAILABLE, "Scenario models not available")
 class LibSubgridTest(unittest.TestCase):
 
     def setUp(self):
-        #libsubgrid.funcall('startup')
-        self.startdir = os.getcwd()
-        subgrid.startup()
-        self.model_initialized = False
+        self.default_mdu = self._mdu_path(DEFAULT_SCENARIO)
+        pass
 
     def tearDown(self):
-        if self.model_initialized:
-            subgrid.finalizemodel()
-        subgrid.shutdown()
-        os.chdir(self.startdir)
+        pass
+
+    def _mdu_path(self, scenario):
+        abs_path = os.path.join(scenario_basedir,
+                                scenarios[scenario]['path'])
+        return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
     def test_info(self):
-        print subgrid.subgrid_info()
+        with SubgridWrapper() as subgrid:
+            print subgrid.subgrid_info()
 
-    def xtest_load(self):
+    def test_load(self):
         print
-        print '########### test load'
-        for i in xrange(3):
-            print 'test load %r' % i
-            abs_path = os.path.join(scenario_basedir,
-                                    scenarios[DEFAULT_SCENARIO]['path'])
-            load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-            subgrid.initmodel()
-            subgrid.finalizemodel()  # Need to finalize before re-initializing
-
-    def xtest_init(self):
-        print
-        print '########### test init: we try to initialize multiple times'
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios[DEFAULT_SCENARIO]['path'])
-        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        for i in xrange(3):
-            print 'test initmodel %r' % i
-            subgrid.initmodel()
-        self.model_initialized = True
+        print '########### test multiple load'
+        for i in range(2):
+            with SubgridWrapper(mdu=self.default_mdu):
+                print 'test load #%r' % i
 
     # def test_arraypointer(self):
     #     """"arrays: see bmi.py:get_nd, get , set / rank, shape, type"""
@@ -118,62 +93,29 @@ class LibSubgridTest(unittest.TestCase):
     def test_timesteps(self):
         print
         print '########### test timesteps'
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios[DEFAULT_SCENARIO]['path'])
-        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        subgrid.initmodel()
-        self.model_initialized = True
-
-        for i in xrange(10):
-            print 'doing %d...' % i
-            # print libsubgrid.funcall(
-            #     'update',
-            #     'ctypes.byref(ctypes.c_double(-1))')
-            print subgrid.update(ctypes.c_double(-1))
-            # -1 = use default model timestep.
-
-        #libsubgrid.funcall('finalizemodel')
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            for i in xrange(10):
+                print 'doing %d...' % i
+                # print libsubgrid.funcall(
+                #     'update',
+                #     'ctypes.byref(ctypes.c_double(-1))')
+                print subgrid.update(ctypes.c_double(-1))
+                # -1 = use default model timestep.
 
     def test_manhole(self):
         print
         print '############ test manhole'
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios[DEFAULT_SCENARIO]['path'])
-        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        subgrid.initmodel()
-        self.model_initialized = True
-
-        manhole_name = ctypes.create_string_buffer('test_manhole')
-        x = ctypes.byref(ctypes.c_double(85830.97071920538))
-        y = ctypes.byref(ctypes.c_double(448605.8983910042))
-        discharge_value = ctypes.byref(ctypes.c_double(100.0))
-        itype = ctypes.byref(ctypes.c_int(1))
-        subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-        for i in xrange(100):
-            print 'doing %d...' % i
-            subgrid.update(ctypes.c_double(-1))
-        #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
-
-    def xtest_manhole2(self):
-        print
-        print '############ test manhole'
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios[DEFAULT_SCENARIO]['path'])
-        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        subgrid.initmodel()
-        self.model_initialized = True
-
-        manhole_name = ctypes.create_string_buffer('test_manhole')
-        x = ctypes.byref(ctypes.c_double(86037.8041921395))
-        y = ctypes.byref(ctypes.c_double(448650.0491667506))
-        discharge_value = ctypes.byref(ctypes.c_double(100.0))
-        itype = ctypes.byref(ctypes.c_int(1))
-        subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-        for i in xrange(10):
-            print 'doing %d...' % i
-            subgrid.update(ctypes.c_double(-1))
-        #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
-  
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = ctypes.create_string_buffer('test_manhole')
+            x = ctypes.byref(ctypes.c_double(85830.97071920538))
+            y = ctypes.byref(ctypes.c_double(448605.8983910042))
+            discharge_value = ctypes.byref(ctypes.c_double(100.0))
+            itype = ctypes.byref(ctypes.c_int(1))
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            for i in xrange(100):
+                print 'doing %d...' % i
+                subgrid.update(ctypes.c_double(-1))
+            #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     # def test_get_water_level(self):
     #     print
@@ -283,126 +225,56 @@ class LibSubgridTest(unittest.TestCase):
     # #         xc, yc, sz, bval, bmode)
     # #     #libsubgrid.funcall('finalizemodel')
 
-    def xtest_floodfill(self):
+    @unittest.skip("This one segfaults")
+    def test_floodfill(self):
         print
         print '########### test floodfill'
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios['betondorp']['path'])
-        load_model(abs_path, scenarios['betondorp']['mdu_filename'])
-        subgrid.initmodel()
-        self.model_initialized = True
+        with SubgridWrapper(mdu=self._mdu_path('betondorp')) as subgrid:
 
-        x = ctypes.c_double(125176.875732)
-        y = ctypes.c_double(483812.708018)
-        level = ctypes.c_double(-1.00)
-        mode = ctypes.c_int(1)
+            x = ctypes.c_double(125176.875732)
+            y = ctypes.c_double(483812.708018)
+            level = ctypes.c_double(-1.00)
+            mode = ctypes.c_int(1)
 
-        # libsubgrid.funcall(
-        #     'floodfilling',
-        #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-        #     x, y, level, mode)
-        subgrid.floodfilling(
-            ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-            ctypes.byref(mode))
+            subgrid.floodfilling(
+                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
+                ctypes.byref(mode))
 
-        x = ctypes.c_double(125176.875732)
-        y = ctypes.c_double(483812.708018)
-        level = ctypes.c_double(-0.80)
-        mode = ctypes.c_int(1)
+            x = ctypes.c_double(125176.875732)
+            y = ctypes.c_double(483812.708018)
+            level = ctypes.c_double(-0.80)
+            mode = ctypes.c_int(1)
 
-        subgrid.floodfilling(
-            ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-            ctypes.byref(mode))
+            subgrid.floodfilling(
+                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
+                ctypes.byref(mode))
 
-        x = ctypes.c_double(125176.875732)
-        y = ctypes.c_double(483812.708018)
-        level = ctypes.c_double(-0.60)
-        mode = ctypes.c_int(1)
+            x = ctypes.c_double(125176.875732)
+            y = ctypes.c_double(483812.708018)
+            level = ctypes.c_double(-0.60)
+            mode = ctypes.c_int(1)
 
-        subgrid.floodfilling(
-            ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-            ctypes.byref(mode))
+            subgrid.floodfilling(
+                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
+                ctypes.byref(mode))
 
-        x = ctypes.c_double(125176.875732)
-        y = ctypes.c_double(483812.708018)
-        level = ctypes.c_double(-0.40)
-        mode = ctypes.c_int(1)
+            x = ctypes.c_double(125176.875732)
+            y = ctypes.c_double(483812.708018)
+            level = ctypes.c_double(-0.40)
+            mode = ctypes.c_int(1)
 
-        subgrid.floodfilling(
-            ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-            ctypes.byref(mode))
+            subgrid.floodfilling(
+                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
+                ctypes.byref(mode))
 
-        x = ctypes.c_double(125176.875732)
-        y = ctypes.c_double(483812.708018)
-        level = ctypes.c_double(-0.20)
-        mode = ctypes.c_int(1)
+            x = ctypes.c_double(125176.875732)
+            y = ctypes.c_double(483812.708018)
+            level = ctypes.c_double(-0.20)
+            mode = ctypes.c_int(1)
 
-        subgrid.floodfilling(
-            ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-            ctypes.byref(mode))
-
-        #libsubgrid.funcall('finalizemodel')
-        self.model_initialized = True
-
-    # # def test_floodfill2(self):
-    # #     print
-    # #     print '########### test floodfill'
-    # #     abs_path = os.path.join('/home/user/3di/Case Hillegersberg')
-    # #     load_model(abs_path, 'Hillegersberg.mdu')
-    # #     libsubgrid.funcall('initmodel')
-    # #     self.model_initialized = True
-
-    # #     x = ctypes.c_double(89022.231659)
-    # #     y = ctypes.c_double(440488.157517)
-    # #     level = ctypes.c_double(1.0)
-    # #     mode = ctypes.c_int(0)
-
-    # #     libsubgrid.funcall(
-    # #         'floodfilling',
-    # #         'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-    # #         x, y, level, mode)
-
-    # #     x = ctypes.c_double(89308.862230)
-    # #     y = ctypes.c_double(440743.378386)
-    # #     level = ctypes.c_double(1.0)
-    # #     mode = ctypes.c_int(0)
-
-    # #     libsubgrid.funcall(
-    # #     'floodfilling',
-    # #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-    # #     x, y, level, mode)
-
-    # #     # x = ctypes.c_double(125176.875732)
-    # #     # y = ctypes.c_double(483812.708018)
-    # #     # level = ctypes.c_double(-0.60)
-    # #     # mode = ctypes.c_int(1)
-
-    # #     # libsubgrid.funcall(
-    # #     #     'floodfilling',
-    # #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-    # #     #     x, y, level, mode)
-
-    # #     # x = ctypes.c_double(125176.875732)
-    # #     # y = ctypes.c_double(483812.708018)
-    # #     # level = ctypes.c_double(-0.40)
-    # #     # mode = ctypes.c_int(1)
-
-    # #     # libsubgrid.funcall(
-    # #     #     'floodfilling',
-    # #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-    # #     #     x, y, level, mode)
-
-    # #     # x = ctypes.c_double(125176.875732)
-    # #     # y = ctypes.c_double(483812.708018)
-    # #     # level = ctypes.c_double(-0.20)
-    # #     # mode = ctypes.c_int(1)
-
-    # #     # libsubgrid.funcall(
-    # #     #     'floodfilling',
-    # #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3]), ctypes.byref(args[4])',
-    # #     #     x, y, level, mode)
-
-    # #     #libsubgrid.funcall('finalizemodel')
+            subgrid.floodfilling(
+                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
+                ctypes.byref(mode))
 
 
 # For Martijn

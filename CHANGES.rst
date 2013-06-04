@@ -5,7 +5,13 @@ Changelog of python-subgrid
 0.2 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- The fortran library is loaded through a "with" context manager now. The
+  previous version loaded it upon importing the ``wrapper.py`` file, handling
+  everything on the main module level.
+
+  The current approach is cleaner and takes care of startup/shutdown code and
+  model initialization/cleanup automatically. The latter depends on the
+  fortran code to function well, which at the moment is not the case yet.
 
 
 0.1 (2013-06-04)
