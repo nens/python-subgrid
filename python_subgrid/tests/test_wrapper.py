@@ -40,6 +40,14 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertEquals(type(self.wrapper._load_library()),
                           ctypes.CDLL)
 
+    def test_load_model_exception(self):
+        self.wrapper.mdu = os.path.join(os.getcwd(), 'non-existing.mdu')
+        # ^^^ in the current directory so the os.chdir() is OK.
+        self.wrapper.library = mock.Mock()
+        exit_code = 1
+        self.wrapper.library.loadmodel = lambda self: exit_code
+        self.assertRaises(RuntimeError, self.wrapper._load_model)
+
 
 class TestWrapper(unittest.TestCase):
 
