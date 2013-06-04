@@ -101,7 +101,7 @@ FUNCTIONS = [
         'argtypes': [ctypes.c_char_p,
                      ctypes.c_char_p],
         'restype': None,  # subroutine
-    }
+    },
 ]
 
 for function in FUNCTIONS:

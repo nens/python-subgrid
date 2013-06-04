@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.1 (unreleased)
+0.1 (2013-06-04)
 ----------------
 
 - Refactored the wrapper to make the code cleaner and more testable.
