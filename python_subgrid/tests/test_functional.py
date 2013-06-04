@@ -84,7 +84,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.finalizemodel()  # Need to finalize before re-initializing
 
-    def test_init(self):
+    def xtest_init(self):
         print
         print '########### test init: we try to initialize multiple times'
         abs_path = os.path.join(scenario_basedir,
@@ -115,7 +115,7 @@ class LibSubgridTest(unittest.TestCase):
     #     [ 2.  2.  2.  2.]]]
     #     """
 
-    def xtest_timesteps(self):
+    def test_timesteps(self):
         print
         print '########### test timesteps'
         abs_path = os.path.join(scenario_basedir,
@@ -149,10 +149,31 @@ class LibSubgridTest(unittest.TestCase):
         discharge_value = ctypes.byref(ctypes.c_double(100.0))
         itype = ctypes.byref(ctypes.c_int(1))
         subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+        for i in xrange(100):
+            print 'doing %d...' % i
+            subgrid.update(ctypes.c_double(-1))
+        #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
+
+    def xtest_manhole2(self):
+        print
+        print '############ test manhole'
+        abs_path = os.path.join(scenario_basedir,
+                                scenarios[DEFAULT_SCENARIO]['path'])
+        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
+        subgrid.initmodel()
+        self.model_initialized = True
+
+        manhole_name = ctypes.create_string_buffer('test_manhole')
+        x = ctypes.byref(ctypes.c_double(86037.8041921395))
+        y = ctypes.byref(ctypes.c_double(448650.0491667506))
+        discharge_value = ctypes.byref(ctypes.c_double(100.0))
+        itype = ctypes.byref(ctypes.c_int(1))
+        subgrid.discharge(x, y, manhole_name, itype, discharge_value)
         for i in xrange(10):
             print 'doing %d...' % i
             subgrid.update(ctypes.c_double(-1))
         #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
+  
 
     # def test_get_water_level(self):
     #     print
@@ -262,7 +283,7 @@ class LibSubgridTest(unittest.TestCase):
     # #         xc, yc, sz, bval, bmode)
     # #     #libsubgrid.funcall('finalizemodel')
 
-    def test_floodfill(self):
+    def xtest_floodfill(self):
         print
         print '########### test floodfill'
         abs_path = os.path.join(scenario_basedir,
