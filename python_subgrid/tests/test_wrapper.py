@@ -36,15 +36,19 @@ class TestHelperFunctions(unittest.TestCase):
         with mock.patch('os.environ', {'SUBGRID_PATH': where}):
             self.assertTrue('libsubgrid' in self.wrapper._library_path())
 
+    def test_load_library(self):
+        self.assertEquals(type(self.wrapper._load_library()),
+                          ctypes.CDLL)
 
-class TestWrappedFunctions(unittest.TestCase):
 
-    def test_update1(self):
+class TestWrapper(unittest.TestCase):
+
+    def test_annotate_functions1(self):
         with wrapper.SubgridWrapper() as subgrid:
             self.assertEquals(subgrid.update.argtypes,
                               [ctypes.c_double])
 
-    def test_update2(self):
+    def test_annotate_functions2(self):
         with wrapper.SubgridWrapper() as subgrid:
             self.assertEquals(subgrid.update.restype,
                               ctypes.c_int)
