@@ -5,6 +5,8 @@ Changelog of python-subgrid
 0.1 (unreleased)
 ----------------
 
+- Refactored the wrapper to make the code cleaner and more testable.
+
 - If the models aren't available, the functional model tests are skipped. This
   makes for quicker tests if you want to test just the internal unittests.
 
