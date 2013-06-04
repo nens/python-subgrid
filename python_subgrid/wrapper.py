@@ -1,3 +1,7 @@
+"""
+This module provides a ctypes wrapper around the fortran 'subgrid' library.
+
+"""
 from __future__ import print_function
 import ctypes
 import functools
@@ -103,8 +107,28 @@ def get_nd(subgrid, name):
 
 
 class SubgridWrapper(object):
+    """Context manager that provides the actual ctypes subgrid wrapper.
+
+    The regular way to use it is with a ``with`` statement::
+
+        >>> with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
+        ...     subgrid.something()
+
+    Without the ``mdu`` argument, no model is loaded and you're free to use
+    the library as you want.
+
+    """
 
     def __init__(self, mdu=None):
+        """Initialize the class.
+
+        The ``mdu`` argument should be the path to a model's ``*.mdu``
+        file.
+
+        Nothing much should happen here so that the code remains easy to
+        test. Most of the library-related initialization happens in the
+        :method:`__enter__` method.
+        """
         self.mdu = mdu
         self.original_dir = os.getcwd()
 
@@ -118,7 +142,16 @@ class SubgridWrapper(object):
         return 'libsubgrid' + suffix
 
     def _library_path(self):
-        """Return full path to subgridf90 shared library."""
+        """Return full path to subgridf90 shared library.
+
+        A couple of regular unix paths like ``/usr/lib/`` is searched by
+        default. If your library is not in one of those, set a
+        ``SUBGRID_PATH`` environement variable to the directory with your
+        shared library.
+
+        If the library cannot be found, a ``RuntimeError`` with debug
+        information is raised.
+        """
         known_paths = ['/usr/lib', '/usr/local/lib',
                        '/opt/3di/lib', '~/local/lib']
         # ^^^ Do not add your own path here!
@@ -136,6 +169,7 @@ class SubgridWrapper(object):
         raise RuntimeError(msg)
 
     def _load_library(self):
+        """Return the fortran library, loaded with ctypes."""
         return ctypes.cdll.LoadLibrary(self._library_path())
 
     def _annotate_functions(self):
