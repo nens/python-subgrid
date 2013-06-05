@@ -69,7 +69,7 @@ FUNCTIONS = [
         'name': 'get_var_type',
         'argtypes': [ctypes.c_char_p,
                      ctypes.c_char_p],
-        'restype': None,  # subroutine
+        'restype': None,  # Subroutine
     },
     {
         'name': 'loadmodel',
@@ -127,7 +127,7 @@ class SubgridWrapper(object):
 
         Nothing much should happen here so that the code remains easy to
         test. Most of the library-related initialization happens in the
-        :method:`__enter__` method.
+        :meth:`__enter__` method.
         """
         self.mdu = mdu
         self.original_dir = os.getcwd()
@@ -173,6 +173,18 @@ class SubgridWrapper(object):
         return ctypes.cdll.LoadLibrary(self._library_path())
 
     def _annotate_functions(self):
+        """Help ctypes by telling it type information about Fortran functions.
+
+        Functions in the loaded Fortran library are called through ctypes. The
+        variables inside Fortran don't automatically translate to and from
+        Python variables. We can help ctypes a lot by telling it about the
+        argument types and return type(s) of the various functions.
+
+        The annotations also make our own life easier as it allows ctypes to
+        do a lot of type conversions automatically for us. We can pass in a
+        string now without needing to convert it to a pointer first.
+
+        """
         for function in FUNCTIONS:
             api_function = getattr(self.library, function['name'])
             api_function.argtypes = function['argtypes']
@@ -186,17 +198,52 @@ class SubgridWrapper(object):
             msg = "Loading model {mdu} failed with exit code {code}"
             raise RuntimeError(msg.format(mdu=self.mdu, code=exit_code))
 
-    def __enter__(self):
+    def start(self):
+        """Initialize and load the Fortran library (and model, if applicable).
+
+        The Fortran library is loaded and ctypes is used to annotate functions
+        inside the library. The Fortran library's initialization is called.
+
+        Normally a path to an ``*.mdu`` model file is passed to the
+        :meth:`__init__`. If so, that model is loaded. Note that
+        :meth:`_load_model` changes the working directory to that of the model.
+
+        """
         self.library = self._load_library()
         self._annotate_functions()
         self.library.startup()  # Fortran init function.
         if self.mdu:
             self._load_model()
-        return self.library
 
-    def __exit__(self, type, value, tb):
+    def stop(self):
+        """Shutdown the library and clean up the model.
+
+        Note that the Fortran library's cleanup code is not up to snuff yet,
+        so the cleanup is not perfect. Note also that the working directory is
+        changed back to the original one.
+
+        """
         if self.mdu:
             self.library.finalizemodel()
         self.library.shutdown()  # Fortran cleanup function.
         # del self.library  # This one doesn't work.
         os.chdir(self.original_dir)
+
+    def __enter__(self):
+        """Return Fortran library upon entering the ``with`` block.
+
+        We call the :meth:`start` method which starts everything up. Our
+        return value is the Fortran library. This is what you get back from
+        ``with ... as ...`` so that you can call Fortran functions on it.
+
+        """
+        self.start()
+        return self.library
+
+    def __exit__(self, type, value, tb):
+        """Clean up what can be cleaned upon exiting the ``with`` block.
+
+        We call the :meth:`stop` method that does the actual work.
+
+        """
+        self.stop()
