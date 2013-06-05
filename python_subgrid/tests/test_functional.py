@@ -133,11 +133,13 @@ class LibSubgridTest(unittest.TestCase):
         print
         print '############ test rain'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
             manhole_name = ctypes.create_string_buffer('test_manhole')
             x = ctypes.byref(ctypes.c_double(85830.97071920538))
             y = ctypes.byref(ctypes.c_double(448605.8983910042))
             clouddiam = ctypes.byref(ctypes.c_double(100.0))
             rainfall = ctypes.byref(ctypes.c_double(0.01))
+            print 'going to do some timesteps'
             for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
