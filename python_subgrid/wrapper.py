@@ -111,8 +111,8 @@ class SubgridWrapper(object):
 
     The regular way to use it is with a ``with`` statement::
 
-        >>> with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
-        ...     subgrid.something()
+        with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
+            subgrid.something()
 
     Without the ``mdu`` argument, no model is loaded and you're free to use
     the library as you want.
