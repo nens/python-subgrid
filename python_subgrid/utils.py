@@ -22,6 +22,7 @@ def generate_functions_documentation():
 
     This function is installed via a setuptools console script entry point as
     a script with the same name.
+
     """
     # Assumption: we're called from the root fo the project.
     target_dir = './doc/source/'

@@ -43,6 +43,10 @@ and talking to the Fortran library. Two methods interact with ctypes:
 
 .. automethod:: SubgridWrapper._annotate_functions
 
+.. note::
+
+   See the :doc:`fortran_functions` documentation!
+
 
 Helper methods
 --------------

@@ -23,6 +23,10 @@ SHAPEARRAY = ndpointer(dtype='int32',
                        ndim=1,
                        shape=(MAXDIMS,),
                        flags='F')
+
+# If you make changes in FUNCTIONS, run
+# 'bin/generate_functions_documentation' to re-generate the automatic
+# documentation in ./doc/source/fortran_functions.rst.
 FUNCTIONS = [
     {
         'name': 'update',
