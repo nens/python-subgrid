@@ -20,19 +20,24 @@ environment variable::
 Usage
 -----
 
-The library is loaded with a context manager::
+There are two ways to use the wrapper. A handy way is as a context
+manager, so with a ``with`` statement::
 
-    >>> from python_subgrid.wrapper import SubgridWrapper
-    >>> with SubgridWrapper() as subgrid:
-    ...     # subgrid is the actual fortran library.
-    ...     subgrid.something()
+    with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
+        # subgrid is the actual fortran library.
+        subgrid.something()
 
-Most often you want to load a model. All the model initialization/teardown is
-handled for you, including changing directory to the model's directory (and
-back afterwards). Just pass the full path to the ``*.mdu`` file::
+The second way is by calling :meth:`start` and :meth:`stop` yourself and
+using the :attr:`library` attribute to access the Fortran library::
 
-    >>> with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
-    ...     subgrid.something()
+    wrapper = SubgridWrapper(mdu='/full/path/model.mdu')
+    wrapper.start()
+    wrapper.library.something()
+    ...
+    wrapper.stop()
+
+Note: Without the ``mdu`` argument, no model is loaded and you're free to
+use the library as you want.
 
 
 Automatic tests

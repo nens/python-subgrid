@@ -117,6 +117,7 @@ class SubgridWrapper(object):
     manager, so with a ``with`` statement::
 
         with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
+            # subgrid is the actual fortran library.
             subgrid.something()
 
     The second way is by calling :meth:`start` and :meth:`stop` yourself and
@@ -125,6 +126,7 @@ class SubgridWrapper(object):
         wrapper = SubgridWrapper(mdu='/full/path/model.mdu')
         wrapper.start()
         wrapper.library.something()
+        # wrapper.library is the actual fortran library.
         ...
         wrapper.stop()
 
