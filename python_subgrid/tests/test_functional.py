@@ -112,8 +112,35 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = ctypes.byref(ctypes.c_double(100.0))
             itype = ctypes.byref(ctypes.c_int(1))
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(100):
+            for i in xrange(10):
                 print 'doing %d...' % i
+                subgrid.update(ctypes.c_double(-1))
+            #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
+
+    def test_discard_manhole(self):
+        print
+        print '############ test discard manhole'
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = ctypes.create_string_buffer('test_manhole')
+            x = ctypes.byref(ctypes.c_double(85830.97071920538))
+            y = ctypes.byref(ctypes.c_double(448605.8983910042))
+            discharge_value = ctypes.byref(ctypes.c_double(100.0))
+            itype = ctypes.byref(ctypes.c_int(1))
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            subgrid.discard_manhole(x, y)
+
+    def test_rain(self):
+        print
+        print '############ test rain'
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = ctypes.create_string_buffer('test_manhole')
+            x = ctypes.byref(ctypes.c_double(85830.97071920538))
+            y = ctypes.byref(ctypes.c_double(448605.8983910042))
+            clouddiam = ctypes.byref(ctypes.c_double(100.0))
+            rainfall = ctypes.byref(ctypes.c_double(0.01))
+            for i in xrange(10):
+                print 'doing %d...' % i
+                subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 subgrid.update(ctypes.c_double(-1))
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
