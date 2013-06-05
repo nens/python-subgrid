@@ -138,7 +138,7 @@ class SubgridWrapper(object):
 
         Nothing much should happen here so that the code remains easy to
         test. Most of the library-related initialization happens in the
-        :meth:`__enter__` method.
+        :meth:`start` method.
         """
         self.mdu = mdu
         self.original_dir = os.getcwd()

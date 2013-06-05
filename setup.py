@@ -37,5 +37,7 @@ setup(name='python-subgrid',
       extras_require={'test': tests_require},
       entry_points={
           'console_scripts': [
-          ]},
+            '{0} = python_subgrid.utils:{0}'.format(
+                'generate_functions_documentation'),
+            ]},
       )

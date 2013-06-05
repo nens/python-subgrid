@@ -9,6 +9,7 @@ basic usage instructions.
    :maxdepth: 2
 
    code
+   fortran_functions
    project
 
 
