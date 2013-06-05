@@ -107,17 +107,28 @@ def get_nd(subgrid, name):
 
 
 class SubgridWrapper(object):
-    """Context manager that provides the actual ctypes subgrid wrapper.
+    """Wrapper around the ctypes-loaded Fortran subgrid library.
 
-    The regular way to use it is with a ``with`` statement::
+    There are two ways to use the wrapper. A handy way is as a context
+    manager, so with a ``with`` statement::
 
         with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
             subgrid.something()
 
-    Without the ``mdu`` argument, no model is loaded and you're free to use
-    the library as you want.
+    The second way is by calling :meth:`start` and :meth:`stop` yourself and
+    using the :attr:`library` attribute to access the Fortran library::
+
+        wrapper = SubgridWrapper(mdu='/full/path/model.mdu')
+        wrapper.start()
+        wrapper.library.something()
+        ...
+        wrapper.stop()
+
+    Note: Without the ``mdu`` argument, no model is loaded and you're free to
+    use the library as you want.
 
     """
+    library = None
 
     def __init__(self, mdu=None):
         """Initialize the class.

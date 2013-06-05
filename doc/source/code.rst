@@ -11,9 +11,17 @@ you use it with the ``with`` statement.
 
 .. automethod:: SubgridWrapper.__init__
 
+.. automethod:: SubgridWrapper.start
+
+.. automethod:: SubgridWrapper.stop
+
 
 Context manager: ``with ... as ...``
 ------------------------------------
+
+:class:`SubgridWrapper` is also usable as a handy `context manager
+<http://docs.python.org/2/reference/datamodel.html#context-managers>`_. Basically,
+you use it with the ``with`` statement.
 
 When you enter and exit the ``with`` block, Python executes the
 :meth:`SubgridWrapper.__enter__` and :meth:`SubgridWrapper.__exit__`
