@@ -26,8 +26,7 @@ def generate_functions_documentation():
     """
     # Assumption: we're called from the root fo the project.
     target_dir = './doc/source/'
-    if not os.path.exists(target_dir):
-        raise RuntimeError("Target dir %s doesn't exist." % target_dir)
+    assert os.path.exists(target_dir), "Target dir %s doesn't exist." % target_dir
     # Local import, utils is bound to importered, itself, too.
     out = ''
     from python_subgrid.wrapper import FUNCTIONS
