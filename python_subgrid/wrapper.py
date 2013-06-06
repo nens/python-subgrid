@@ -34,13 +34,41 @@ FUNCTIONS = [
         'restype': ctypes.c_int,
     },
     {
-        'name': 'getwaterlevel',
-        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
+        'name': 'startup',
+        'argtypes': [],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'shutdown',
+        'argtypes': [],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'loadmodel',
+        'argtypes': [ctypes.c_char_p],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'initmodel',
+        'argtypes': [],
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'finalizemodel',
+        'argtypes': [],
         'restype': ctypes.c_int,
     },
     {
         'name': 'changebathy',
         'argtypes': [ctypes.c_double] * 5,
+        'restype': ctypes.c_int,
+    },
+    {
+        'name': 'floodfilling',
+        'argtypes': [ctypes.POINTER(ctypes.c_double),
+                     ctypes.POINTER(ctypes.c_double),
+                     ctypes.POINTER(ctypes.c_double),
+                     ctypes.POINTER(ctypes.c_int)],
         'restype': ctypes.c_int,
     },
     {
@@ -53,9 +81,20 @@ FUNCTIONS = [
         'restype': ctypes.c_int,
     },
     {
+        'name': 'discard_manhole',
+        'argtypes': [ctypes.POINTER(ctypes.c_double),
+                     ctypes.POINTER(ctypes.c_double)],
+        'restype': ctypes.c_int,
+    },
+    {
         'name': 'dropinstantrain',
         'argtypes': [ctypes.POINTER(ctypes.c_double)] * 4,
         'restype': ctypes.c_int
+    },
+    {
+        'name': 'getwaterlevel',
+        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
+        'restype': ctypes.c_int,
     },
     {
         'name': 'get_var_rank',
@@ -74,11 +113,6 @@ FUNCTIONS = [
         'argtypes': [ctypes.c_char_p,
                      ctypes.c_char_p],
         'restype': None,  # Subroutine
-    },
-    {
-        'name': 'loadmodel',
-        'argtypes': [ctypes.c_char_p],
-        'restype': ctypes.c_int,
     },
 ]
 # TODO

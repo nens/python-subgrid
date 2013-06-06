@@ -8,7 +8,27 @@ Wrapped Fortran subgrid library functions
     Returns PyCSimpleType
 
 
-.. function:: getwaterlevel(PyCPointerType, PyCPointerType, PyCPointerType)
+.. function:: startup()
+
+    Returns PyCSimpleType
+
+
+.. function:: shutdown()
+
+    Returns PyCSimpleType
+
+
+.. function:: loadmodel(PyCSimpleType)
+
+    Returns PyCSimpleType
+
+
+.. function:: initmodel()
+
+    Returns PyCSimpleType
+
+
+.. function:: finalizemodel()
 
     Returns PyCSimpleType
 
@@ -18,12 +38,27 @@ Wrapped Fortran subgrid library functions
     Returns PyCSimpleType
 
 
+.. function:: floodfilling(PyCPointerType, PyCPointerType, PyCPointerType, PyCPointerType)
+
+    Returns PyCSimpleType
+
+
 .. function:: discharge(PyCPointerType, PyCPointerType, PyCSimpleType, PyCPointerType, PyCPointerType)
 
     Returns PyCSimpleType
 
 
+.. function:: discard_manhole(PyCPointerType, PyCPointerType)
+
+    Returns PyCSimpleType
+
+
 .. function:: dropinstantrain(PyCPointerType, PyCPointerType, PyCPointerType, PyCPointerType)
+
+    Returns PyCSimpleType
+
+
+.. function:: getwaterlevel(PyCPointerType, PyCPointerType, PyCPointerType)
 
     Returns PyCSimpleType
 
@@ -41,9 +76,4 @@ Wrapped Fortran subgrid library functions
 .. function:: get_var_type(PyCSimpleType, PyCSimpleType)
 
     Returns NoneType
-
-
-.. function:: loadmodel(PyCSimpleType)
-
-    Returns PyCSimpleType
 
