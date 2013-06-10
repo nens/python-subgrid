@@ -1,6 +1,45 @@
 """Utilities. For the moment documentation-generation related."""
 from __future__ import print_function
 import os
+import ctypes
+import platform
+import logging
+import collections
+
+SUFFIXES = collections.defaultdict(lambda:'.so')
+SUFFIXES['Darwin'] = '.dylib'
+SUFFIXES['Windows'] = '.dll'
+SUFFIX = SUFFIXES[platform.system()]
+
+# Utility functions for library unloading
+def isloaded(lib):
+    """return true if library is loaded"""
+    libp = os.path.abspath(lib)
+    # posix check to see if library is loaded
+    ret = os.system("lsof -p %d | grep %s > /dev/null" % (os.getpid(), libp))
+    return (ret == 0)
+
+def dlclose(lib):
+    """force unload of the library"""
+    handle = lib._handle
+    # this only works on posix I think....
+    # windows should use something like:
+    # http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152(v=vs.85).aspx
+    name = 'libdl' + SUFFIX[platform.system()]
+    libdl = ctypes.cdll.LoadLibrary(name)
+    libdl.dlerror.restype = ctypes.c_char_p
+    libdl.dlclose.argtypes = [ctypes.c_void_p]
+    logging.debug('Closing dll (%x)',handle)
+    rc = libdl.dlclose(handle)
+    if rc!=0:
+        logging.debug('Closing failed, looking up error message')
+        error = libdl.dlerror()
+        logging.debug('Closing dll returned %s (%s)', rc, error)
+        if error == 'invalid handle passed to dlclose()':
+            raise ValueError(error)
+    else:
+        logging.debug('Closed')
+
 
 
 FUNCTIONS_HEADER = """

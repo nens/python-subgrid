@@ -106,20 +106,20 @@ class LibSubgridTest(unittest.TestCase):
     def test_dropinstantrain(self):
         abs_path = os.path.join(scenario_basedir,
                                 scenarios[DEFAULT_SCENARIO]['path'])
-        load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-        subgrid.initmodel()
-        self.model_initialized = True
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            self.model_initialized = True
 
-        x = ctypes.c_double(85830.97071920538)
-        y = ctypes.c_double(448605.8983910042)
-        clouddiam = ctypes.c_double(100.0)
-        rainfall = ctypes.c_double(100.0)
-        # do ome timesteps
-        for i in xrange(10):
-            # rain
-            subgrid.dropinstantrain(x, y, clouddiam, rainfall)
-            # compute
-            subgrid.update(ctypes.c_double(-1))
+            x = ctypes.c_double(85830.97071920538)
+            y = ctypes.c_double(448605.8983910042)
+            clouddiam = ctypes.c_double(100.0)
+            rainfall = ctypes.c_double(100.0)
+            # do ome timesteps
+            for i in xrange(10):
+                # rain
+                subgrid.dropinstantrain(x, y, clouddiam, rainfall)
+                # compute
+                subgrid.update(ctypes.c_double(-1))
     def test_manhole(self):
         print
         print '############ test manhole'

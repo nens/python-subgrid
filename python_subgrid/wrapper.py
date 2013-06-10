@@ -13,12 +13,15 @@ from numpy.ctypeslib import ndpointer
 import numpy as np
 
 
+
+
 MAXDIMS = 6
 TYPEMAP = {
     "int": "int32",
     "double": "double",
     "float": "float32"
 }
+
 SHAPEARRAY = ndpointer(dtype='int32',
                        ndim=1,
                        shape=(MAXDIMS,),
