@@ -104,8 +104,6 @@ class LibSubgridTest(unittest.TestCase):
 
     #@unittest.skip("Test skip")
     def test_dropinstantrain(self):
-        abs_path = os.path.join(scenario_basedir,
-                                scenarios[DEFAULT_SCENARIO]['path'])
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             self.model_initialized = True
@@ -154,7 +152,6 @@ class LibSubgridTest(unittest.TestCase):
         print '############ test rain'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
-            manhole_name = ctypes.create_string_buffer('test_manhole')
             x = ctypes.byref(ctypes.c_double(85830.97071920538))
             y = ctypes.byref(ctypes.c_double(448605.8983910042))
             clouddiam = ctypes.byref(ctypes.c_double(100.0))
