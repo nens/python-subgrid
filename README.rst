@@ -17,6 +17,30 @@ environment variable::
 
 (On windows the command is ``set`` instead of ``export``).
 
+
+Mostly-standard compilation configuration on ubuntu
+---------------------------------------------------
+
+A mostly standard installation on ubuntu (which is also used on the jenkins
+test server and on the demo website) uses the standard ubuntu netcdf
+packages and fortran::
+
+    $ sudo apt-get install libnetcdf-dev libnetcdf6 gfortran
+
+And we use the regular configure/make/make install steps with two changes::
+
+    $ ./autogen.sh  # Try it without. If something breaks, run it.
+    $ FCFLAGS="-I/usr/include" ./configure --prefix=/opt/3di
+    $ make
+    $ make install
+
+The two changes:
+
+- ``FCFLAGS`` to let fortran find the ubuntu netcdf packages.
+
+- A ``--prefix`` to install it into ``/opt/3di/``.
+
+
 Usage
 -----
 
