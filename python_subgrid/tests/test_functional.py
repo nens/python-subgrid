@@ -47,7 +47,6 @@ MODELS_AVAILABLE = os.path.exists(os.path.join(scenario_basedir,
                                                DEFAULT_SCENARIO))
 
 
-
 @unittest.skipIf(not MODELS_AVAILABLE, "Scenario models not available")
 class LibSubgridTest(unittest.TestCase):
 
@@ -121,6 +120,7 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
                 subgrid.update(ctypes.c_double(-1))
+
     def test_manhole(self):
         print
         print '############ test manhole'
@@ -222,7 +222,6 @@ class LibSubgridTest(unittest.TestCase):
     #     #unittest.assertTrue((level.value - -1.4157227881505232) < EPSILON)
 
     #     #libsubgrid.funcall('finalizemodel')
-
 
     # def test_changebathy(self):
     #     print

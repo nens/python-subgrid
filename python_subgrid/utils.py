@@ -6,10 +6,11 @@ import platform
 import logging
 import collections
 
-SUFFIXES = collections.defaultdict(lambda:'.so')
+SUFFIXES = collections.defaultdict(lambda: '.so')
 SUFFIXES['Darwin'] = '.dylib'
 SUFFIXES['Windows'] = '.dll'
 SUFFIX = SUFFIXES[platform.system()]
+
 
 # Utility functions for library unloading
 def isloaded(lib):
@@ -19,19 +20,20 @@ def isloaded(lib):
     ret = os.system("lsof -p %d | grep %s > /dev/null" % (os.getpid(), libp))
     return (ret == 0)
 
+
 def dlclose(lib):
     """force unload of the library"""
     handle = lib._handle
     # this only works on posix I think....
     # windows should use something like:
-    # http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152(v=vs.85).aspx
+    # http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152(v=vs.85).aspx # pylint: disable-msg=W0501
     name = 'libdl' + SUFFIX[platform.system()]
     libdl = ctypes.cdll.LoadLibrary(name)
     libdl.dlerror.restype = ctypes.c_char_p
     libdl.dlclose.argtypes = [ctypes.c_void_p]
-    logging.debug('Closing dll (%x)',handle)
+    logging.debug('Closing dll (%x)', handle)
     rc = libdl.dlclose(handle)
-    if rc!=0:
+    if rc != 0:
         logging.debug('Closing failed, looking up error message')
         error = libdl.dlerror()
         logging.debug('Closing dll returned %s (%s)', rc, error)
@@ -39,7 +41,6 @@ def dlclose(lib):
             raise ValueError(error)
     else:
         logging.debug('Closed')
-
 
 
 FUNCTIONS_HEADER = """
