@@ -1,0 +1,28 @@
+{
+   <python cond free>
+   Memcheck:Cond
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python cond realloc>
+   Memcheck:Cond
+   ...
+   fun:PyObject_Realloc
+   ...
+}
+{
+   <python value8 free>
+   Memcheck:Value8
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python addr4 free>
+   Memcheck:Addr4
+   ...
+   fun:PyObject_Free
+   ...
+}
