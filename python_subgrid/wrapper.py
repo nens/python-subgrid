@@ -2,6 +2,7 @@
 This module provides a ctypes wrapper around the fortran 'subgrid' library.
 
 """
+
 from __future__ import print_function
 import ctypes
 import functools
@@ -12,7 +13,8 @@ import platform
 from numpy.ctypeslib import ndpointer
 import numpy as np
 
-
+import faulthandler
+faulthandler.enable()
 
 
 MAXDIMS = 6

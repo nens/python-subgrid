@@ -32,16 +32,20 @@ scenarios = {
     },
 }
 DEFAULT_SCENARIO = 'DelflandiPad'
+if 'SCENARIO' in os.environ:
+    DEFAULT_SCENARIO = os.environ['SCENARIO']
 
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them. An alternative is to set the
 # SCENARIO_BASEDIR environment variable.
 scenario_basedir = os.getcwd()
+print(os.environ)
 if 'SCENARIO_BASEDIR' in os.environ:
     scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
 
 MODELS_AVAILABLE = os.path.exists(os.path.join(scenario_basedir,
                                                DEFAULT_SCENARIO))
+
 
 
 @unittest.skipIf(not MODELS_AVAILABLE, "Scenario models not available")
@@ -102,7 +106,6 @@ class LibSubgridTest(unittest.TestCase):
                 print subgrid.update(ctypes.c_double(-1))
                 # -1 = use default model timestep.
 
-    #@unittest.skip("Test skip")
     def test_dropinstantrain(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -133,7 +136,6 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.update(ctypes.c_double(-1))
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
-    #@unittest.skip("Test skip")
     def test_discard_manhole(self):
         print
         print '############ test discard manhole'
@@ -146,7 +148,6 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
-    #@unittest.skip("Test skip")
     def test_rain(self):
         print
         print '############ test rain'
@@ -271,7 +272,6 @@ class LibSubgridTest(unittest.TestCase):
     # #         xc, yc, sz, bval, bmode)
     # #     #libsubgrid.funcall('finalizemodel')
 
-    @unittest.skip("This one segfaults in combination with test_discard_manhole")
     def test_floodfill(self):
         print
         print '########### test floodfill'
