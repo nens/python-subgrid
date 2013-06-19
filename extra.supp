@@ -20,9 +20,37 @@
    ...
 }
 {
+   <python value8 realloc>>
+   Memcheck:Value8
+   ...
+   fun:PyObject_Realloc
+   ...
+}
+{
    <python addr4 free>
    Memcheck:Addr4
    ...
    fun:PyObject_Free
+   ...
+}
+{
+   <python addr4 realloc>
+   Memcheck:Addr4
+   ...
+   fun:PyObject_Realloc
+   ...
+}
+{
+   <python addr8 free>
+   Memcheck:Addr8
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python addr8 realloc>
+   Memcheck:Addr8
+   ...
+   fun:PyObject_Realloc
    ...
 }
