@@ -18,12 +18,13 @@ environment variable::
 (On windows the command is ``set`` instead of ``export``).
 
 
-Mostly-standard compilation configuration on ubuntu
----------------------------------------------------
+Mostly-standard compilation of the Fortran library on Ubuntu
+------------------------------------------------------------
 
-A mostly standard installation on ubuntu (which is also used on the jenkins
-test server and on the demo website) uses the standard ubuntu netcdf
-packages and fortran::
+For the python wrapper we of course need the actual subgrid Fortran
+library so that we can wrap it. A mostly standard installation on
+ubuntu (which is also used on the jenkins test server and on the demo
+website) uses the standard ubuntu netcdf packages and fortran::
 
     $ sudo apt-get install libnetcdf-dev libnetcdf6 gfortran
 
