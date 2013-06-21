@@ -1,0 +1,13 @@
+<html>
+  <head>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    {% for mdu_file, output in view.not_loadable %}
+      <h2>{{ mdu_file }}</h2>
+      <p>Error message:</p>
+      <pre>{{ output }}</pre>
+    {% endfor %}
+  </body>
+</html>

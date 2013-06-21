@@ -1,0 +1,20 @@
+<html>
+  <head>
+    <title>{{ title }}</title>
+  </head>
+  <body>
+    <h1>{{ title }}</h1>
+    <ul>
+      <li>
+        <a href="loadable.html">
+          {{ view.loadable | length }} loadable MDU files.
+        </a>
+      </li>
+      <li>
+        <a href="not_loadable.html">
+          {{ view.not_loadable | length }} not loadable MDU files.
+        </a>
+      </li>
+    </ul>
+  </body>
+</html>

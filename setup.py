@@ -10,7 +10,8 @@ long_description = '\n\n'.join([
 
 install_requires = [
     'setuptools',
-    'faulthandler'
+    'faulthandler',
+    'Jinja2',
     ],
 
 tests_require = [
@@ -21,7 +22,7 @@ tests_require = [
 
 setup(name='python-subgrid',
       version=version,
-      description="TODO",
+      description="Python wrapper for the 3Di fortran subgrid library",
       long_description=long_description,
       # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[],
@@ -38,7 +39,8 @@ setup(name='python-subgrid',
       extras_require={'test': tests_require},
       entry_points={
           'console_scripts': [
-            '{0} = python_subgrid.utils:{0}'.format(
-                'generate_functions_documentation'),
-            ]},
-      )
+              '{0} = python_subgrid.utils:{0}'.format(
+                  'generate_functions_documentation'),
+              'verify = python_subgrid.verification:main',
+          ]},
+)
