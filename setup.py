@@ -11,6 +11,7 @@ long_description = '\n\n'.join([
 install_requires = [
     'setuptools',
     'faulthandler',
+    'netCDF4',
     'Jinja2',
     ],
 

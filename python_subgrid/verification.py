@@ -51,7 +51,7 @@ class Report(object):
 def check_his(instructions, report=None):
     netcdf_filename = 'subgrid_his.nc'
     with Dataset(netcdf_filename) as dataset:
-        logger.debug(dataset.variables)
+        logger.debug("Netcdf variables: %s", dataset.variables.keys())
         for instruction in instructions:
             # Brute force for now.
             parameter_name = instruction['param']
@@ -71,23 +71,23 @@ def check_his(instructions, report=None):
 def run_simulation(mdu_filepath, report):
     original_dir = os.getcwd()
     os.chdir(os.path.dirname(mdu_filepath))
-    logger.info("Running %s" % mdu_filepath)
     cmd = '/opt/3di/bin/subgridf90 ' + os.path.basename(mdu_filepath)
     exit_code, output = system(cmd)
     if exit_code:
-        logger.error("Loading failed")
+        logger.error("Loading failed: %s", mdu_filepath)
         report.record_not_loadable(mdu_filepath, output)
     else:
-        logger.info("Successfully loaded")
+        logger.info("Successfully loaded: %s", mdu_filepath)
         report.record_loadable(mdu_filepath, output)
         csv_filenames = [f for f in os.listdir('.') if f.endswith('.csv')]
         for csv_filename in csv_filenames:
             logger.info("Reading instructions from %s", csv_filename)
             with open(csv_filename) as csv_file:
                 instructions = list(csv.DictReader(csv_file, delimiter=';'))
-                print(instructions)
                 if 'his' in csv_filename:
                     check_his(instructions, report=report)
+                else:
+                    logger.warn("TODO: Handle this one")
     os.chdir(original_dir)
 
 
