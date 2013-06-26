@@ -28,6 +28,10 @@ website) uses the standard ubuntu netcdf packages and fortran::
 
     $ sudo apt-get install libnetcdf-dev libnetcdf6 gfortran
 
+For the python netcdf library compilation we need another package::
+
+    $ sudo apt-get install libhdf5-serial-dev
+
 And we use the regular configure/make/make install steps with two changes::
 
     $ ./autogen.sh  # Try it without. If something breaks, run it.
