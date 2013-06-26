@@ -88,6 +88,7 @@ def check_his(instructions, report=None):
 def run_simulation(mdu_filepath, report):
     original_dir = os.getcwd()
     os.chdir(os.path.dirname(mdu_filepath))
+    logger.debug("Loading %s...", mdu_filepath)
     cmd = '/opt/3di/bin/subgridf90 ' + os.path.basename(mdu_filepath)
     # ^^^ TODO: hardcoded.
     exit_code, output = system(cmd)
