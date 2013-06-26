@@ -35,7 +35,7 @@ SHAPEARRAY = ndpointer(dtype='int32',
 FUNCTIONS = [
     {
         'name': 'update',
-        'argtypes': [ctypes.c_double],
+        'argtypes': [ctypes.POINTER(ctypes.c_double)],
         'restype': ctypes.c_int,
     },
     {
@@ -209,7 +209,7 @@ class SubgridWrapper(object):
         information is raised.
         """
         known_paths = ['/usr/lib', '/usr/local/lib',
-                       '/opt/3di/lib', '~/local/lib']
+                       '/opt/3di/lib', '~/local/lib', '.']
         # ^^^ Do not add your own path here!
         lib_path_from_environment = os.environ.get('SUBGRID_PATH', '')
         if lib_path_from_environment:

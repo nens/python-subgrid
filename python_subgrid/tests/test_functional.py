@@ -102,7 +102,7 @@ class LibSubgridTest(unittest.TestCase):
                 # print libsubgrid.funcall(
                 #     'update',
                 #     'ctypes.byref(ctypes.c_double(-1))')
-                print subgrid.update(ctypes.c_double(-1))
+                print subgrid.update(ctypes.byref(ctypes.c_double(-1)))
                 # -1 = use default model timestep.
 
     def test_dropinstantrain(self):
@@ -119,7 +119,7 @@ class LibSubgridTest(unittest.TestCase):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
-                subgrid.update(ctypes.c_double(-1))
+                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
 
     def test_manhole(self):
         print
@@ -130,10 +130,10 @@ class LibSubgridTest(unittest.TestCase):
             y = ctypes.byref(ctypes.c_double(448605.8983910042))
             discharge_value = ctypes.byref(ctypes.c_double(100.0))
             itype = ctypes.byref(ctypes.c_int(1))
-            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            #subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             for i in xrange(10):
                 print 'doing %d...' % i
-                subgrid.update(ctypes.c_double(-1))
+                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     def test_discard_manhole(self):
@@ -161,7 +161,7 @@ class LibSubgridTest(unittest.TestCase):
             for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
-                subgrid.update(ctypes.c_double(-1))
+                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     # def test_get_water_level(self):
