@@ -173,3 +173,38 @@
    obj:/usr/bin/python.2.7
    ...
 }
+{
+   <python_cond_addchild>
+   Memcheck:Cond
+   ...
+   fun:PyNode_AddChild
+   ...
+}
+{
+   <python_value4_addchild>
+   Memcheck:Value4
+   ...
+   fun:PyNode_AddChild
+   ...
+}
+{
+   <python_value8_addchild>
+   Memcheck:Value8
+   ...
+   fun:PyNode_AddChild
+   ...
+}
+{
+   <python_addr4_addchild>
+   Memcheck:Addr4
+   ...
+   fun:PyNode_AddChild
+   ...
+}
+{
+   <python_addr8_addchild>
+   Memcheck:Addr8
+   ...
+   fun:PyNode_AddChild
+   ...
+}
