@@ -1,6 +1,69 @@
 {
+   <python cond resize>
+   Memcheck:Cond
+   ...
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python value4 resize>
+   Memcheck:Value4
+   ...
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python value8 resize>
+   Memcheck:Value8
+   ...
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python addr4 resize>
+   Memcheck:Addr4
+   ...
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python addr8 resize>
+   Memcheck:Addr8
+   ...
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
    <python cond free>
    Memcheck:Cond
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python value4 free>
+   Memcheck:Value4
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python value8 free>
+   Memcheck:Value8
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python addr4 free>
+   Memcheck:Addr4
+   ...
+   fun:PyObject_Free
+   ...
+}
+{
+   <python addr8 free>
+   Memcheck:Addr8
    ...
    fun:PyObject_Free
    ...
@@ -13,24 +76,17 @@
    ...
 }
 {
-   <python value8 free>
-   Memcheck:Value8
-   ...
-   fun:PyObject_Free
-   ...
-}
-{
-   <python value8 realloc>>
-   Memcheck:Value8
+   <python value4 realloc>
+   Memcheck:Value4
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python addr4 free>
-   Memcheck:Addr4
+   <python value8 realloc>
+   Memcheck:Value8
    ...
-   fun:PyObject_Free
+   fun:PyObject_Realloc
    ...
 }
 {
@@ -41,16 +97,79 @@
    ...
 }
 {
-   <python addr8 free>
-   Memcheck:Addr8
-   ...
-   fun:PyObject_Free
-   ...
-}
-{
    <python addr8 realloc>
    Memcheck:Addr8
    ...
    fun:PyObject_Realloc
+   ...
+}
+{
+   <python cond stringresize>
+   Memcheck:Cond
+   ...
+   fun:_PyString_Resize
+   ...
+}
+{
+   <python value4 stringresize>
+   Memcheck:Value4
+   ...
+   fun:_PyString_Resize
+   ...
+}
+{
+   <python value8 stringresize>
+   Memcheck:Value8
+   ...
+   fun:_PyString_Resize
+   ...
+}
+{
+   <python addr4 stringresize>
+   Memcheck:Addr4
+   ...
+   fun:_PyString_Resize
+   ...
+}
+{
+   <python addr8 stringresize>
+   Memcheck:Addr8
+   ...
+   fun:_PyString_Resize
+   ...
+}
+{
+   <python cond python27>
+   Memcheck:Cond
+   ...
+   obj:/usr/bin/python.2.7
+   ...
+}
+{
+   <python value4 python27>
+   Memcheck:Value4
+   ...
+   obj:/usr/bin/python.2.7
+   ...
+}
+{
+   <python value8 python27>
+   Memcheck:Value8
+   ...
+   obj:/usr/bin/python.2.7
+   ...
+}
+{
+   <python addr4 python27>
+   Memcheck:Addr4
+   ...
+   obj:/usr/bin/python.2.7
+   ...
+}
+{
+   <python addr8 python27>
+   Memcheck:Addr8
+   ...
+   obj:/usr/bin/python.2.7
    ...
 }
