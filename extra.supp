@@ -243,3 +243,83 @@
    fun:PyAST_Compile
    ...
 }
+{
+   <python_cond_python27x10>
+   Memcheck:Cond
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+}
+{
+   <python_value4_python27x10>
+   Memcheck:Value4
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+}
+{
+   <python_value8_python27x10>
+   Memcheck:Value8
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+}
+{
+   <python_addr4_python27x10>
+   Memcheck:Addr4
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+}
+{
+   <python_addr8_python27x10>
+   Memcheck:Addr8
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+   obj:/usr/bin/python2.7
+}
