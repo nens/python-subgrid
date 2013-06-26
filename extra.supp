@@ -1,173 +1,173 @@
 {
-   <python cond resize>
+   <python_cond_resize>
    Memcheck:Cond
    ...
    fun:_PyObject_GC_Resize
    ...
 }
 {
-   <python value4 resize>
+   <python_value4_resize>
    Memcheck:Value4
    ...
    fun:_PyObject_GC_Resize
    ...
 }
 {
-   <python value8 resize>
+   <python_value8_resize>
    Memcheck:Value8
    ...
    fun:_PyObject_GC_Resize
    ...
 }
 {
-   <python addr4 resize>
+   <python_addr4_resize>
    Memcheck:Addr4
    ...
    fun:_PyObject_GC_Resize
    ...
 }
 {
-   <python addr8 resize>
+   <python_addr8_resize>
    Memcheck:Addr8
    ...
    fun:_PyObject_GC_Resize
    ...
 }
 {
-   <python cond free>
+   <python_cond_free>
    Memcheck:Cond
    ...
    fun:PyObject_Free
    ...
 }
 {
-   <python value4 free>
+   <python_value4_free>
    Memcheck:Value4
    ...
    fun:PyObject_Free
    ...
 }
 {
-   <python value8 free>
+   <python_value8_free>
    Memcheck:Value8
    ...
    fun:PyObject_Free
    ...
 }
 {
-   <python addr4 free>
+   <python_addr4_free>
    Memcheck:Addr4
    ...
    fun:PyObject_Free
    ...
 }
 {
-   <python addr8 free>
+   <python_addr8_free>
    Memcheck:Addr8
    ...
    fun:PyObject_Free
    ...
 }
 {
-   <python cond realloc>
+   <python_cond_realloc>
    Memcheck:Cond
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python value4 realloc>
+   <python_value4_realloc>
    Memcheck:Value4
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python value8 realloc>
+   <python_value8_realloc>
    Memcheck:Value8
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python addr4 realloc>
+   <python_addr4_realloc>
    Memcheck:Addr4
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python addr8 realloc>
+   <python_addr8_realloc>
    Memcheck:Addr8
    ...
    fun:PyObject_Realloc
    ...
 }
 {
-   <python cond stringresize>
+   <python_cond_stringresize>
    Memcheck:Cond
    ...
    fun:_PyString_Resize
    ...
 }
 {
-   <python value4 stringresize>
+   <python_value4_stringresize>
    Memcheck:Value4
    ...
    fun:_PyString_Resize
    ...
 }
 {
-   <python value8 stringresize>
+   <python_value8_stringresize>
    Memcheck:Value8
    ...
    fun:_PyString_Resize
    ...
 }
 {
-   <python addr4 stringresize>
+   <python_addr4_stringresize>
    Memcheck:Addr4
    ...
    fun:_PyString_Resize
    ...
 }
 {
-   <python addr8 stringresize>
+   <python_addr8_stringresize>
    Memcheck:Addr8
    ...
    fun:_PyString_Resize
    ...
 }
 {
-   <python cond python27>
+   <python_cond_python27>
    Memcheck:Cond
    ...
    obj:/usr/bin/python.2.7
    ...
 }
 {
-   <python value4 python27>
+   <python_value4_python27>
    Memcheck:Value4
    ...
    obj:/usr/bin/python.2.7
    ...
 }
 {
-   <python value8 python27>
+   <python_value8_python27>
    Memcheck:Value8
    ...
    obj:/usr/bin/python.2.7
    ...
 }
 {
-   <python addr4 python27>
+   <python_addr4_python27>
    Memcheck:Addr4
    ...
    obj:/usr/bin/python.2.7
    ...
 }
 {
-   <python addr8 python27>
+   <python_addr8_python27>
    Memcheck:Addr8
    ...
    obj:/usr/bin/python.2.7
