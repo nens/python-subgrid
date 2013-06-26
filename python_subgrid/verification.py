@@ -69,7 +69,13 @@ def check_his(instructions, report=None):
                 logger.debug("Looking up value for time %s", desired_time)
                 # TODO: less brute force, if possible.
                 time_values = list(dataset.variables['time'][:])
-                desired_index = time_values.index(desired_time)
+                try:
+                    desired_index = time_values.index(desired_time)
+                except ValueError:
+                    logger.exception("Time %s not found in %s",
+                                     desired_time,
+                                     time_values)
+                    continue
                 found = parameter_values[desired_index][0]
 
             desired = instruction['ref']
@@ -83,6 +89,7 @@ def run_simulation(mdu_filepath, report):
     original_dir = os.getcwd()
     os.chdir(os.path.dirname(mdu_filepath))
     cmd = '/opt/3di/bin/subgridf90 ' + os.path.basename(mdu_filepath)
+    # ^^^ TODO: hardcoded.
     exit_code, output = system(cmd)
     if exit_code:
         logger.error("Loading failed: %s", mdu_filepath)
