@@ -323,3 +323,38 @@
    obj:/usr/bin/python2.7
    obj:/usr/bin/python2.7
 }
+{
+   <python_cond_decodeutf8stateful>
+   Memcheck:Cond
+   ...
+   fun:PyUnicodeUCS4_DecodeUTF8Stateful
+   ...
+}
+{
+   <python_value4_decodeutf8stateful>
+   Memcheck:Value4
+   ...
+   fun:PyUnicodeUCS4_DecodeUTF8Stateful
+   ...
+}
+{
+   <python_value8_decodeutf8stateful>
+   Memcheck:Value8
+   ...
+   fun:PyUnicodeUCS4_DecodeUTF8Stateful
+   ...
+}
+{
+   <python_addr4_decodeutf8stateful>
+   Memcheck:Addr4
+   ...
+   fun:PyUnicodeUCS4_DecodeUTF8Stateful
+   ...
+}
+{
+   <python_addr8_decodeutf8stateful>
+   Memcheck:Addr8
+   ...
+   fun:PyUnicodeUCS4_DecodeUTF8Stateful
+   ...
+}
