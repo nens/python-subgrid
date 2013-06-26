@@ -51,16 +51,27 @@ class Report(object):
 def check_his(instructions, report=None):
     netcdf_filename = 'subgrid_his.nc'
     with Dataset(netcdf_filename) as dataset:
-        logger.debug("Netcdf variables: %s", dataset.variables.keys())
         for instruction in instructions:
             # Brute force for now.
             parameter_name = instruction['param']
+            if not parameter_name in dataset.variables:
+                logger.error("Parameter '%s' not found in %s",
+                             parameter_name,
+                             dataset.variables.keys())
+                continue
             parameter_values = dataset.variables[parameter_name][:]
-            time_values = list(dataset.variables['time'][:])
-            desired_time = float(instruction['time'])
-            desired_index = time_values.index(desired_time)
-            found = parameter_values[desired_index][0]
-            # ^^^ 'his' means 'sum everything'?
+            desired_time = instruction['time']
+            if desired_time == 'SUM':
+                logger.debug("Summing all values")
+                found = parameter_values.sum()
+            else:
+                desired_time = float(desired_time)
+                logger.debug("Looking up value for time %s", desired_time)
+                # TODO: less brute force, if possible.
+                time_values = list(dataset.variables['time'][:])
+                desired_index = time_values.index(desired_time)
+                found = parameter_values[desired_index][0]
+
             desired = instruction['ref']
             logger.info("Found value %s for parameter %s; desired=%s", 
                         found,
