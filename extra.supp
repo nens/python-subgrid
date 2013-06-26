@@ -208,3 +208,38 @@
    fun:PyNode_AddChild
    ...
 }
+{
+   <python_cond_compile>
+   Memcheck:Cond
+   ...
+   fun:PyAST_Compile
+   ...
+}
+{
+   <python_value4_compile>
+   Memcheck:Value4
+   ...
+   fun:PyAST_Compile
+   ...
+}
+{
+   <python_value8_compile>
+   Memcheck:Value8
+   ...
+   fun:PyAST_Compile
+   ...
+}
+{
+   <python_addr4_compile>
+   Memcheck:Addr4
+   ...
+   fun:PyAST_Compile
+   ...
+}
+{
+   <python_addr8_compile>
+   Memcheck:Addr8
+   ...
+   fun:PyAST_Compile
+   ...
+}
