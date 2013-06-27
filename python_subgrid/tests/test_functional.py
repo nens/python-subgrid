@@ -131,11 +131,11 @@ class LibSubgridTest(unittest.TestCase):
             y = 448605.8983910042
             discharge_value = 100.0
             itype = 1
-            #subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.update(-1)
-            #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
+                subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     def test_discard_manhole(self):
         print
@@ -295,7 +295,7 @@ class LibSubgridTest(unittest.TestCase):
             level = -0.60
             mode = 1
 
-            subgrid.floodfilling( x, y, level, mode)
+            subgrid.floodfilling(x, y, level, mode)
 
             x = 125176.875732
             y = 483812.708018

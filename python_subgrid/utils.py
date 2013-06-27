@@ -26,7 +26,7 @@ def dlclose(lib):
     handle = lib._handle
     # this only works on posix I think....
     # windows should use something like:
-    # http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152(v=vs.85).aspx # pylint: disable-msg=W0501
+    # http://msdn.microsoft.com/en-us/library/windows/desktop/ms683152(v=vs.85).aspx # pep8: disable-msg=W0501
     name = 'libdl' + SUFFIX[platform.system()]
     libdl = ctypes.cdll.LoadLibrary(name)
     libdl.dlerror.restype = ctypes.c_char_p
@@ -81,5 +81,3 @@ def generate_functions_documentation():
     filename = os.path.join(target_dir, 'fortran_functions.rst')
     open(filename, 'w').write(out)
     print("Wrote fortran functions to %s" % filename)
-
-

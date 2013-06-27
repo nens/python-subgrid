@@ -50,7 +50,7 @@ FUNCTIONS = [
     },
     {
         'name': 'loadmodel',
-        'argtypes': [ctypes.c_char_p], # I think this is a pointer to a char_p
+        'argtypes': [ctypes.c_char_p],  # I think this is a pointer to a char_p
         'restype': ctypes.c_int,
     },
     {
@@ -66,11 +66,11 @@ FUNCTIONS = [
     {
         'name': 'changebathy',
         'argtypes': [
-            ctypes.POINTER(ctypes.c_double), # xc
-            ctypes.POINTER(ctypes.c_double), # yc
-            ctypes.POINTER(ctypes.c_double), # size
-            ctypes.POINTER(ctypes.c_double), # bvalue
-            ctypes.POINTER(ctypes.c_int)     # bmode
+            ctypes.POINTER(ctypes.c_double),  # xc
+            ctypes.POINTER(ctypes.c_double),  # yc
+            ctypes.POINTER(ctypes.c_double),  # size
+            ctypes.POINTER(ctypes.c_double),  # bvalue
+            ctypes.POINTER(ctypes.c_int)      # bmode
                  ],
         'restype': ctypes.c_int,
     },
