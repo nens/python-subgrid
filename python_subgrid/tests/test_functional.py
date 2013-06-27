@@ -94,7 +94,6 @@ class LibSubgridTest(unittest.TestCase):
     #     [ 2.  2.  2.  2.]]]
     #     """
 
-    @unittest.skip('TODO: fix file handles')
     def test_timesteps(self):
         print
         print '########### test timesteps'
@@ -123,7 +122,6 @@ class LibSubgridTest(unittest.TestCase):
                 # compute
                 subgrid.update(-1)
 
-    @unittest.skip('TODO fix file handling')
     def test_manhole(self):
         print
         print '############ test manhole'
@@ -150,7 +148,7 @@ class LibSubgridTest(unittest.TestCase):
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
-    @unittest.skip('TODO: fix files')
+
     def test_rain(self):
         print
         print '############ test rain'
