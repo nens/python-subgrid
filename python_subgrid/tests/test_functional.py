@@ -102,7 +102,7 @@ class LibSubgridTest(unittest.TestCase):
                 # print libsubgrid.funcall(
                 #     'update',
                 #     'ctypes.byref(ctypes.c_double(-1))')
-                print subgrid.update(ctypes.byref(ctypes.c_double(-1)))
+                print subgrid.update(-1)
                 # -1 = use default model timestep.
 
     def test_dropinstantrain(self):
@@ -110,30 +110,30 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             self.model_initialized = True
 
-            x = ctypes.c_double(85830.97071920538)
-            y = ctypes.c_double(448605.8983910042)
-            clouddiam = ctypes.c_double(100.0)
-            rainfall = ctypes.c_double(100.0)
+            x = 85830.97071920538
+            y = 448605.8983910042
+            clouddiam = 100.0
+            rainfall = 100.0
             # do ome timesteps
             for i in xrange(10):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
-                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
+                subgrid.update(ctypes.byref((-1)))
 
     def test_manhole(self):
         print
         print '############ test manhole'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = ctypes.create_string_buffer('test_manhole')
-            x = ctypes.byref(ctypes.c_double(85830.97071920538))
-            y = ctypes.byref(ctypes.c_double(448605.8983910042))
-            discharge_value = ctypes.byref(ctypes.c_double(100.0))
-            itype = ctypes.byref(ctypes.c_int(1))
+            x = 85830.97071920538
+            y = 448605.8983910042
+            discharge_value = 100.0
+            itype = 1
             #subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             for i in xrange(10):
                 print 'doing %d...' % i
-                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
+                subgrid.update(-1)
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     def test_discard_manhole(self):
@@ -141,10 +141,10 @@ class LibSubgridTest(unittest.TestCase):
         print '############ test discard manhole'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = ctypes.create_string_buffer('test_manhole')
-            x = ctypes.byref(ctypes.c_double(85830.97071920538))
-            y = ctypes.byref(ctypes.c_double(448605.8983910042))
-            discharge_value = ctypes.byref(ctypes.c_double(100.0))
-            itype = ctypes.byref(ctypes.c_int(1))
+            x = 85830.97071920538
+            y = 448605.8983910042
+            discharge_value = 100.0
+            itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
@@ -153,15 +153,15 @@ class LibSubgridTest(unittest.TestCase):
         print '############ test rain'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
-            x = ctypes.byref(ctypes.c_double(85830.97071920538))
-            y = ctypes.byref(ctypes.c_double(448605.8983910042))
-            clouddiam = ctypes.byref(ctypes.c_double(100.0))
-            rainfall = ctypes.byref(ctypes.c_double(0.01))
+            x = 85830.97071920538
+            y = 448605.8983910042
+            clouddiam = 100.0
+            rainfall = 0.01
             print 'going to do some timesteps'
             for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
-                subgrid.update(ctypes.byref(ctypes.c_double(-1)))
+                subgrid.update(-1)
             #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     # def test_get_water_level(self):
@@ -276,50 +276,40 @@ class LibSubgridTest(unittest.TestCase):
         print '########### test floodfill'
         with SubgridWrapper(mdu=self._mdu_path('betondorp')) as subgrid:
 
-            x = ctypes.c_double(125176.875732)
-            y = ctypes.c_double(483812.708018)
-            level = ctypes.c_double(-1.00)
-            mode = ctypes.c_int(1)
+            x = 125176.875732
+            y = 483812.708018
+            level = -1.00
+            mode = 1
 
-            subgrid.floodfilling(
-                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-                ctypes.byref(mode))
+            subgrid.floodfilling(x, y, level, mode)
 
-            x = ctypes.c_double(125176.875732)
-            y = ctypes.c_double(483812.708018)
-            level = ctypes.c_double(-0.80)
-            mode = ctypes.c_int(1)
+            x = 125176.875732
+            y = 483812.708018
+            level = -0.80
+            mode = 1
 
-            subgrid.floodfilling(
-                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-                ctypes.byref(mode))
+            subgrid.floodfilling(x, y, level, mode)
 
-            x = ctypes.c_double(125176.875732)
-            y = ctypes.c_double(483812.708018)
-            level = ctypes.c_double(-0.60)
-            mode = ctypes.c_int(1)
+            x = 125176.875732
+            y = 483812.708018
+            level = -0.60
+            mode = 1
 
-            subgrid.floodfilling(
-                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-                ctypes.byref(mode))
+            subgrid.floodfilling( x, y, level, mode)
 
-            x = ctypes.c_double(125176.875732)
-            y = ctypes.c_double(483812.708018)
-            level = ctypes.c_double(-0.40)
-            mode = ctypes.c_int(1)
+            x = 125176.875732
+            y = 483812.708018
+            level = -0.40
+            mode = 1
 
-            subgrid.floodfilling(
-                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-                ctypes.byref(mode))
+            subgrid.floodfilling(x, y, level, mode)
 
-            x = ctypes.c_double(125176.875732)
-            y = ctypes.c_double(483812.708018)
-            level = ctypes.c_double(-0.20)
-            mode = ctypes.c_int(1)
+            x = 125176.875732
+            y = 483812.708018
+            level = 0.20
+            mode = 1
 
-            subgrid.floodfilling(
-                ctypes.byref(x), ctypes.byref(y), ctypes.byref(level),
-                ctypes.byref(mode))
+            subgrid.floodfilling(x, y, level, mode)
 
 
 # For Martijn

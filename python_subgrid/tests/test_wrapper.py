@@ -54,7 +54,7 @@ class TestWrapper(unittest.TestCase):
     def test_annotate_functions1(self):
         with wrapper.SubgridWrapper() as subgrid:
             self.assertEquals(subgrid.update.argtypes,
-                              [ctypes.c_double])
+                              [ctypes.POINTER(ctypes.c_double)])
 
     def test_annotate_functions2(self):
         with wrapper.SubgridWrapper() as subgrid:

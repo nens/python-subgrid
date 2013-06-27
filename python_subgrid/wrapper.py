@@ -209,7 +209,8 @@ class SubgridWrapper(object):
         information is raised.
         """
         known_paths = ['/usr/lib', '/usr/local/lib',
-                       '/opt/3di/lib', '~/local/lib', '.']
+                       '/opt/3di/lib', '~/local/lib',
+                       '~/.local/lib', '.']
         # ^^^ Do not add your own path here!
         lib_path_from_environment = os.environ.get('SUBGRID_PATH', '')
         if lib_path_from_environment:
