@@ -50,7 +50,7 @@ FUNCTIONS = [
     },
     {
         'name': 'loadmodel',
-        'argtypes': [ctypes.c_char_p],
+        'argtypes': [ctypes.c_char_p], # I think this is a pointer to a char_p
         'restype': ctypes.c_int,
     },
     {
@@ -65,7 +65,13 @@ FUNCTIONS = [
     },
     {
         'name': 'changebathy',
-        'argtypes': [ctypes.c_double] * 5,
+        'argtypes': [
+            ctypes.POINTER(ctypes.c_double), # xc
+            ctypes.POINTER(ctypes.c_double), # yc
+            ctypes.POINTER(ctypes.c_double), # size
+            ctypes.POINTER(ctypes.c_double), # bvalue
+            ctypes.POINTER(ctypes.c_int)     # bmode
+                 ],
         'restype': ctypes.c_int,
     },
     {
@@ -119,10 +125,12 @@ FUNCTIONS = [
                      ctypes.c_char_p],
         'restype': None,  # Subroutine
     },
+    {
+        'name': 'subgrid_info',
+        'argtypes': [],
+        'restype': None,
+    },
 ]
-# TODO
-# subgrid.get_0d_double.argtypes = [POINTER(c_double)]
-# subgrid.get_0d_double.restype = None
 
 
 def get_nd(subgrid, name):
@@ -156,16 +164,19 @@ class SubgridWrapper(object):
     manager, so with a ``with`` statement::
 
         with SubgridWrapper(mdu='/full/path/model.mdu') as subgrid:
-            # subgrid is the actual fortran library.
-            subgrid.something()
+            # subgrid is the wrapper around library.
+            subgrid.update(1.0)
+            # or you can call the library explicitly
+            subgrid.library.update(ctypes.byref(ctypes.c_double(1.0)))
 
     The second way is by calling :meth:`start` and :meth:`stop` yourself and
     using the :attr:`library` attribute to access the Fortran library::
 
         wrapper = SubgridWrapper(mdu='/full/path/model.mdu')
         wrapper.start()
-        wrapper.library.something()
-        # wrapper.library is the actual fortran library.
+        wrapper.update(1.0)
+        # or if you want to pass pointers
+        wrapper.library.update(ctypes.byref(ctypes.c_double(1.0)))
         ...
         wrapper.stop()
 
@@ -238,15 +249,45 @@ class SubgridWrapper(object):
         argument types and return type(s) of the various functions.
 
         The annotations also make our own life easier as it allows ctypes to
-        do a lot of type conversions automatically for us. We can pass in a
-        string now without needing to convert it to a pointer first.
+        do a lot of type conversions automatically for us. We can pass most values
+        without the need to convert to a pointer first.
+
+        On the wrapper.library the functions can be called as ctypes functions.
+        On the wrapper the functions can be called with python types.
 
         """
+        def wrap(func):
+            """wrap the function so we can do type conversion and sanity check"""
+            @functools.wraps(func, assigned=('restype', 'argtypes'))
+            def wrapped(*args):
+                if len(args) != len(func.argtypes):
+                    logging.warn("{} {} not of same length".format(args, func.argtypes))
+
+                typed_args = []
+                for (arg, argtype) in zip(args, func.argtypes):
+                    if isinstance(argtype._type_, str):
+                        # create a string buffer for strings
+                        typed_arg = ctypes.create_string_buffer(arg)
+                    else:
+                        # for other types, use the type to do the conversion
+                        typed_arg = argtype(argtype._type_(arg))
+                    typed_args.append(typed_arg)
+                result = func(*typed_args)
+                return result.contents if hasattr(result, 'contents') else result
+            return wrapped
         for function in FUNCTIONS:
             api_function = getattr(self.library, function['name'])
             api_function.argtypes = function['argtypes']
             api_function.restype = function['restype']
+            # decorate the function with type conversion,
+            # so we can pass in normal python stuff
+            # make sure the function properties are copied to the wrapper (normally copy __doc__ etc...)
+            # @functools.wraps(api_function,assigned=('restype','argtypes') )
+            f = wrap(api_function)
+            assert hasattr(f, 'argtypes')
+            setattr(self, function['name'], f)
         self.library.get_nd = functools.partial(get_nd, subgrid=self.library)
+        self.get_nd = self.library.get_nd
 
     def _load_model(self):
         os.chdir(os.path.dirname(self.mdu))
@@ -287,7 +328,7 @@ class SubgridWrapper(object):
         os.chdir(self.original_dir)
 
     def __enter__(self):
-        """Return Fortran library upon entering the ``with`` block.
+        """Return the decorated instance upon entering the ``with`` block.
 
         We call the :meth:`start` method which starts everything up. Our
         return value is the Fortran library. This is what you get back from
@@ -295,7 +336,7 @@ class SubgridWrapper(object):
 
         """
         self.start()
-        return self.library
+        return self
 
     def __exit__(self, type, value, tb):
         """Clean up what can be cleaned upon exiting the ``with`` block.

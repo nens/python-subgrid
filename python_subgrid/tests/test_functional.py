@@ -3,10 +3,11 @@ Test the library on desired behavior by running it on several models.
 """
 import unittest
 import os
-import ctypes
+import logging
+
+# We don't want to know about ctypes here, only in the test_wrapper and the wrapper itself.
 
 from python_subgrid.wrapper import SubgridWrapper
-# from numpy.ctypeslib import ndpointer
 
 
 EPSILON = 0.00000001
@@ -39,7 +40,7 @@ if 'SCENARIO' in os.environ:
 # means you need to create symlinks to them. An alternative is to set the
 # SCENARIO_BASEDIR environment variable.
 scenario_basedir = os.getcwd()
-print(os.environ)
+logging.debug("environment: {}".format(os.environ))
 if 'SCENARIO_BASEDIR' in os.environ:
     scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
 
@@ -64,7 +65,7 @@ class LibSubgridTest(unittest.TestCase):
 
     def test_info(self):
         with SubgridWrapper() as subgrid:
-            print subgrid.subgrid_info()
+            subgrid.subgrid_info()
 
     def test_load(self):
         print
@@ -93,6 +94,7 @@ class LibSubgridTest(unittest.TestCase):
     #     [ 2.  2.  2.  2.]]]
     #     """
 
+    @unittest.skip('TODO: fix file handles')
     def test_timesteps(self):
         print
         print '########### test timesteps'
@@ -119,13 +121,14 @@ class LibSubgridTest(unittest.TestCase):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
-                subgrid.update(ctypes.byref((-1)))
+                subgrid.update(-1)
 
+    @unittest.skip('TODO fix file handling')
     def test_manhole(self):
         print
         print '############ test manhole'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            manhole_name = ctypes.create_string_buffer('test_manhole')
+            manhole_name = 'test_manhole'
             x = 85830.97071920538
             y = 448605.8983910042
             discharge_value = 100.0
@@ -140,14 +143,14 @@ class LibSubgridTest(unittest.TestCase):
         print
         print '############ test discard manhole'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            manhole_name = ctypes.create_string_buffer('test_manhole')
+            manhole_name = 'test_manhole'
             x = 85830.97071920538
             y = 448605.8983910042
             discharge_value = 100.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
-
+    @unittest.skip('TODO: fix files')
     def test_rain(self):
         print
         print '############ test rain'
@@ -162,7 +165,6 @@ class LibSubgridTest(unittest.TestCase):
                 print 'doing %d...' % i
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 subgrid.update(-1)
-            #subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
     # def test_get_water_level(self):
     #     print
