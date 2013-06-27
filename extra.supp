@@ -1,12 +1,12 @@
 {
-   <python_leak_alloc>
+   <python_leak_malloc_alloc>
    Memcheck:Leak
    fun:malloc
    fun:_PyObject_GC_Malloc
    ...
 }
 {
-   <python_leak_trace>
+   <python_leak_malloc_trace>
    Memcheck:Leak
    fun:malloc
    obj:/usr/bin/python2.7
@@ -14,10 +14,84 @@
    ...
 }
 {
-   <python_leak_fromstring>
+   <python_leak_malloc_fromstring>
    Memcheck:Leak
    fun:malloc
    fun:PyString_FromStringAndSize
+   ...
+}
+{
+   <python_leak_malloc_resize>
+   Memcheck:Leak
+   fun:malloc
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python_leak_malloc_setattr>
+   Memcheck:Leak
+   fun:malloc
+   fun:_PyObject_GenericSetAttrWithDict
+   ...
+}
+{
+   <python_leak_malloc_import>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyImport_ExecCodeModuleEx
+   ...
+}
+{
+   <python_leak_realloc_alloc>
+   Memcheck:Leak
+   fun:realloc
+   fun:_PyObject_GC_Malloc
+   ...
+}
+{
+   <python_leak_realloc_trace>
+   Memcheck:Leak
+   fun:realloc
+   obj:/usr/bin/python2.7
+   fun:CTracer_trace
+   ...
+}
+{
+   <python_leak_realloc_fromstring>
+   Memcheck:Leak
+   fun:realloc
+   fun:PyString_FromStringAndSize
+   ...
+}
+{
+   <python_leak_realloc_resize>
+   Memcheck:Leak
+   fun:realloc
+   fun:_PyObject_GC_Resize
+   ...
+}
+{
+   <python_leak_realloc_setattr>
+   Memcheck:Leak
+   fun:realloc
+   fun:_PyObject_GenericSetAttrWithDict
+   ...
+}
+{
+   <python_leak_realloc_import>
+   Memcheck:Leak
+   fun:realloc
+   ...
+   fun:PyImport_ExecCodeModuleEx
+   ...
+}
+{
+   <initposix>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:initposix
    ...
 }
 {
