@@ -1,4 +1,11 @@
 {
+   <python_leak_alloc>
+   Memcheck:Leak
+   fun:malloc
+   fun:_PyObject_GC_Malloc
+   ...
+}
+{
    <python_cond_resize>
    Memcheck:Cond
    ...
