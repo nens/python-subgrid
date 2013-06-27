@@ -11,8 +11,6 @@ long_description = '\n\n'.join([
 install_requires = [
     'setuptools',
     'faulthandler',
-    'netCDF4',
-    'Jinja2',
     ],
 
 tests_require = [
@@ -42,6 +40,5 @@ setup(name='python-subgrid',
           'console_scripts': [
               '{0} = python_subgrid.utils:{0}'.format(
                   'generate_functions_documentation'),
-              'verify = python_subgrid.verification:main',
           ]},
 )

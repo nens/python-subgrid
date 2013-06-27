@@ -5,8 +5,6 @@ import ctypes
 import logging
 import os
 import platform
-import subprocess
-import sys
 
 SUFFIXES = collections.defaultdict(lambda: '.so')
 SUFFIXES['Darwin'] = '.dylib'
@@ -85,21 +83,3 @@ def generate_functions_documentation():
     print("Wrote fortran functions to %s" % filename)
 
 
-MUST_CLOSE_FDS = not sys.platform.startswith('win')
-
-def system(command):
-    # Copy/pasted from zc.buildout.
-    p = subprocess.Popen(command,
-                         shell=True,
-                         stdin=subprocess.PIPE,
-                         stdout=subprocess.PIPE,
-                         stderr=subprocess.PIPE,
-                         close_fds=MUST_CLOSE_FDS)
-    i, o, e = (p.stdin, p.stdout, p.stderr)
-    i.close()
-    result = o.read() + e.read()
-    o.close()
-    e.close()
-    output = result.decode()
-    exit_code = p.wait()
-    return exit_code, output
