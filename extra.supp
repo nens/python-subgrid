@@ -6,6 +6,21 @@
    ...
 }
 {
+   <python_leak_trace>
+   Memcheck:Leak
+   fun:malloc
+   obj:/usr/bin/python2.7
+   fun:CTracer_trace
+   ...
+}
+{
+   <python_leak_fromstring>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyString_FromStringAndSize
+   ...
+}
+{
    <python_cond_resize>
    Memcheck:Cond
    ...
