@@ -454,3 +454,49 @@
    fun:PyUnicodeUCS4_DecodeUTF8Stateful
    ...
 }
+{
+   <python_string_inplace>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyString_InternInPlace
+   ...
+   fun:PyMarshal_ReadLastObjectFromFile
+   ...
+}
+{
+   <python_string_from_string>
+   Memcheck:Leak
+   fun:malloc
+   fun:PyString_FromString
+   ...
+}
+{
+   <python_object_call>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyObject_Call
+   fun:PyObject_CallFunctionObjArgs
+   ...
+}
+{
+   <python_coverage_ctracer>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:CTracer_trace
+   ...
+}
+{
+   <python_eval_object_call>
+   Memcheck:Leak
+   fun:malloc
+   ...
+   fun:PyEval_EvalCodeEx
+   ...
+   fun:PyObject_Call
+}
+
+
+
