@@ -4,13 +4,23 @@ This module provides a ctypes wrapper around the fortran 'subgrid' library.
 """
 
 from __future__ import print_function
-import ctypes
 import functools
 import logging
 import os
 import platform
 
+# Let's keep these in the current namespace
+# types
+from ctypes import c_double, c_int, c_char_p, c_float, c_void_p
+# for making strings
+from ctypes import create_string_buffer
+# pointering
+from ctypes import POINTER, byref
+# loading
+from ctypes import cdll
+# nd arrays
 from numpy.ctypeslib import ndpointer
+
 import numpy as np
 
 import faulthandler
@@ -35,95 +45,77 @@ SHAPEARRAY = ndpointer(dtype='int32',
 FUNCTIONS = [
     {
         'name': 'update',
-        'argtypes': [ctypes.POINTER(ctypes.c_double)],
-        'restype': ctypes.c_int,
+        'argtypes': [POINTER(c_double)],
+        'restype': c_int,
     },
     {
         'name': 'startup',
         'argtypes': [],
-        'restype': ctypes.c_int,
+        'restype': c_int,
     },
     {
         'name': 'shutdown',
         'argtypes': [],
-        'restype': ctypes.c_int,
+        'restype': c_int,
     },
     {
         'name': 'loadmodel',
-        'argtypes': [ctypes.c_char_p],  # I think this is a pointer to a char_p
-        'restype': ctypes.c_int,
+        'argtypes': [c_char_p],  # I think this is a pointer to a char_p
+        'restype': c_int,
     },
     {
         'name': 'initmodel',
         'argtypes': [],
-        'restype': ctypes.c_int,
+        'restype': c_int,
     },
     {
         'name': 'finalizemodel',
         'argtypes': [],
-        'restype': ctypes.c_int,
+        'restype': c_int,
     },
     {
         'name': 'changebathy',
         'argtypes': [
-            ctypes.POINTER(ctypes.c_double),  # xc
-            ctypes.POINTER(ctypes.c_double),  # yc
-            ctypes.POINTER(ctypes.c_double),  # size
-            ctypes.POINTER(ctypes.c_double),  # bvalue
-            ctypes.POINTER(ctypes.c_int)      # bmode
+            POINTER(c_double),  # xc
+            POINTER(c_double),  # yc
+            POINTER(c_double),  # size
+            POINTER(c_double),  # bvalue
+            POINTER(c_int)      # bmode
                  ],
-        'restype': ctypes.c_int,
+        'restype': c_int,
     },
     {
         'name': 'floodfilling',
-        'argtypes': [ctypes.POINTER(ctypes.c_double),
-                     ctypes.POINTER(ctypes.c_double),
-                     ctypes.POINTER(ctypes.c_double),
-                     ctypes.POINTER(ctypes.c_int)],
-        'restype': ctypes.c_int,
+        'argtypes': [POINTER(c_double),
+                     POINTER(c_double),
+                     POINTER(c_double),
+                     POINTER(c_int)],
+        'restype': c_int,
     },
     {
         'name': 'discharge',
-        'argtypes': [ctypes.POINTER(ctypes.c_double),
-                     ctypes.POINTER(ctypes.c_double),
-                     ctypes.c_char_p,
-                     ctypes.POINTER(ctypes.c_int),
-                     ctypes.POINTER(ctypes.c_double)],
-        'restype': ctypes.c_int,
+        'argtypes': [POINTER(c_double),
+                     POINTER(c_double),
+                     c_char_p,
+                     POINTER(c_int),
+                     POINTER(c_double)],
+        'restype': c_int,
     },
     {
         'name': 'discard_manhole',
-        'argtypes': [ctypes.POINTER(ctypes.c_double),
-                     ctypes.POINTER(ctypes.c_double)],
-        'restype': ctypes.c_int,
+        'argtypes': [POINTER(c_double),
+                     POINTER(c_double)],
+        'restype': c_int,
     },
     {
         'name': 'dropinstantrain',
-        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 4,
-        'restype': ctypes.c_int
+        'argtypes': [POINTER(c_double)] * 4,
+        'restype': c_int
     },
     {
         'name': 'getwaterlevel',
-        'argtypes': [ctypes.POINTER(ctypes.c_double)] * 3,
-        'restype': ctypes.c_int,
-    },
-    {
-        'name': 'get_var_rank',
-        'argtypes': [ctypes.c_char_p,
-                     ctypes.POINTER(ctypes.c_int)],
-        'restype': None,
-    },
-    {
-        'name': 'get_var_shape',
-        'argtypes': [ctypes.c_char_p,
-                     SHAPEARRAY],
-        'restype': None,  # Subroutine (no return type)
-    },
-    {
-        'name': 'get_var_type',
-        'argtypes': [ctypes.c_char_p,
-                     ctypes.c_char_p],
-        'restype': None,  # Subroutine
+        'argtypes': [POINTER(c_double)] * 3,
+        'restype': c_int,
     },
     {
         'name': 'subgrid_info',
@@ -133,28 +125,6 @@ FUNCTIONS = [
 ]
 
 
-def get_nd(subgrid, name):
-    shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
-    name = ctypes.create_string_buffer(name)
-    rank = subgrid.get_var_rank(name)
-    shape = subgrid.get_var_shape(name)
-    type_ = subgrid.get_var_type(name)
-
-    arraytype = ndpointer(dtype=TYPEMAP[type_],
-                          ndim=rank,
-                          shape=shape[::-1],
-                          flags='F')
-    # Create a pointer to the array type
-    data = arraytype()
-    get_nd_type_ = getattr(subgrid, 'get_nd'.format(rank=rank, type=type_))
-    get_nd_type_.argtypes = [ctypes.c_char_p, ctypes.POINTER(arraytype)]
-    get_nd_type_.restype = None
-    # Get the array
-    get_nd_type_(name, ctypes.byref(data))
-    array = np.asarray(data)
-    # Not sure why we need this....
-    array = np.reshape(array.ravel(), shape, order='F')
-    return array
 
 
 class SubgridWrapper(object):
@@ -167,7 +137,7 @@ class SubgridWrapper(object):
             # subgrid is the wrapper around library.
             subgrid.update(1.0)
             # or you can call the library explicitly
-            subgrid.library.update(ctypes.byref(ctypes.c_double(1.0)))
+            subgrid.library.update(byref(c_double(1.0)))
 
     The second way is by calling :meth:`start` and :meth:`stop` yourself and
     using the :attr:`library` attribute to access the Fortran library::
@@ -176,7 +146,7 @@ class SubgridWrapper(object):
         wrapper.start()
         wrapper.update(1.0)
         # or if you want to pass pointers
-        wrapper.library.update(ctypes.byref(ctypes.c_double(1.0)))
+        wrapper.library.update(byref(c_double(1.0)))
         ...
         wrapper.stop()
 
@@ -186,6 +156,9 @@ class SubgridWrapper(object):
     """
     library = None
 
+    # This should be the same as in the subgridapi
+    MAXSTRLEN=1024
+    MAXDIMS=6
     def __init__(self, mdu=None):
         """Initialize the class.
 
@@ -237,13 +210,13 @@ class SubgridWrapper(object):
         raise RuntimeError(msg)
 
     def _load_library(self):
-        """Return the fortran library, loaded with ctypes."""
-        return ctypes.cdll.LoadLibrary(self._library_path())
+        """Return the fortran library, loaded with """
+        return cdll.LoadLibrary(self._library_path())
 
     def _annotate_functions(self):
         """Help ctypes by telling it type information about Fortran functions.
 
-        Functions in the loaded Fortran library are called through ctypes. The
+        Functions in the loaded Fortran library are called through  The
         variables inside Fortran don't automatically translate to and from
         Python variables. We can help ctypes a lot by telling it about the
         argument types and return type(s) of the various functions.
@@ -267,7 +240,7 @@ class SubgridWrapper(object):
                 for (arg, argtype) in zip(args, func.argtypes):
                     if isinstance(argtype._type_, str):
                         # create a string buffer for strings
-                        typed_arg = ctypes.create_string_buffer(arg)
+                        typed_arg = create_string_buffer(arg)
                     else:
                         # for other types, use the type to do the conversion
                         typed_arg = argtype(argtype._type_(arg))
@@ -286,8 +259,6 @@ class SubgridWrapper(object):
             f = wrap(api_function)
             assert hasattr(f, 'argtypes')
             setattr(self, function['name'], f)
-        self.library.get_nd = functools.partial(get_nd, subgrid=self.library)
-        self.get_nd = self.library.get_nd
 
     def _load_model(self):
         os.chdir(os.path.dirname(self.mdu))
@@ -327,6 +298,80 @@ class SubgridWrapper(object):
         # del self.library  # This one doesn't work.
         os.chdir(self.original_dir)
 
+    # Variable Information Functions
+    # Note that these call subroutines.
+    # In python you expect a function to return something
+    # In fortran subroutines can also return something in the input arguments
+    # That's why we wrap these manually, we return the input arguments
+    def get_var_type (self, name):
+        """
+        returns type string, compatible with numpy
+        """
+        name = create_string_buffer(name)
+        type_ = create_string_buffer(self.MAXSTRLEN)
+        self.library.get_var_type.argtypes = [c_char_p, c_char_p]
+        self.library.get_var_type(name, type_)
+        return type_.value
+
+    def get_var_rank(self, name):
+        """
+        returns array rank or 0 for scalar
+        """
+        name = create_string_buffer(name)
+        rank = c_int() # we don't know what size string we get back...
+        self.library.get_var_rank.argtypes = [c_char_p, POINTER(c_int)]
+        self.library.get_var_rank.restype = None
+        self.library.get_var_rank(name, byref(rank))
+        return rank.value
+
+    def get_var_shape(self, name):
+        """
+        returns shape of the array
+        """
+        rank = self.get_var_rank(name)
+        name = create_string_buffer(name)
+        arraytype = ndpointer(dtype='int32',
+                              ndim=1,
+                              shape=(self.MAXDIMS,),
+                              flags='F')
+        shape = np.empty((self.MAXDIMS,) ,dtype='int32', order='fortran')
+        self.library.get_var_shape.argtypes = [c_char_p, arraytype]
+        self.library.get_var_shape(name, shape)
+        return tuple(shape[:rank])
+
+    def get_nd(self, name):
+        """Get an nd array from subgrid library"""
+
+        # How many dimensiosn
+        rank = self.get_var_rank(name)
+        # The shape array is fixed size
+        shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
+        shape = self.get_var_shape(name)
+        # there should be nothing here...
+        assert sum(shape[rank:]) == 0
+        # variable type name
+        type_ = self.get_var_type(name)
+
+
+        # Store the data in this type
+        arraytype = ndpointer(dtype=TYPEMAP[type_],
+                              ndim=rank,
+                              shape=shape[::-1],
+                              flags='F')
+        # Create a pointer to the array type
+        data = arraytype()
+        # The functions get_var_type/_shape/_rank are already wrapped with python function converter
+        # get_var isn't
+        c_name = create_string_buffer(name)
+        get_var = self.library.get_var
+        get_var.argtypes = [c_char_p, POINTER(arraytype)]
+        get_var.restype = None
+        # Get the array
+        get_var(c_name, byref(data))
+        array = np.asarray(data)
+        # Not sure why we need this....
+        array = np.reshape(array.ravel(), shape, order='F')
+        return array
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
 

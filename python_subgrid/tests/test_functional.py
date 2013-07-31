@@ -80,26 +80,6 @@ class LibSubgridTest(unittest.TestCase):
             with SubgridWrapper(mdu=self.default_mdu):
                 print 'test load #%r' % i
 
-    # def test_arraypointer(self):
-    #     """"arrays: see bmi.py:get_nd, get , set / rank, shape, type"""
-    #     print
-    #     print '########### test array pointer'
-    #     import numpy as np
-    #     a = ndpointer(
-    #         dtype='double', ndim=3, shape=(2,3,4), flags='F')
-
-    #     subgrid.subgrid_arraypointer(ctypes.byref(a))
-    #     print np.reshape(np.asarray(a).ravel(), [2,3,4], order='F')
-    #     """
-    #     [[[ 1.  1.  1.  1.]
-    #     [ 1.  1.  1.  1.]
-    #     [ 1.  1.  1.  1.]]
-
-    #     [[ 2.  2.  2.  2.]
-    #     [ 2.  2.  2.  2.]
-    #     [ 2.  2.  2.  2.]]]
-    #     """
-
     def test_timesteps(self):
         print
         print '########### test timesteps'
@@ -155,20 +135,31 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
-    def test_rain(self):
-        print
-        print '############ test rain'
+    def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
-            x = 85830.97071920538
-            y = 448605.8983910042
-            clouddiam = 100.0
-            rainfall = 0.01
-            print 'going to do some timesteps'
-            for i in xrange(10):
-                print 'doing %d...' % i
-                subgrid.dropinstantrain(x, y, clouddiam, rainfall)
-                subgrid.update(-1)
+            rank = subgrid.get_var_rank('s1')
+            self.assertEqual(1, rank)
+    def test_get_var_type(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            typename = subgrid.get_var_type('s1')
+            self.assertEqual(typename, 'double')
+
+    def test_get_var_shape(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            shape = subgrid.get_var_shape('s1')
+            self.assertGreater(shape[0], 10)
+    def test_get_nd(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            arr = subgrid.get_nd('s1')
+            self.assertEqual(len(arr.shape), 1)
+            logging.debug(arr)
+
+
+
 
     # def test_get_water_level(self):
     #     print
