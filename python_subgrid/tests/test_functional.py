@@ -31,6 +31,12 @@ scenarios = {
         'mdu_filename': "betondorp.mdu",
         'asc_filename': 'betondorp_selectie2.asc'  # TODO: read from mdu
     },
+    'Kaapstad': {
+        'name': 'Kaapstad',
+        'path': 'Kaapstad',
+        'mdu_filename': "Kaapstad.mdu",
+        'asc_filename': 'kaapstad_warp.asc'  # TODO: read from mdu
+    },
 }
 DEFAULT_SCENARIO = 'DelflandiPad'
 if 'SCENARIO' in os.environ:
