@@ -5,7 +5,8 @@ import mock
 
 from python_subgrid import utils
 
-@unittest.skipIf(not os.path.exists('doc/source/index.rst'), 
+
+@unittest.skipIf(not os.path.exists('doc/source/index.rst'),
                  'doc/source dir not available')
 class TestUtils(unittest.TestCase):
 

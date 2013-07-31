@@ -5,10 +5,11 @@ import unittest
 import os
 import logging
 
-# We don't want to know about ctypes here, only in the test_wrapper and the wrapper itself.
-
 from python_subgrid.wrapper import SubgridWrapper
 
+
+# We don't want to know about ctypes here
+# only in the test_wrapper and the wrapper itself.
 
 EPSILON = 0.00000001
 
@@ -140,6 +141,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             rank = subgrid.get_var_rank('s1')
             self.assertEqual(1, rank)
+
     def test_get_var_type(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -151,15 +153,13 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             shape = subgrid.get_var_shape('s1')
             self.assertGreater(shape[0], 10)
+
     def test_get_nd(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             arr = subgrid.get_nd('s1')
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
-
-
-
 
     # def test_get_water_level(self):
     #     print

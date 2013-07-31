@@ -11,7 +11,7 @@ import platform
 
 # Let's keep these in the current namespace
 # types
-from ctypes import c_double, c_int, c_char_p, c_float, c_void_p
+from ctypes import c_double, c_int, c_char_p
 # for making strings
 from ctypes import create_string_buffer
 # pointering
@@ -125,8 +125,6 @@ FUNCTIONS = [
 ]
 
 
-
-
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
 
@@ -157,8 +155,9 @@ class SubgridWrapper(object):
     library = None
 
     # This should be the same as in the subgridapi
-    MAXSTRLEN=1024
-    MAXDIMS=6
+    MAXSTRLEN = 1024
+    MAXDIMS = 6
+
     def __init__(self, mdu=None):
         """Initialize the class.
 
@@ -303,7 +302,7 @@ class SubgridWrapper(object):
     # In python you expect a function to return something
     # In fortran subroutines can also return something in the input arguments
     # That's why we wrap these manually, we return the input arguments
-    def get_var_type (self, name):
+    def get_var_type(self, name):
         """
         returns type string, compatible with numpy
         """
@@ -318,7 +317,7 @@ class SubgridWrapper(object):
         returns array rank or 0 for scalar
         """
         name = create_string_buffer(name)
-        rank = c_int() # we don't know what size string we get back...
+        rank = c_int()
         self.library.get_var_rank.argtypes = [c_char_p, POINTER(c_int)]
         self.library.get_var_rank.restype = None
         self.library.get_var_rank(name, byref(rank))
@@ -332,9 +331,9 @@ class SubgridWrapper(object):
         name = create_string_buffer(name)
         arraytype = ndpointer(dtype='int32',
                               ndim=1,
-                              shape=(self.MAXDIMS,),
+                              shape=(self.MAXDIMS, ),
                               flags='F')
-        shape = np.empty((self.MAXDIMS,) ,dtype='int32', order='fortran')
+        shape = np.empty((self.MAXDIMS, ), dtype='int32', order='fortran')
         self.library.get_var_shape.argtypes = [c_char_p, arraytype]
         self.library.get_var_shape(name, shape)
         return tuple(shape[:rank])
@@ -351,7 +350,6 @@ class SubgridWrapper(object):
         assert sum(shape[rank:]) == 0
         # variable type name
         type_ = self.get_var_type(name)
-
 
         # Store the data in this type
         arraytype = ndpointer(dtype=TYPEMAP[type_],
@@ -372,6 +370,7 @@ class SubgridWrapper(object):
         # Not sure why we need this....
         array = np.reshape(array.ravel(), shape, order='F')
         return array
+
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
 
