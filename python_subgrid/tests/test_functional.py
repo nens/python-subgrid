@@ -124,6 +124,7 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.update(-1)
                 subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
 
+
     def test_discard_manhole(self):
         print
         print '############ test discard manhole'
@@ -135,6 +136,32 @@ class LibSubgridTest(unittest.TestCase):
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
+
+
+    def test_manhole_workflow(self):
+        print
+        print '############ test manhole workflow'
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = 'test_manhole'
+            x = 85830.97071920538
+            y = 448605.8983910042
+            discharge_value = 100.0
+            itype = 1
+            # add it
+            import numpy as np
+            deltas = np.linspace(0, 100000, num=10)
+            for i, delta in enumerate(deltas):
+                subgrid.discharge(x + delta, y + delta, "%s_%s" % (manhole_name, i) , itype, discharge_value)
+            subgrid.update(-1)
+            # reinitialize
+            subgrid.initmodel()
+            subgrid.update(-1)
+
+            # remove it
+            for delta in deltas:
+                subgrid.discard_manhole(x + delta, y + delta)
+            # add it again
+            subgrid.update(-1)
 
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
