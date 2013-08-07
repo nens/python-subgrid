@@ -173,12 +173,14 @@ class SubgridWrapper(object):
 
     def _libname(self):
         """Return platform-specific subgridf90 shared library name."""
+        prefix = 'lib'
         suffix = '.so'
         if platform.system() == 'Darwin':
             suffix = '.dylib'
         if platform.system() == 'Windows':
+            prefix = ''
             suffix = '.dll'
-        return 'libsubgrid' + suffix
+        return prefix + 'subgrid' + suffix
 
     def _library_path(self):
         """Return full path to subgridf90 shared library.

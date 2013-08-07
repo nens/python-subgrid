@@ -22,7 +22,7 @@ class TestHelperFunctions(unittest.TestCase):
 
     @mock.patch('platform.system', lambda: 'Windows')
     def test_libname3(self):
-        self.assertEquals(self.wrapper._libname(), 'libsubgrid.dll')
+        self.assertEquals(self.wrapper._libname(), 'subgrid.dll')
 
     @mock.patch('os.path.exists', lambda path: False)
     def test_library_path_not_found(self):
