@@ -498,5 +498,40 @@
    fun:PyObject_Call
 }
 
+{
+   <libz_cond>
+   Memcheck:Cond
+   fun:inflateReset2
+   ...
+}
+{
+   <multiarray>
+   Memcheck:Addr4
+   obj:/usr/lib/python2.7/dist-packages/numpy/core/multiarray.so
+   ...
+}
 
+{
+   <python_valgrind_strlen>
+   Memcheck:Addr1
+   fun:strlen
+   fun:PyString_FromFormatV
+   ...
+}
+{
+   <python_valgrind_memcpy>
+   Memcheck:Addr1
+   fun:memcpy@@GLIBC_2.14
+   ...
+}
+
+{
+   <python_leak>
+   Memcheck:Leak
+   fun:malloc
+   fun:realloc
+   obj:/usr/bin/python2.7
+   ...
+   obj:/usr/lib/python2.7/dist-packages/numpy/core/multiarray.so
+}
 
