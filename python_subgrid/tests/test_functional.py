@@ -4,8 +4,9 @@ Test the library on desired behavior by running it on several models.
 import unittest
 import os
 import logging
+import io
 
-from python_subgrid.wrapper import SubgridWrapper
+from python_subgrid.wrapper import SubgridWrapper, logger
 
 
 # We don't want to know about ctypes here
@@ -70,12 +71,26 @@ class LibSubgridTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
-    def test_log(self):
+    def test_logging(self):
         subgrid =SubgridWrapper()
         foundmessage = False
-        # set custom handler in logging
-        # start subgrid
-        # check for log message in handler
+
+        # Create a new handler
+        stream = io.BytesIO()
+        handler = logging.StreamHandler(stream)
+        logger.addHandler(handler)
+
+        # if the model logs it is stored in the handler
+        subgrid.start()
+
+        # flush
+        handler.flush()
+        foundmessage = stream.getvalue()
+
+        # cleanup
+        logger.removeHandler(handler)
+
+        # we should have some messages
         self.assertTrue(foundmessage)
 
     def test_info(self):
@@ -170,12 +185,6 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.discard_manhole(x + delta, y + delta)
             # add it again
             subgrid.update(-1)
-    def test_logging(self):
-        with SubgridWrapper(mdu=self.default_mdu, ) as subgrid:
-            subgrid.set_logger(fortran_logger)
-            subgrid.initmodel()
-
-
 
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
