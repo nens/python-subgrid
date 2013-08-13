@@ -58,8 +58,9 @@ def fortran_log(level_p, message):
     f_level = level_p.contents.value
     level = LEVELS_F2PY[f_level]
     logger.log(level, message)
-
-fortran_log_pointer = CFUNCTYPE(None, POINTER(c_int), c_char_p)(fortran_log)
+# define the type of the fortran function
+fortran_log_functype = CFUNCTYPE(None, POINTER(c_int), c_char_p)
+fortran_log_func = fortran_log_functype(fortran_log)
 
 
 SHAPEARRAY = ndpointer(dtype='int32',
@@ -200,10 +201,11 @@ class SubgridWrapper(object):
         self.original_dir = os.getcwd()
 
     def _setlogger(self):
-        # TODO, set the callback argtypes
+        # we don't expect anything back
         self.library.set_mh_c_callback.restype = None
-        # self.library.set_mh_c_callback.argtypes = [POINTER(c_void_p)]?
-        self.library.set_mh_c_callback(byref(fortran_log_pointer))
+        # as an argument we need a pointer to a fortran log func...
+        self.library.set_mh_c_callback.argtypes = [POINTER(fortran_log_functype)]
+        self.library.set_mh_c_callback(byref(fortran_log_func))
 
     def _libname(self):
         """Return platform-specific subgridf90 shared library name."""
