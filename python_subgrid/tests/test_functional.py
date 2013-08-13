@@ -170,19 +170,19 @@ class LibSubgridTest(unittest.TestCase):
             itype = 1
             # add it
             import numpy as np
-            deltas = np.linspace(0, 100000, num=10)
-            for i, delta in enumerate(deltas):
-                subgrid.discharge(x + delta, y + delta, "%s_%s" % (manhole_name, i), itype, discharge_value)
-            subgrid.update(-1)
-            # reinitialize
-            subgrid.initmodel()
-            subgrid.update(-1)
-
-            # remove it
-            for delta in deltas:
-                subgrid.discard_manhole(x + delta, y + delta)
-            # add it again
-            subgrid.update(-1)
+            for i in range(5):
+                deltas = np.linspace(0, 100000, num=5)
+                for i, delta in enumerate(deltas):
+                    subgrid.discharge(x + delta, y + delta, "%s_%s" % (manhole_name, i), itype, discharge_value)
+                subgrid.update(-1)
+                # reinitialize
+                subgrid.initmodel()
+                subgrid.update(-1)
+                # remove it
+                for delta in deltas:
+                    subgrid.discard_manhole(x + delta, y + delta)
+                # add it again
+                subgrid.update(-1)
 
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
