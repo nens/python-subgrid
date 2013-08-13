@@ -35,12 +35,12 @@ TYPEMAP = {
     "float": "float32"
 }
 LEVELS_PY2F = {
-    logging.DEBUG : 1,
-    logging.INFO  : 2,
-    logging.WARN  : 3,
-    logging.ERROR : 4,
-    logging.FATAL : 5,
-    logging.NOTSET  : 6
+    logging.DEBUG: 1,
+    logging.INFO: 2,
+    logging.WARN: 3,
+    logging.ERROR: 4,
+    logging.FATAL: 5,
+    logging.NOTSET: 6
     }
 LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
@@ -51,7 +51,10 @@ LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+
+
 def fortran_log(level_p, message):
+    """python logger to be called from fortran"""
     f_level = level_p.contents.value
     level = LEVELS_F2PY[f_level]
     logger.log(level, message)
@@ -148,8 +151,6 @@ FUNCTIONS = [
         'restype': None,
     },
 ]
-
-
 
 
 class SubgridWrapper(object):
