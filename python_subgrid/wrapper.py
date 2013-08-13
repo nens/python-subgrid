@@ -6,6 +6,7 @@ This module provides a ctypes wrapper around the fortran 'subgrid' library.
 from __future__ import print_function
 import functools
 import logging
+
 import os
 import platform
 
@@ -15,7 +16,7 @@ from ctypes import c_double, c_int, c_char_p
 # for making strings
 from ctypes import create_string_buffer
 # pointering
-from ctypes import POINTER, byref
+from ctypes import POINTER, byref, CFUNCTYPE
 # loading
 from ctypes import cdll
 # nd arrays
@@ -33,6 +34,30 @@ TYPEMAP = {
     "double": "double",
     "float": "float32"
 }
+LEVELS_PY2F = {
+    logging.DEBUG : 1,
+    logging.INFO  : 2,
+    logging.WARN  : 3,
+    logging.ERROR : 4,
+    logging.FATAL : 5,
+    logging.NOTSET  : 6
+    }
+LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
+
+# We need to store this logger function otherwise it might get
+# garbage collected after we have set the callback. And then we're
+# doomed
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+def fortran_log(level_p, message):
+    f_level = level_p.contents.value
+    level = LEVELS_F2PY[f_level]
+    logger.log(level, message)
+
+fortran_log_pointer = CFUNCTYPE(None, POINTER(c_int), c_char_p)(fortran_log)
+
 
 SHAPEARRAY = ndpointer(dtype='int32',
                        ndim=1,
@@ -125,6 +150,8 @@ FUNCTIONS = [
 ]
 
 
+
+
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
 
@@ -171,6 +198,12 @@ class SubgridWrapper(object):
         self.mdu = mdu
         self.original_dir = os.getcwd()
 
+    def _setlogger(self):
+        # TODO, set the callback argtypes
+        self.library.set_mh_c_callback.restype = None
+        # self.library.set_mh_c_callback.argtypes = [POINTER(c_void_p)]?
+        self.library.set_mh_c_callback(byref(fortran_log_pointer))
+
     def _libname(self):
         """Return platform-specific subgridf90 shared library name."""
         prefix = 'lib'
@@ -205,7 +238,7 @@ class SubgridWrapper(object):
                               for path in known_paths]
         for library in possible_libraries:
             if os.path.exists(library):
-                logging.info("Using subgrid fortran library %s", library)
+                logger.info("Using subgrid fortran library %s", library)
                 return library
         msg = "Library not found, looked in %s" % ', '.join(possible_libraries)
         raise RuntimeError(msg)
@@ -235,7 +268,7 @@ class SubgridWrapper(object):
             @functools.wraps(func, assigned=('restype', 'argtypes'))
             def wrapped(*args):
                 if len(args) != len(func.argtypes):
-                    logging.warn("{} {} not of same length".format(args, func.argtypes))
+                    logger.warn("{} {} not of same length".format(args, func.argtypes))
 
                 typed_args = []
                 for (arg, argtype) in zip(args, func.argtypes):
@@ -280,6 +313,7 @@ class SubgridWrapper(object):
 
         """
         self.library = self._load_library()
+        self._setlogger()
         self._annotate_functions()
         self.library.startup()  # Fortran init function.
         if self.mdu:

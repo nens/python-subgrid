@@ -70,6 +70,14 @@ class LibSubgridTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
+    def test_log(self):
+        subgrid =SubgridWrapper()
+        foundmessage = False
+        # set custom handler in logging
+        # start subgrid
+        # check for log message in handler
+        self.assertTrue(foundmessage)
+
     def test_info(self):
         with SubgridWrapper() as subgrid:
             subgrid.subgrid_info()
@@ -162,6 +170,12 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.discard_manhole(x + delta, y + delta)
             # add it again
             subgrid.update(-1)
+    def test_logging(self):
+        with SubgridWrapper(mdu=self.default_mdu, ) as subgrid:
+            subgrid.set_logger(fortran_logger)
+            subgrid.initmodel()
+
+
 
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
