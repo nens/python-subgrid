@@ -268,33 +268,32 @@ class LibSubgridTest(unittest.TestCase):
 
     #     #libsubgrid.funcall('finalizemodel')
 
-    # def test_changebathy(self):
-    #     print
-    #     print '########### test change bathy'
-    #     abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
-    #     load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
-    #     subgrid.initmodel()
-    #     self.model_initialized = True
+    def test_changebathy(self):
+        print
+        print '########### test change bathy'
+        abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            for i in xrange(5):
+                print 'doing %d...' % i
+                print subgrid.update(-1) # -1 = use default model time
 
-    #     for i in xrange(10):
-    #         print 'doing %d...' % i
-    #         print subgrid.update(-1) # -1 = use default model time
+            xc = 250808.205511
+            yc = 589490.224168
+            sz = 15
+            bval = -11.23
+            bmode = 0  # 0 = relative, 1 = absolute
 
-    #     xc = 250808.205511
-    #     yc = 589490.224168
-    #     sz = 15
-    #     bval = -11.23
-    #     bmode = 0
+            subgrid.changebathy(xc, yc, sz, bval, bmode)
 
-    #     subgrid.changebathy(xc, yc, sz, bval, bmode)
+            bval = 5
+            bmode = 1  # 0 = relative, 1 = absolute
 
-    #     # libsubgrid.funcall(
-    #     #     'changebathy',
-    #     #     'ctypes.c_double(args[1]), ctypes.c_double(args[2]), ctypes.c_double(args[3]), ctypes.c_double(args[4]), ctypes.c_int(args[5])',
-    #     #     xc, yc, sz, bval, bmode)
+            subgrid.changebathy(xc, yc, sz, bval, bmode)
 
-    #     #libsubgrid.funcall('finalizemodel')
-
+            for i in xrange(5):
+                print 'doing %d...' % i
+                print subgrid.update(-1) # -1 = use default model time
+                
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
     # #     print
