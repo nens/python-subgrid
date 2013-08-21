@@ -248,7 +248,9 @@ class SubgridWrapper(object):
 
     def _load_library(self):
         """Return the fortran library, loaded with """
-        return cdll.LoadLibrary(self._library_path())
+        path = self._library_path()
+        logger.info("Loading library from path {}".format(path))
+        return cdll.LoadLibrary(path)
 
     def _annotate_functions(self):
         """Help ctypes by telling it type information about Fortran functions.
@@ -299,10 +301,15 @@ class SubgridWrapper(object):
 
     def _load_model(self):
         os.chdir(os.path.dirname(self.mdu))
+        logmsg = "Loading model {} in directory {}".format(
+            self.mdu,
+            os.path.abspath(os.getcwd())
+        )
+        logger.info(logmsg)
         exit_code = self.library.loadmodel(self.mdu)
         if exit_code:
-            msg = "Loading model {mdu} failed with exit code {code}"
-            raise RuntimeError(msg.format(mdu=self.mdu, code=exit_code))
+            errormsg = "Loading model {mdu} failed with exit code {code}"
+            raise RuntimeError(errormsg.format(mdu=self.mdu, code=exit_code))
 
     def start(self):
         """Initialize and load the Fortran library (and model, if applicable).

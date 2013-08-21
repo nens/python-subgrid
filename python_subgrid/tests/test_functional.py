@@ -33,6 +33,12 @@ scenarios = {
         'mdu_filename': "betondorp.mdu",
         'asc_filename': 'betondorp_selectie2.asc'  # TODO: read from mdu
     },
+    'delfland-model-voor-3di': {
+        'name': 'Delfland',
+        'path': 'delfland-model-voor-3di',
+        'mdu_filename': "hhdlipad.mdu",
+        'asc_filename': 'subgrid/ahn_guts_v9.tif'  # TODO: read from mdu
+    },
     'Kaapstad': {
         'name': 'Kaapstad',
         'path': 'Kaapstad',
@@ -293,7 +299,7 @@ class LibSubgridTest(unittest.TestCase):
             for i in xrange(5):
                 print 'doing %d...' % i
                 print subgrid.update(-1) # -1 = use default model time
-                
+
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
     # #     print
