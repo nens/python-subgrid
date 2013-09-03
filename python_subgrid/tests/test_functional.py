@@ -18,32 +18,32 @@ scenarios = {
     'DelflandiPad': {
         'name': 'Delfland',
         'path': 'DelflandiPad',
-        'mdu_filename': "DelflandiPad.mdu",
-        'asc_filename': 'ahn_guts_v4.asc'  # TODO: read from mdu
+        'mdu_filename': "hhdlipad.mdu",
+    },
+    'HHNKiPad': {
+        'name': 'HHNK',
+        'path': 'HHNKiPad',
+        'mdu_filename': "HHNKiPad.mdu",
     },
     'hunzeenaas': {
         'name': 'Hunze en Aas',
         'path': 'hunzeenaas',
         'mdu_filename': "hunzeenaas.mdu",
-        'asc_filename': 'h25m.asc'  # TODO: read from mdu
     },
     'betondorp': {
         'name': 'Betondorp',
         'path': 'betondorp',
         'mdu_filename': "betondorp.mdu",
-        'asc_filename': 'betondorp_selectie2.asc'  # TODO: read from mdu
     },
     'delfland-model-voor-3di': {
         'name': 'Delfland',
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
-        'asc_filename': 'subgrid/ahn_guts_v9.tif'  # TODO: read from mdu
     },
     'Kaapstad': {
         'name': 'Kaapstad',
         'path': 'Kaapstad',
         'mdu_filename': "Kaapstad.mdu",
-        'asc_filename': 'kaapstad_warp.asc'  # TODO: read from mdu
     },
 }
 DEFAULT_SCENARIO = 'DelflandiPad'
@@ -67,6 +67,7 @@ class LibSubgridTest(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(DEFAULT_SCENARIO)
+        self.default_mdu2 = self._mdu_path('HHNKiPad')
         pass
 
     def tearDown(self):
@@ -163,6 +164,36 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            subgrid.discard_manhole(x, y)
+
+    def test_discard_manhole2(self):
+        print
+        print '############ test discard manhole'
+        with SubgridWrapper(mdu=self.default_mdu2) as subgrid:
+            manhole_name = 'test_manhole'
+            discharge_value = 100.0
+            itype = 1
+            x, y = 116297.57199077534, 517762.9744381048
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+
+            x2, y2 = 115201.1949280844, 517957.19864625763
+            subgrid.discharge(x2, y2, manhole_name, itype, discharge_value)
+            for i in xrange(10):
+                print 'doing %d...' % i
+                subgrid.update(-1)
+            subgrid.discard_manhole(x, y)
+            subgrid.discard_manhole(x2, y2)
+
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = 'test_manhole'
+            x = 85831.97071920538
+            y = 448606.8983910042
+            discharge_value = 100.0
+            itype = 1
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            for i in xrange(10):
+                print 'doing %d...' % i
+                subgrid.update(-1)
             subgrid.discard_manhole(x, y)
 
     def test_manhole_workflow(self):
