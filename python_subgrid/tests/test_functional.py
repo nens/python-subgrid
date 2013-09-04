@@ -5,6 +5,7 @@ import unittest
 import os
 import logging
 import io
+from nose.plugins.attrib import attr
 
 from python_subgrid.wrapper import SubgridWrapper, logger
 
@@ -15,6 +16,11 @@ from python_subgrid.wrapper import SubgridWrapper, logger
 EPSILON = 0.00000001
 
 scenarios = {
+    '1dpumps': {
+        'name': '1D Pump Test',
+        'path': '1dpumptest',
+        'mdu_filename': "1d2d_kunstw.mdu",
+    },
     'DelflandiPad': {
         'name': 'Delfland',
         'path': 'DelflandiPad',
@@ -227,18 +233,22 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
+    @attr('debug')
     def test_make_compound(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             valtype = subgrid.make_compound_ctype("pumps")
-            # check if the first pumps', first field, has the name id
-            self.assertEqual(valtype[0]._fields_[0][0], 'id')
+            # check if the type is a pointer to the compound array type
+            # types pointer->array->pumps->id
+            self.assertTrue(valtype._type_.__name__.startswith('COMPOUND_Array'))
+            self.assertEqual(valtype._type_._type_.__name__, 'COMPOUND')
+    @attr('debug')
     def test_compound_getnd(self):
-        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
-            self.assertEqual(len(df), 3)
-            logging.debug(df.to_string())
+            self.assertEqual(len(df), 1)
+            logger.info(df.to_string())
 
 
 

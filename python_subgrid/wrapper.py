@@ -516,6 +516,10 @@ class SubgridWrapper(object):
         get_var.restype = None
         # Get the array
         get_var(c_name, byref(data))
+        if not data:
+            logger.info("NULL pointer returned")
+            return None
+
         if is_numpytype:
             array = np.asarray(data)
             # Not sure why we need this....
