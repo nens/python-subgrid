@@ -9,10 +9,13 @@ import logging
 
 import os
 import platform
+import io
+
+import faulthandler
 
 # Let's keep these in the current namespace
 # types
-from ctypes import c_double, c_int, c_char_p
+from ctypes import c_double, c_int, c_char_p, c_bool, c_char, c_float, ARRAY, Structure
 # for making strings
 from ctypes import create_string_buffer
 # pointering
@@ -22,17 +25,32 @@ from ctypes import cdll
 # nd arrays
 from numpy.ctypeslib import ndpointer
 
+# external libs
 import numpy as np
+import pandas
 
-import faulthandler
-faulthandler.enable()
+
+try:
+    faulthandler.enable()
+except io.UnsupportedOperation:
+    # in notebooks faulthandler does not work
+    pass
 
 
 MAXDIMS = 6
+CTYPESMAP={
+    'bool': c_bool,
+    'char': c_char,
+    'double': c_double,
+    'float': c_float,
+    'int': c_int
+}
 TYPEMAP = {
-    "int": "int32",
+    "bool": "bool",
+    "char": "S",
     "double": "double",
-    "float": "float32"
+    "float": "float32",
+    "int": "int32"
 }
 LEVELS_PY2F = {
     logging.DEBUG: 1,
@@ -61,6 +79,28 @@ def fortran_log(level_p, message):
 # define the type of the fortran function
 fortran_log_functype = CFUNCTYPE(None, POINTER(c_int), c_char_p)
 fortran_log_func = fortran_log_functype(fortran_log)
+
+def struct2dict(struct):
+    """convert a ctypes structure to a dictionary"""
+    return {x:getattr(struct, x) for x in dict(struct._fields_).keys()}
+def structs2records(structs):
+    """convert one or more structs and generate dictionaries"""
+    try:
+        n = len(structs)
+    except TypeError:
+        # no array
+        yield struct2dict(structs)
+        # just 1
+        return
+    for i in range(n):
+        struct = structs[i]
+        yield struct2dict(struct)
+def structs2pandas(structs):
+    """convert ctypes structure or structure array to pandas data frame"""
+    records = list(structs2records(structs))
+    df = pandas.DataFrame.from_records(records)
+    return df
+
 
 
 SHAPEARRAY = ndpointer(dtype='int32',
@@ -358,10 +398,69 @@ class SubgridWrapper(object):
         self.library.get_var_type(name, type_)
         return type_.value
 
+    def inq_compound(self, name):
+        """
+        return the number of fields and size (not yet) of a compound type
+        """
+        name = create_string_buffer(name)
+        self.library.inq_compound.argtypes = [c_char_p, POINTER(c_int)]
+        self.library.inq_compound.restype = None
+        nfields = c_int()
+        self.library.inq_compound(name, byref(nfields))
+        return nfields.value
+
+    def inq_compound_field(self, name, index):
+        typename = create_string_buffer(name)
+        index = c_int(index+1)
+        fieldname = create_string_buffer(self.MAXSTRLEN)
+        fieldtype = create_string_buffer(self.MAXSTRLEN)
+        rank = c_int()
+        arraytype = ndpointer(dtype='int32',
+                              ndim=1,
+                              shape=(self.MAXDIMS, ),
+                              flags='F')
+        shape = np.empty((self.MAXDIMS, ), dtype='int32', order='fortran')
+        self.library.inq_compound_field.argtypes = [c_char_p, POINTER(c_int), c_char_p, c_char_p, POINTER(c_int), arraytype]
+        self.library.inq_compound_field.restype = None
+        self.library.inq_compound_field(typename, byref(index), fieldname, fieldtype, byref(rank), shape)
+        return fieldname.value, fieldtype.value, rank.value, tuple(shape[:rank.value])
+
+    def make_compound_ctype(self, varname):
+        """
+        create a ctypes type, that corresponds to a compound type in memory.
+        """
+
+        # look up the type name
+        compoundname = self.get_var_type(varname)
+        nfields = self.inq_compound(compoundname)
+        # for all the fields look up the type, rank and shape
+        fields = []
+        for i in range(nfields):
+            fieldname, fieldtype, fieldrank, fieldshape = self.inq_compound_field(compoundname, i)
+            assert fieldrank<=1
+            fieldctype = CTYPESMAP[fieldtype]
+            if fieldrank == 1:
+                fieldctype = fieldctype*fieldshape[0]
+            fields.append((fieldname, fieldctype))
+        # create a new structure
+        class COMPOUND(Structure):
+            _fields_ = fields
+
+        # if we have a rank 1 array, create an array
+        rank = self.get_var_rank(varname)
+        assert rank <= 1, "we can't handle >=2 dimensional compounds yet"
+        if rank == 1:
+            shape = self.get_var_shape(varname)
+            valtype = POINTER(ARRAY(COMPOUND, shape[0]))
+        else:
+            valtype = POINTER(COMPOUND)
+        # return the custom type
+        return valtype
+
     def get_var_rank(self, name):
         """
         returns array rank or 0 for scalar
-        """
+        """,
         name = create_string_buffer(name)
         rank = c_int()
         self.library.get_var_rank.argtypes = [c_char_p, POINTER(c_int)]
@@ -397,11 +496,16 @@ class SubgridWrapper(object):
         # variable type name
         type_ = self.get_var_type(name)
 
-        # Store the data in this type
-        arraytype = ndpointer(dtype=TYPEMAP[type_],
-                              ndim=rank,
-                              shape=shape[::-1],
-                              flags='F')
+        is_numpytype = type_ in TYPEMAP
+
+        if is_numpytype:
+            # Store the data in this type
+            arraytype = ndpointer(dtype=TYPEMAP[type_],
+                                  ndim=rank,
+                                  shape=shape[::-1],
+                                  flags='F')
+        else:
+            arraytype = self.make_compound_ctype(name)
         # Create a pointer to the array type
         data = arraytype()
         # The functions get_var_type/_shape/_rank are already wrapped with python function converter
@@ -412,9 +516,12 @@ class SubgridWrapper(object):
         get_var.restype = None
         # Get the array
         get_var(c_name, byref(data))
-        array = np.asarray(data)
-        # Not sure why we need this....
-        array = np.reshape(array.ravel(), shape, order='F')
+        if is_numpytype:
+            array = np.asarray(data)
+            # Not sure why we need this....
+            array = np.reshape(array.ravel(), shape, order='F')
+        else:
+            array = structs2pandas(data.contents)
         return array
 
     def __enter__(self):

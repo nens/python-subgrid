@@ -202,6 +202,8 @@ class LibSubgridTest(unittest.TestCase):
             typename = subgrid.get_var_type('s1')
             self.assertEqual(typename, 'double')
 
+
+
     def test_get_var_shape(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -214,6 +216,33 @@ class LibSubgridTest(unittest.TestCase):
             arr = subgrid.get_nd('s1')
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
+
+    def test_compound_rank(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            rank = subgrid.get_var_rank('pumps')
+            self.assertEqual(rank, 1)
+    def test_compound_type(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            type_ = subgrid.get_var_type('pumps')
+            self.assertEqual(type_, 'pump')
+    def test_make_compound(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            valtype = subgrid.make_compound_ctype("pumps")
+            # check if the first pumps', first field, has the name id
+            self.assertEqual(valtype[0]._fields_[0][0], 'id')
+    def test_compound_getnd(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 3)
+            logging.debug(df.to_string())
+
+
+
+
 
     # def test_get_water_level(self):
     #     print
