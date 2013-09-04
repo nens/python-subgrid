@@ -109,6 +109,7 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper() as subgrid:
             subgrid.subgrid_info()
 
+    @attr('debug')
     def test_load(self):
         print
         print '########### test multiple load'
@@ -248,7 +249,6 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
 
-    @attr('debug')
     def test_remove_pumps(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
