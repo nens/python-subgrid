@@ -177,6 +177,11 @@ FUNCTIONS = [
         'restype': c_int,
     },
     {
+        'name': 'discard_structure',
+        'argtypes': [c_char_p],
+        'restype': c_int,
+    },
+    {
         'name': 'dropinstantrain',
         'argtypes': [POINTER(c_double)] * 4,
         'restype': c_int

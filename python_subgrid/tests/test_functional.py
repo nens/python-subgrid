@@ -233,7 +233,6 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
-    @attr('debug')
     def test_make_compound(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -242,13 +241,26 @@ class LibSubgridTest(unittest.TestCase):
             # types pointer->array->pumps->id
             self.assertTrue(valtype._type_.__name__.startswith('COMPOUND_Array'))
             self.assertEqual(valtype._type_._type_.__name__, 'COMPOUND')
-    @attr('debug')
     def test_compound_getnd(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
+
+    @attr('debug')
+    def test_remove_pumps(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 1)
+            id = df['id'].irow(0)
+            logger.info(id)
+            subgrid.discard_structure(id)
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 0)
+
+
 
 
 
