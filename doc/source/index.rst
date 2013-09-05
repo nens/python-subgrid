@@ -8,6 +8,7 @@ basic usage instructions.
 .. toctree::
    :maxdepth: 2
 
+   roadmap
    code
    fortran_functions
    project
