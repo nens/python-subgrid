@@ -5,29 +5,25 @@ This module provides a ctypes wrapper around the fortran 'subgrid' library.
 
 from __future__ import print_function
 import functools
+import io
 import logging
-
 import os
 import platform
-import io
 
 import faulthandler
-
-# Let's keep these in the current namespace
-# types
-from ctypes import c_double, c_int, c_char_p, c_bool, c_char, c_float, ARRAY, Structure
-# for making strings
-from ctypes import create_string_buffer
-# pointering
-from ctypes import POINTER, byref, CFUNCTYPE
-# loading
-from ctypes import cdll
-# nd arrays
-from numpy.ctypeslib import ndpointer
-
-# external libs
+from numpy.ctypeslib import ndpointer  # nd arrays
 import numpy as np
 import pandas
+
+from ctypes import (
+    # Types
+    c_double, c_int, c_char_p, c_bool, c_char, c_float, ARRAY, Structure,
+    # Making strings
+    create_string_buffer,
+    # Pointering
+    POINTER, byref, CFUNCTYPE,
+    # Loading
+    cdll)
 
 
 try:
@@ -62,10 +58,6 @@ LEVELS_PY2F = {
     }
 LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
-# We need to store this logger function otherwise it might get
-# garbage collected after we have set the callback. And then we're
-# doomed
-
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -80,9 +72,12 @@ def fortran_log(level_p, message):
 fortran_log_functype = CFUNCTYPE(None, POINTER(c_int), c_char_p)
 fortran_log_func = fortran_log_functype(fortran_log)
 
+
 def struct2dict(struct):
     """convert a ctypes structure to a dictionary"""
     return {x:getattr(struct, x) for x in dict(struct._fields_).keys()}
+
+
 def structs2records(structs):
     """convert one or more structs and generate dictionaries"""
     try:
@@ -95,6 +90,8 @@ def structs2records(structs):
     for i in range(n):
         struct = structs[i]
         yield struct2dict(struct)
+
+
 def structs2pandas(structs):
     """convert ctypes structure or structure array to pandas data frame"""
     records = list(structs2records(structs))
@@ -102,11 +99,11 @@ def structs2pandas(structs):
     return df
 
 
-
 SHAPEARRAY = ndpointer(dtype='int32',
                        ndim=1,
                        shape=(MAXDIMS,),
                        flags='F')
+
 
 # If you make changes in FUNCTIONS, run
 # 'bin/generate_functions_documentation' to re-generate the automatic
@@ -395,7 +392,7 @@ class SubgridWrapper(object):
     # That's why we wrap these manually, we return the input arguments
     def get_var_type(self, name):
         """
-        returns type string, compatible with numpy
+        Return type string, compatible with numpy.
         """
         name = create_string_buffer(name)
         type_ = create_string_buffer(self.MAXSTRLEN)
@@ -405,7 +402,7 @@ class SubgridWrapper(object):
 
     def inq_compound(self, name):
         """
-        return the number of fields and size (not yet) of a compound type
+        Return the number of fields and size (not yet) of a compound type.
         """
         name = create_string_buffer(name)
         self.library.inq_compound.argtypes = [c_char_p, POINTER(c_int)]
@@ -415,6 +412,7 @@ class SubgridWrapper(object):
         return nfields.value
 
     def inq_compound_field(self, name, index):
+        """TODO"""
         typename = create_string_buffer(name)
         index = c_int(index+1)
         fieldname = create_string_buffer(self.MAXSTRLEN)
@@ -432,7 +430,7 @@ class SubgridWrapper(object):
 
     def make_compound_ctype(self, varname):
         """
-        create a ctypes type, that corresponds to a compound type in memory.
+        Create a ctypes type that corresponds to a compound type in memory.
         """
 
         # look up the type name
@@ -464,7 +462,7 @@ class SubgridWrapper(object):
 
     def get_var_rank(self, name):
         """
-        returns array rank or 0 for scalar
+        Return array rank or 0 for scalar.
         """,
         name = create_string_buffer(name)
         rank = c_int()
@@ -475,7 +473,7 @@ class SubgridWrapper(object):
 
     def get_var_shape(self, name):
         """
-        returns shape of the array
+        Return shape of the array.
         """
         rank = self.get_var_rank(name)
         name = create_string_buffer(name)
@@ -489,7 +487,7 @@ class SubgridWrapper(object):
         return tuple(shape[:rank])
 
     def get_nd(self, name):
-        """Get an nd array from subgrid library"""
+        """Return an nd array from subgrid library"""
 
         # How many dimensiosn
         rank = self.get_var_rank(name)
