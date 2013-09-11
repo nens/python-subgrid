@@ -3,7 +3,7 @@ Wrapped Fortran subgrid library functions
 -----------------------------------------
 
 
-.. function:: update(PyCSimpleType)
+.. function:: update(PyCPointerType)
 
     Returns PyCSimpleType
 
@@ -33,7 +33,7 @@ Wrapped Fortran subgrid library functions
     Returns PyCSimpleType
 
 
-.. function:: changebathy(PyCSimpleType, PyCSimpleType, PyCSimpleType, PyCSimpleType, PyCSimpleType)
+.. function:: changebathy(PyCPointerType, PyCPointerType, PyCPointerType, PyCPointerType, PyCPointerType)
 
     Returns PyCSimpleType
 
@@ -53,6 +53,11 @@ Wrapped Fortran subgrid library functions
     Returns PyCSimpleType
 
 
+.. function:: discard_structure(PyCSimpleType)
+
+    Returns PyCSimpleType
+
+
 .. function:: dropinstantrain(PyCPointerType, PyCPointerType, PyCPointerType, PyCPointerType)
 
     Returns PyCSimpleType
@@ -63,17 +68,7 @@ Wrapped Fortran subgrid library functions
     Returns PyCSimpleType
 
 
-.. function:: get_var_rank(PyCSimpleType, PyCPointerType)
-
-    Returns NoneType
-
-
-.. function:: get_var_shape(PyCSimpleType, PyCSimpleType)
-
-    Returns NoneType
-
-
-.. function:: get_var_type(PyCSimpleType, PyCSimpleType)
+.. function:: subgrid_info()
 
     Returns NoneType
 
