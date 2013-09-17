@@ -117,6 +117,7 @@ class LibSubgridTest(unittest.TestCase):
             with SubgridWrapper(mdu=self.default_mdu):
                 print 'test load #%r' % i
 
+    @unittest.skip
     def test_timesteps(self):
         print
         print '########### test timesteps'
@@ -129,6 +130,7 @@ class LibSubgridTest(unittest.TestCase):
                 print subgrid.update(-1)
                 # -1 = use default model timestep.
 
+    @unittest.skip
     def test_dropinstantrain(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -145,6 +147,7 @@ class LibSubgridTest(unittest.TestCase):
                 # compute
                 subgrid.update(-1)
 
+    @unittest.skip
     def test_manhole(self):
         print
         print '############ test manhole'
@@ -172,6 +175,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
+    @unittest.skip
     def test_manhole_workflow(self):
         print
         print '############ test manhole workflow'
@@ -249,6 +253,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
 
+    @unittest.skip
     def test_remove_pumps(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
