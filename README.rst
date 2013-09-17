@@ -18,6 +18,15 @@ environment variable::
 (On windows the command is ``set`` instead of ``export``).
 
 
+Ubuntu install of the Fortran library
+-------------------------------------
+
+If the most recently released version is good enough, you can use the
+`ubuntu package instructions
+<http://jenkins.3di.lizard.net/ubuntu/precise64/AN_INTRODUCTION_ON_HOW_TO_USE_THIS.html>`_
+to get the latest version of the subgrid library.
+
+
 Mostly-standard compilation of the Fortran library on Ubuntu
 ------------------------------------------------------------
 
@@ -31,6 +40,11 @@ website) uses the standard ubuntu netcdf packages and fortran::
 For the python netcdf library compilation we need another package::
 
     $ sudo apt-get install libhdf5-serial-dev
+
+We also need the fortrangis library. We can compile it by hand (and
+add a couple of dependencies), but using the "ubuntu install"
+mentioned above is handier. Just do an ``apt-get install fortrangis``
+after you set up the ubuntu repository.
 
 And we use the regular configure/make/make install steps with two changes::
 
