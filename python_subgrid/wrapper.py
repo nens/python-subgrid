@@ -271,9 +271,16 @@ class SubgridWrapper(object):
         If the library cannot be found, a ``RuntimeError`` with debug
         information is raised.
         """
-        known_paths = ['/usr/lib', '/usr/local/lib',
-                       '/opt/3di/lib', '~/local/lib',
-                       '~/.local/lib', '.']
+        known_paths = [
+            # From very specific to generic. Local installs win,
+            # and /opt/3di wins over system installs.
+            '.',
+            '~/local/lib',
+            '~/.local/lib', 
+            '/opt/3di/lib', 
+            '/usr/local/lib',
+            '/usr/lib', 
+        ]
         # ^^^ Do not add your own path here!
         lib_path_from_environment = os.environ.get('SUBGRID_PATH', '')
         if lib_path_from_environment:
