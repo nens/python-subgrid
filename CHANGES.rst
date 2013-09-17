@@ -5,6 +5,12 @@ Changelog of python-subgrid
 0.2 (unreleased)
 ----------------
 
+- Updated the build instructions, including hint to use the
+  now-available ubuntu packages.
+
+- Fixed library search order: specific wins over generic
+  (=``/usr/lib``).
+
 - Moved to github. Github pull requests are quite essential now for
   proper development. https://github.com/nens/python-subgrid . Mail
   Reinout for access if needed.
