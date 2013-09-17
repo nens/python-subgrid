@@ -35,7 +35,11 @@ library so that we can wrap it. A mostly standard installation on
 ubuntu (which is also used on the jenkins test server and on the demo
 website) uses the standard ubuntu netcdf packages and fortran::
 
-    $ sudo apt-get install libnetcdf-dev libnetcdf6 gfortran
+    $ sudo apt-get install libnetcdf-dev \
+      libnetcdf6 \
+      gfortran \
+      libshp-dev \
+      libgdal1-dev
 
 For the python netcdf library compilation we need another package::
 
@@ -49,7 +53,7 @@ after you set up the ubuntu repository.
 And we use the regular configure/make/make install steps with two changes::
 
     $ ./autogen.sh  # Try it without. If something breaks, run it.
-    $ FCFLAGS="-I/usr/include" ./configure --prefix=/opt/3di
+    $ FCFLAGS="-I/usr/include -g -O0" ./configure --prefix=/opt/3di --with-gdal
     $ make
     $ make install
 
