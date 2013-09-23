@@ -5,6 +5,8 @@ Changelog of python-subgrid
 0.2 (unreleased)
 ----------------
 
+- Made a branch off an older stable version to create a 0.2 release.
+
 - The fortran library can be loaded through a "with" context manager now. The
   previous version loaded it upon importing the ``wrapper.py`` file, handling
   everything on the main module level.
