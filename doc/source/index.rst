@@ -9,6 +9,7 @@ basic usage instructions.
    :maxdepth: 2
 
    roadmap
+   status
    code
    fortran_functions
    project
