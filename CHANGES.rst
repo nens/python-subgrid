@@ -5,6 +5,9 @@ Changelog of python-subgrid
 0.3 (unreleased)
 ----------------
 
+- Added a status page to the documentation with the svn and github
+  locations and so on.
+
 - Updated the build instructions, including hint to use the
   now-available ubuntu packages.
 
