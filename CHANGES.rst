@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.2 (unreleased)
+0.3 (unreleased)
 ----------------
 
 - Updated the build instructions, including hint to use the
@@ -17,6 +17,13 @@ Changelog of python-subgrid
 
 - Added roadmap document (in the sphinx docs in ``doc/``) that
   describes the main structure and future roadmap of this library.
+
+
+0.2 (2013-09-23)
+----------------
+
+- Made a branch off an older stable version to create a 0.2 release.
+  This is the "svn revision 714" version that was/is used on the server.
 
 - The fortran library can be loaded through a "with" context manager now. The
   previous version loaded it upon importing the ``wrapper.py`` file, handling
