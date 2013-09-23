@@ -37,3 +37,28 @@ jenkins homepage.
     for extra access to the jenkins site.
 
 
+Python-subgrid wrapper (this project)
+-------------------------------------
+
+Code location: https://github.com/nens/python-subgrid (it used to be
+in deltares' svn, but tags are harder there and github pull requests
+are very important to have).
+
+Tags are automatically generated into proper Python packages:
+http://jenkins.3di.lizard.net/packages/ .
+https://github.com/nens/threedi-infrastructure sets up this automatic
+package building.
+
+It is tested with jenkins: http://jenkins.3di.lizard.net/
+
+Every time a new commit is made, a fresh version of the documentation
+(including this file) is generated into
+http://jenkins.3di.lizard.net/doc/ by the jenkins testrunner.
+
+
+3di live site(s)
+----------------
+
+Code location: https://github.com/nens/threedi-server/ .
+
+This is the basis for the http://live.3di.lizard.net/ websites.
