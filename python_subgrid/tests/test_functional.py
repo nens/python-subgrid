@@ -8,7 +8,7 @@ import io
 from nose.plugins.attrib import attr
 
 from python_subgrid.wrapper import SubgridWrapper, logger
-
+from python_subgrid.utils import NotDocumentedError
 
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
@@ -227,6 +227,11 @@ class LibSubgridTest(unittest.TestCase):
             arr = subgrid.get_nd('s1')
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
+
+    def test_get_nd_unknown_variable(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.initmodel()
+            self.assertRaises(NotDocumentedError, subgrid.get_nd, 'reinout')
 
     def test_compound_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:

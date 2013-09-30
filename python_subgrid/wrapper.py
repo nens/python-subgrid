@@ -25,11 +25,12 @@ from ctypes import (
     # Loading
     cdll)
 
+from python_subgrid import utils
 
 try:
     faulthandler.enable()
 except io.UnsupportedOperation:
-    # in notebooks faulthandler does not work
+    # In notebooks faulthandler does not work.
     pass
 
 
@@ -194,6 +195,13 @@ FUNCTIONS = [
         'restype': None,
     },
 ]
+
+DOCUMENTED_VARIABLES = {
+    # Purely for documentation purposes. Calling ``.get_nd()`` with a
+    # variable warns if the variable isn't documented here.
+    's1': "water levels",
+    'pumps': "pumps",
+}
 
 
 class SubgridWrapper(object):
@@ -495,8 +503,15 @@ class SubgridWrapper(object):
 
     def get_nd(self, name):
         """Return an nd array from subgrid library"""
-
-        # How many dimensiosn
+        if not name in DOCUMENTED_VARIABLES:
+            # Enforcing documentation is really the only way to
+            # ensure, well, documentation. Irritating, yes, but it
+            # works. Document them in the ``DOCUMENTED_VARIABLES``
+            # dictionary near the top of this Python file.
+            msg = "Requesting variable '{}', but it isn't documented.".format(
+                name)
+            raise utils.NotDocumentedError(msg)
+        # How many dimensions.
         rank = self.get_var_rank(name)
         # The shape array is fixed size
         shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')

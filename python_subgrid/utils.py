@@ -12,6 +12,10 @@ SUFFIXES['Windows'] = '.dll'
 SUFFIX = SUFFIXES[platform.system()]
 
 
+class NotDocumentedError(Exception):
+    pass
+
+
 # Utility functions for library unloading
 def isloaded(lib):
     """return true if library is loaded"""
@@ -43,6 +47,13 @@ def dlclose(lib):
         logging.debug('Closed')
 
 
+FILE_HEADER = """
+Fortran functions and variables
+===============================
+
+"""
+
+
 FUNCTIONS_HEADER = """
 Wrapped Fortran subgrid library functions
 -----------------------------------------
@@ -56,6 +67,21 @@ FUNCTION_TEMPLATE = """
 
 """
 
+VARIABLES_HEADER = """
+Directly accessible Fortran variables
+-------------------------------------
+
+These variables can be called from the wrapper's ``get_nd`` function.
+
+"""
+
+VARIABLE_TEMPLATE = """
+.. attribute:: {name}
+
+    {description}
+
+"""
+
 
 def generate_functions_documentation():
     """Script to generate documentation on the wrapped Fortran functions.
@@ -64,11 +90,13 @@ def generate_functions_documentation():
     a script with the same name.
 
     """
-    # Assumption: we're called from the root fo the project.
+    # Assumption: we're called from the root of the project.
     target_dir = './doc/source/'
     assert os.path.exists(target_dir), "Target dir %s doesn't exist." % target_dir
     # Local import, utils is bound to importered, itself, too.
     out = ''
+    out += FILE_HEADER
+
     from python_subgrid.wrapper import FUNCTIONS
     out += FUNCTIONS_HEADER
     for function in FUNCTIONS:
@@ -77,6 +105,13 @@ def generate_functions_documentation():
             name=function['name'],
             args=args,
             result=function['restype'].__class__.__name__)
+
+    from python_subgrid.wrapper import DOCUMENTED_VARIABLES
+    out += VARIABLES_HEADER
+    for variable in sorted(DOCUMENTED_VARIABLES.keys()):
+        out += VARIABLE_TEMPLATE.format(
+            name=variable,
+            description=DOCUMENTED_VARIABLES[variable])
 
     filename = os.path.join(target_dir, 'fortran_functions.rst')
     open(filename, 'w').write(out)
