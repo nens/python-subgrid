@@ -6,7 +6,8 @@ Changelog of python-subgrid
 ----------------
 
 - Started documentation on Fortran variables that you can call
-  directly.
+  directly. All variables are documented (as undocumented variables
+  raise a ``NotDocumentedError`` exception).
 
 - Added a status page to the documentation with the svn and github
   locations and so on.

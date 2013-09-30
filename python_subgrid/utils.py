@@ -12,6 +12,10 @@ SUFFIXES['Windows'] = '.dll'
 SUFFIX = SUFFIXES[platform.system()]
 
 
+class NotDocumentedError(Exception):
+    pass
+
+
 # Utility functions for library unloading
 def isloaded(lib):
     """return true if library is loaded"""
