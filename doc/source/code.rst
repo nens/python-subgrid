@@ -45,7 +45,35 @@ and talking to the Fortran library. Two methods interact with ctypes:
 
 .. note::
 
-   See the :doc:`fortran_functions` documentation!
+   See the :doc:`fortran_functions` documentation for the full list of
+   functions you can call.
+
+
+Accessing Fortran variables
+---------------------------
+
+You can use ``get_nd`` to directly access a variable from Fortran.
+
+.. automethod:: SubgridWrapper.get_nd
+
+.. note::
+
+   See the :doc:`fortran_functions` documentation for the full list of
+   variables you can access.
+
+The ``get_nd`` variable accessor uses several helper methods:
+
+.. automethod:: SubgridWrapper.get_var_shape
+
+.. automethod:: SubgridWrapper.get_var_rank
+
+.. automethod:: SubgridWrapper.get_var_type
+
+.. automethod:: SubgridWrapper.make_compound_ctype
+
+.. automethod:: SubgridWrapper.inq_compound
+
+.. automethod:: SubgridWrapper.inq_compound_field
 
 
 Helper methods

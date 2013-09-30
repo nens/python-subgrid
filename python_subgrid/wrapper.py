@@ -195,6 +195,13 @@ FUNCTIONS = [
     },
 ]
 
+DOCUMENTED_VARIABLES = {
+    # Purely for documentation purposes. Calling ``.get_nd()`` with a
+    # variable warns if the variable isn't documented here.
+    's1': "water levels",
+    'pumps': "pumps",
+}
+
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
@@ -495,7 +502,8 @@ class SubgridWrapper(object):
 
     def get_nd(self, name):
         """Return an nd array from subgrid library"""
-
+        if not name in DOCUMENTED_VARIABLES:
+            logger.warn("Requesting variable '%s', but it isn't documented.")
         # How many dimensiosn
         rank = self.get_var_rank(name)
         # The shape array is fixed size

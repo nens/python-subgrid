@@ -1,4 +1,8 @@
 
+Fortran functions and variables
+===============================
+
+
 Wrapped Fortran subgrid library functions
 -----------------------------------------
 
@@ -71,4 +75,18 @@ Wrapped Fortran subgrid library functions
 .. function:: subgrid_info()
 
     Returns NoneType
+
+
+Directly accessible Fortran variables
+-------------------------------------
+
+
+.. attribute:: pumps
+
+    pumps
+
+
+.. attribute:: s1
+
+    water levels
 
