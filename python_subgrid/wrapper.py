@@ -511,7 +511,7 @@ class SubgridWrapper(object):
             msg = "Requesting variable '{}', but it isn't documented.".format(
                 name)
             raise utils.NotDocumentedError(msg)
-        # How many dimensiosn
+        # How many dimensions.
         rank = self.get_var_rank(name)
         # The shape array is fixed size
         shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
