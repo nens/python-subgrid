@@ -35,7 +35,7 @@ except io.UnsupportedOperation:
 
 
 MAXDIMS = 6
-CTYPESMAP={
+CTYPESMAP = {
     'bool': c_bool,
     'char': c_char,
     'double': c_double,
@@ -55,8 +55,8 @@ LEVELS_PY2F = {
     logging.WARN: 3,
     logging.ERROR: 4,
     logging.FATAL: 5,
-    logging.NOTSET: 6
-    }
+    logging.NOTSET: 6,
+}
 LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
 
@@ -76,7 +76,7 @@ fortran_log_func = fortran_log_functype(fortran_log)
 
 def struct2dict(struct):
     """convert a ctypes structure to a dictionary"""
-    return {x:getattr(struct, x) for x in dict(struct._fields_).keys()}
+    return {x: getattr(struct, x) for x in dict(struct._fields_).keys()}
 
 
 def structs2records(structs):
@@ -147,8 +147,8 @@ FUNCTIONS = [
             POINTER(c_double),  # yc
             POINTER(c_double),  # size
             POINTER(c_double),  # bvalue
-            POINTER(c_int)      # bmode
-                 ],
+            POINTER(c_int),     # bmode
+        ],
         'restype': c_int,
     },
     {
@@ -254,7 +254,8 @@ class SubgridWrapper(object):
         # we don't expect anything back
         self.library.set_mh_c_callback.restype = None
         # as an argument we need a pointer to a fortran log func...
-        self.library.set_mh_c_callback.argtypes = [POINTER(fortran_log_functype)]
+        self.library.set_mh_c_callback.argtypes = [
+            POINTER(fortran_log_functype)]
         self.library.set_mh_c_callback(byref(fortran_log_func))
 
     def _libname(self):
@@ -284,10 +285,10 @@ class SubgridWrapper(object):
             # and /opt/3di wins over system installs.
             '.',
             '~/local/lib',
-            '~/.local/lib', 
-            '/opt/3di/lib', 
+            '~/.local/lib',
+            '/opt/3di/lib',
             '/usr/local/lib',
-            '/usr/lib', 
+            '/usr/lib',
         ]
         # ^^^ Do not add your own path here!
         lib_path_from_environment = os.environ.get('SUBGRID_PATH', '')
@@ -318,19 +319,21 @@ class SubgridWrapper(object):
         argument types and return type(s) of the various functions.
 
         The annotations also make our own life easier as it allows ctypes to
-        do a lot of type conversions automatically for us. We can pass most values
-        without the need to convert to a pointer first.
+        do a lot of type conversions automatically for us. We can pass most
+        values without the need to convert to a pointer first.
 
         On the wrapper.library the functions can be called as ctypes functions.
         On the wrapper the functions can be called with python types.
 
         """
         def wrap(func):
-            """wrap the function so we can do type conversion and sanity check"""
+            """Return wrapped function with type conversion and sanity checks.
+            """
             @functools.wraps(func, assigned=('restype', 'argtypes'))
             def wrapped(*args):
                 if len(args) != len(func.argtypes):
-                    logger.warn("{} {} not of same length".format(args, func.argtypes))
+                    logger.warn("{} {} not of same length",
+                                args, func.argtypes)
 
                 typed_args = []
                 for (arg, argtype) in zip(args, func.argtypes):
@@ -342,15 +345,18 @@ class SubgridWrapper(object):
                         typed_arg = argtype(argtype._type_(arg))
                     typed_args.append(typed_arg)
                 result = func(*typed_args)
-                return result.contents if hasattr(result, 'contents') else result
+                if hasattr(result, 'contents'):
+                    return result.contents
+                else:
+                    return result
             return wrapped
         for function in FUNCTIONS:
             api_function = getattr(self.library, function['name'])
             api_function.argtypes = function['argtypes']
             api_function.restype = function['restype']
-            # decorate the function with type conversion,
-            # so we can pass in normal python stuff
-            # make sure the function properties are copied to the wrapper (normally copy __doc__ etc...)
+            # decorate the function with type conversion, so we can pass in
+            # normal python stuff make sure the function properties are copied
+            # to the wrapper (normally copy __doc__ etc...)
             # @functools.wraps(api_function,assigned=('restype','argtypes') )
             f = wrap(api_function)
             assert hasattr(f, 'argtypes')
@@ -438,10 +444,23 @@ class SubgridWrapper(object):
                               shape=(self.MAXDIMS, ),
                               flags='F')
         shape = np.empty((self.MAXDIMS, ), dtype='int32', order='fortran')
-        self.library.inq_compound_field.argtypes = [c_char_p, POINTER(c_int), c_char_p, c_char_p, POINTER(c_int), arraytype]
+        self.library.inq_compound_field.argtypes = [c_char_p,
+                                                    POINTER(c_int),
+                                                    c_char_p,
+                                                    c_char_p,
+                                                    POINTER(c_int),
+                                                    arraytype]
         self.library.inq_compound_field.restype = None
-        self.library.inq_compound_field(typename, byref(index), fieldname, fieldtype, byref(rank), shape)
-        return fieldname.value, fieldtype.value, rank.value, tuple(shape[:rank.value])
+        self.library.inq_compound_field(typename,
+                                        byref(index),
+                                        fieldname,
+                                        fieldtype,
+                                        byref(rank),
+                                        shape)
+        return (fieldname.value,
+                fieldtype.value,
+                rank.value,
+                tuple(shape[:rank.value]))
 
     def make_compound_ctype(self, varname):
         """
@@ -454,13 +473,15 @@ class SubgridWrapper(object):
         # for all the fields look up the type, rank and shape
         fields = []
         for i in range(nfields):
-            fieldname, fieldtype, fieldrank, fieldshape = self.inq_compound_field(compoundname, i)
-            assert fieldrank<=1
+            (fieldname, fieldtype,
+             fieldrank, fieldshape) = self.inq_compound_field(compoundname, i)
+            assert fieldrank <= 1
             fieldctype = CTYPESMAP[fieldtype]
             if fieldrank == 1:
                 fieldctype = fieldctype*fieldshape[0]
             fields.append((fieldname, fieldctype))
         # create a new structure
+
         class COMPOUND(Structure):
             _fields_ = fields
 
@@ -533,8 +554,8 @@ class SubgridWrapper(object):
             arraytype = self.make_compound_ctype(name)
         # Create a pointer to the array type
         data = arraytype()
-        # The functions get_var_type/_shape/_rank are already wrapped with python function converter
-        # get_var isn't
+        # The functions get_var_type/_shape/_rank are already wrapped with
+        # python function converter, get_var isn't.
         c_name = create_string_buffer(name)
         get_var = self.library.get_var
         get_var.argtypes = [c_char_p, POINTER(arraytype)]

@@ -161,7 +161,9 @@ class LibSubgridTest(unittest.TestCase):
             for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.update(-1)
-                subgrid.discharge(85830.97071920538, 448605.8983910042, manhole_name, 1, 100.0)
+                subgrid.discharge(
+                    85830.97071920538, 448605.8983910042,
+                    manhole_name, 1, 100.0)
 
     def test_discard_manhole(self):
         print
@@ -190,7 +192,9 @@ class LibSubgridTest(unittest.TestCase):
             for i in range(5):
                 deltas = np.linspace(0, 100000, num=5)
                 for i, delta in enumerate(deltas):
-                    subgrid.discharge(x + delta, y + delta, "%s_%s" % (manhole_name, i), itype, discharge_value)
+                    subgrid.discharge(x + delta, y + delta,
+                                      "%s_%s" % (manhole_name, i),
+                                      itype, discharge_value)
                 subgrid.update(-1)
                 # reinitialize
                 subgrid.initmodel()
@@ -212,8 +216,6 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             typename = subgrid.get_var_type('s1')
             self.assertEqual(typename, 'double')
-
-
 
     def test_get_var_shape(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -238,19 +240,23 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
+
     def test_compound_type(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
+
     def test_make_compound(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             valtype = subgrid.make_compound_ctype("pumps")
             # check if the type is a pointer to the compound array type
             # types pointer->array->pumps->id
-            self.assertTrue(valtype._type_.__name__.startswith('COMPOUND_Array'))
+            self.assertTrue(valtype._type_.__name__.startswith(
+                'COMPOUND_Array'))
             self.assertEqual(valtype._type_._type_.__name__, 'COMPOUND')
+
     def test_compound_getnd(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -270,12 +276,6 @@ class LibSubgridTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 0)
 
-
-
-
-
-
-
     # def test_get_water_level(self):
     #     print
     #     print '########### test get water level'
@@ -288,7 +288,8 @@ class LibSubgridTest(unittest.TestCase):
     #     for i in xrange(10):
     #         print 'doing %d...' % i
     #         #print libsubgrid.funcall('update',
-    #                 'ctypes.byref(ctypes.c_double(-1))') # -1 = use default model timestep.
+    #                 'ctypes.byref(ctypes.c_double(-1))')
+    #                 # -1 = use default model timestep.
     #         print subgrid.update(-1) # -1 = use default model time
     #     level = ctypes.c_double(-1234.0)
     #     #level_p = ctypes.POINTER(0.0) #ctypes.c_double(0.0)
@@ -302,9 +303,11 @@ class LibSubgridTest(unittest.TestCase):
     #     )
     #     # result = libsubgrid.funcall(
     #     #     'GETWATERLEVEL',
-    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3])',
+    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]),
+    #                                   ctypes.byref(args[3])',
     #     #     xtest, ytest, level)
-    #     print "na getwaterlevel, result at (%r, %r): %r" % (xtest, ytest, level)
+    #     print "na getwaterlevel, result at (%r, %r): %r" % (
+    #                      xtest, ytest, level)
     #     print 'true? %r' % (abs(level.value - -1.6409107876960418) < EPSILON)
     #     # The value is -999 now..
     #     #unittest.assertTrue((level.value - -1.6409107876960418) < EPSILON)
@@ -313,7 +316,8 @@ class LibSubgridTest(unittest.TestCase):
     #         print 'doing %d...' % i
     #         print subgrid.update(-1) # -1 = use default model time
     #         # print libsubgrid.funcall(
-    #         #     'update', 'ctypes.byref(ctypes.c_double(-1))') # -1 = use default model timestep.
+    #         #     'update', 'ctypes.byref(ctypes.c_double(-1))')
+    #                 # -1 = use default model timestep.
 
     #     result = subgrid.getwaterlevel(
     #         ctypes.byref(xtest),
@@ -323,9 +327,11 @@ class LibSubgridTest(unittest.TestCase):
 
     #     # result = libsubgrid.funcall(
     #     #     'GETWATERLEVEL',
-    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]), ctypes.byref(args[3])',
+    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]),
+    #           ctypes.byref(args[3])',
     #     #     xtest, ytest, level)
-    #     print "na getwaterlevel2, result at (%r, %r): %r" % (xtest, ytest, level)
+    #     print "na getwaterlevel2, result at (%r, %r): %r" % (
+    #                xtest, ytest, level)
     #     # After one run it has this value... don't know if we have to check,
     #     # but it's a got change follower
     #     # The value is -999 now..
@@ -338,11 +344,10 @@ class LibSubgridTest(unittest.TestCase):
     def test_changebathy(self):
         print
         print '########### test change bathy'
-        abs_path = os.path.join(scenario_basedir, scenarios[DEFAULT_SCENARIO]['path'])
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             for i in xrange(5):
                 print 'doing %d...' % i
-                print subgrid.update(-1) # -1 = use default model time
+                print subgrid.update(-1)  # -1 = use default model time
 
             xc = 250808.205511
             yc = 589490.224168
@@ -359,13 +364,14 @@ class LibSubgridTest(unittest.TestCase):
 
             for i in xrange(5):
                 print 'doing %d...' % i
-                print subgrid.update(-1) # -1 = use default model time
+                print subgrid.update(-1)  # -1 = use default model time
 
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
     # #     print
     # #     print '########### test change bathy2'
-    # #     abs_path = os.path.join(scenario_basedir, scenarios['betondorp']['path'])
+    # #     abs_path = os.path.join(scenario_basedir,
+    #                 scenarios['betondorp']['path'])
     # #     load_model(abs_path, scenarios['betondorp']['mdu_filename'])
     # #     libsubgrid.funcall('initmodel')
     # #     self.model_initialized = True
@@ -378,7 +384,9 @@ class LibSubgridTest(unittest.TestCase):
 
     # #     libsubgrid.funcall(
     # #         'changebathy',
-    # #         'ctypes.c_double(args[1]), ctypes.c_double(args[2]), ctypes.c_double(args[3]), ctypes.c_double(args[4]), ctypes.c_int(args[5])',
+    # #         'ctypes.c_double(args[1]), ctypes.c_double(args[2]),
+    #             ctypes.c_double(args[3]), ctypes.c_double(args[4]),
+    #             ctypes.c_int(args[5])',
     # #         xc, yc, sz, bval, bmode)
     # #     #libsubgrid.funcall('finalizemodel')
 
