@@ -41,3 +41,5 @@ etc/*.logrotate
 
 fort.*
 *.dia
+
+testcases
