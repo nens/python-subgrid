@@ -169,7 +169,7 @@ class LibSubgridTest(unittest.TestCase):
             manhole_name = 'test_manhole'
             x = 695570
             y = 7806336
-            discharge_value = 50.0
+            discharge_value = 5000.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             for i in xrange(100):
