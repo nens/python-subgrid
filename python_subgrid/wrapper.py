@@ -8,12 +8,13 @@ import functools
 import io
 import logging
 import os
-import platform
 
+import platform
 import faulthandler
 from numpy.ctypeslib import ndpointer  # nd arrays
 import numpy as np
 import pandas
+
 
 from ctypes import (
     # Types
