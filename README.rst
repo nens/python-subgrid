@@ -94,14 +94,14 @@ The code is tested on http://jenkins.3di.lizard.net. The ``libsubgrid.so``
 that is used there is the one from the last successful build of
 ``subgridf90``, which is placed in ``/opt/3di/``.
 
-The tests need testcases. Currently it are some of the actual in-production
-datasets used for the 3di websites ("betondorp", "delfland"). These are
-available as svn:externals in the subgrid library directory.
+The functional tests need testcases. Run ``update_testcases.sh`` to check them
+out and test them. The tests find them automatically, so a simple ``bin/test``
+is enough.
 
 You can symlink those directories next to this README. You can also set
 the ``SCENARIO_BASEDIR`` environment variable. Either set it globally or run
 the tests like this, for instance::
 
-    $ SCENARIO_BASEDIR=../subgridf90/testcases bin/test
+    $ SCENARIO_BASEDIR=/some/directory bin/test
 
 If the scenarios cannot be found, the functional model tests are skipped, btw.
