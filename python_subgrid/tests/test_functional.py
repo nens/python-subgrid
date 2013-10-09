@@ -21,7 +21,7 @@ scenarios = {
         'mdu_filename': "1d2d_kunstw.mdu",
     },
     'DelflandiPad': {
-        'path': 'DelflandiPad',
+        'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
     },
     'HHNKiPad': {
@@ -45,27 +45,25 @@ scenarios = {
         'mdu_filename': "mozambique.mdu",
     },
 }
-DEFAULT_SCENARIO = 'DelflandiPad'
-if 'SCENARIO' in os.environ:
-    DEFAULT_SCENARIO = os.environ['SCENARIO']
 
+# Use DelflandiPad by default for now
+DEFAULT_SCENARIO = 'DelflandiPad'
+scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them. An alternative is to set the
 # SCENARIO_BASEDIR environment variable.
-scenario_basedir = os.getcwd()
-logging.debug("environment: {}".format(os.environ))
-if 'SCENARIO_BASEDIR' in os.environ:
-    scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
+scenario_basedir = os.path.abspath(os.environ.get('SCENARIO_BASEDIR', os.getcwd()))
 
-MODELS_AVAILABLE = os.path.exists(os.path.join(scenario_basedir,
-                                               DEFAULT_SCENARIO))
+default_scenario_path = os.path.join(scenario_basedir,
+                                     scenarios[scenario]['path'])
+models_available = os.path.exists(default_scenario_path)
+msg = "Scenario models not available {}".format(default_scenario_path)
 
-
-@unittest.skipIf(not MODELS_AVAILABLE, "Scenario models not available")
+@unittest.skipIf(not models_available, msg)
 class LibSubgridTest(unittest.TestCase):
 
     def setUp(self):
-        self.default_mdu = self._mdu_path(DEFAULT_SCENARIO)
+        self.default_mdu = self._mdu_path(scenario)
         pass
 
     def tearDown(self):
@@ -306,8 +304,8 @@ class LibSubgridTest(unittest.TestCase):
     #     print
     #     print '########### test get water level'
     #     abs_path = os.path.join(scenario_basedir,
-    #                             scenarios[DEFAULT_SCENARIO]['path'])
-    #     load_model(abs_path, scenarios[DEFAULT_SCENARIO]['mdu_filename'])
+    #                             scenarios[scenario]['path'])
+    #     load_model(abs_path, scenarios[scenario]['mdu_filename'])
     #     subgrid.initmodel()
     #     self.model_initialized = True
 
