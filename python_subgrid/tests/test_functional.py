@@ -258,17 +258,31 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
 
-    @unittest.skip
-    def test_remove_pumps(self):
+    def test_remove_pump(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)
             id = df['id'].irow(0)
             logger.info(id)
+            # This deletes a structure, a pump is a structure
             subgrid.discard_structure(id)
+            # Now if we get the pumps again it should be empty
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 0)
+    def test_pump_it_up(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 1)
+            # Increase capacity of all pumps by a factor 10
+            df['capacity'] = df['capacity'] * 10
+            s1before = self.get_nd('s1').copy()
+            self.update(-1)
+            s1after = self.get_nd('s1').copy()
+            # There should be water movement now, check S1
+            self.assertGreater((s1after - s1before).abs().sum(), 0)
+
 
 
 

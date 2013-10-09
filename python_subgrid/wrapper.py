@@ -8,12 +8,13 @@ import functools
 import io
 import logging
 import os
-import platform
 
+import platform
 import faulthandler
 from numpy.ctypeslib import ndpointer  # nd arrays
 import numpy as np
 import pandas
+
 
 from ctypes import (
     # Types
@@ -35,7 +36,7 @@ except io.UnsupportedOperation:
 
 
 MAXDIMS = 6
-CTYPESMAP={
+CTYPESMAP = {
     'bool': c_bool,
     'char': c_char,
     'double': c_double,
@@ -284,10 +285,10 @@ class SubgridWrapper(object):
             # and /opt/3di wins over system installs.
             '.',
             '~/local/lib',
-            '~/.local/lib', 
-            '/opt/3di/lib', 
+            '~/.local/lib',
+            '/opt/3di/lib',
             '/usr/local/lib',
-            '/usr/lib', 
+            '/usr/lib',
         ]
         # ^^^ Do not add your own path here!
         lib_path_from_environment = os.environ.get('SUBGRID_PATH', '')
