@@ -173,7 +173,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 50.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(10):
+            for i in xrange(100):
                 print 'doing %d...' % i
                 subgrid.update(-1)
 
