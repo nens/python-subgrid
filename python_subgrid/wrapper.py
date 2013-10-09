@@ -405,9 +405,9 @@ class SubgridWrapper(object):
             self.library.finalizemodel()
         logger.info('library shutdown...')
         self.library.shutdown()  # Fortran cleanup function.
-        while utils.isloaded(self._library_path()):
-            logger.info('dlclose...')
-            utils.dlclose(self.library)
+        # while utils.isloaded(self._library_path()):
+        #     logger.info('dlclose...')
+        #     utils.dlclose(self.library)
         logger.info('chdir...')
         # del self.library  # This one doesn't work.
         os.chdir(self.original_dir)
