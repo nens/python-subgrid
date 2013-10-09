@@ -24,14 +24,6 @@ scenarios = {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
     },
-    'HHNKiPad': {
-        'path': 'HHNKiPad',
-        'mdu_filename': "HHNKiPad.mdu",
-    },
-    'hunzeenaas': {
-        'path': 'hunzeenaas',
-        'mdu_filename': "hunzeenaas.mdu",
-    },
     'betondorp': {
         'path': 'betondorp',
         'mdu_filename': "betondorp.mdu",
