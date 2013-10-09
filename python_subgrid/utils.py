@@ -68,7 +68,7 @@ def dlclose(lib):
     # windows should use something like:
     # http://msdn.microsoft.com/en-us/library/windows
     # /desktop/ms683152(v=vs.85).aspx
-    name = 'libdl' + SUFFIX[platform.system()]
+    name = 'libdl' + SUFFIX
     libdl = ctypes.cdll.LoadLibrary(name)
     libdl.dlerror.restype = ctypes.c_char_p
     libdl.dlclose.argtypes = [ctypes.c_void_p]

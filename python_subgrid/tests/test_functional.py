@@ -17,39 +17,32 @@ EPSILON = 0.00000001
 
 scenarios = {
     '1dpumps': {
-        'name': '1D Pump Test',
         'path': '1dpumptest',
         'mdu_filename': "1d2d_kunstw.mdu",
     },
     'DelflandiPad': {
-        'name': 'Delfland',
         'path': 'DelflandiPad',
         'mdu_filename': "hhdlipad.mdu",
     },
     'HHNKiPad': {
-        'name': 'HHNK',
         'path': 'HHNKiPad',
         'mdu_filename': "HHNKiPad.mdu",
     },
     'hunzeenaas': {
-        'name': 'Hunze en Aas',
         'path': 'hunzeenaas',
         'mdu_filename': "hunzeenaas.mdu",
     },
     'betondorp': {
-        'name': 'Betondorp',
         'path': 'betondorp',
         'mdu_filename': "betondorp.mdu",
     },
-    'delfland-model-voor-3di': {
-        'name': 'Delfland',
-        'path': 'delfland-model-voor-3di',
-        'mdu_filename': "hhdlipad.mdu",
-    },
     'Kaapstad': {
-        'name': 'Kaapstad',
         'path': 'Kaapstad',
         'mdu_filename': "Kaapstad.mdu",
+    },
+    'mozambique': {
+        'path': 'mozambique',
+        'mdu_filename': "mozambique.mdu",
     },
 }
 DEFAULT_SCENARIO = 'DelflandiPad'
@@ -117,7 +110,7 @@ class LibSubgridTest(unittest.TestCase):
             with SubgridWrapper(mdu=self.default_mdu):
                 print 'test load #%r' % i
 
-    @unittest.skip
+    #@unittest.skip
     def test_timesteps(self):
         print
         print '########### test timesteps'
@@ -130,7 +123,7 @@ class LibSubgridTest(unittest.TestCase):
                 print subgrid.update(-1)
                 # -1 = use default model timestep.
 
-    @unittest.skip
+    #@unittest.skip
     def test_dropinstantrain(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -147,7 +140,7 @@ class LibSubgridTest(unittest.TestCase):
                 # compute
                 subgrid.update(-1)
 
-    @unittest.skip
+    #@unittest.skip
     def test_manhole(self):
         print
         print '############ test manhole'
@@ -164,6 +157,25 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.discharge(
                     85830.97071920538, 448605.8983910042,
                     manhole_name, 1, 100.0)
+
+    #@unittest.skip
+    def test_manhole_mozambique(self):
+        print
+        print '############ test manhole mozambique'
+        mdu_filename = self._mdu_path('mozambique')
+        # if not os.path.exists(mdu_filename):
+        #     print 'ignored'
+        #     return
+        with SubgridWrapper(mdu=mdu_filename) as subgrid:
+            manhole_name = 'test_manhole'
+            x = 695570
+            y = 7806336
+            discharge_value = 50.0
+            itype = 1
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            for i in xrange(10):
+                print 'doing %d...' % i
+                subgrid.update(-1)
 
     def test_discard_manhole(self):
         print
