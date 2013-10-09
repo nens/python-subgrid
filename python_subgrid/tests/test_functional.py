@@ -59,7 +59,8 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
-@unittest.skipIf(not models_available, msg)
+#TODO: get this to work
+#@unittest.skipIf(not models_available, msg)
 class LibSubgridTest(unittest.TestCase):
 
     def setUp(self):
