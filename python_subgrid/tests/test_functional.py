@@ -24,14 +24,6 @@ scenarios = {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
     },
-    'HHNKiPad': {
-        'path': 'HHNKiPad',
-        'mdu_filename': "HHNKiPad.mdu",
-    },
-    'hunzeenaas': {
-        'path': 'hunzeenaas',
-        'mdu_filename': "hunzeenaas.mdu",
-    },
     'betondorp': {
         'path': 'betondorp',
         'mdu_filename': "betondorp.mdu",
@@ -50,9 +42,17 @@ scenarios = {
 DEFAULT_SCENARIO = 'DelflandiPad'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
 # By default, we look for scenario dirs in the current working directory. This
-# means you need to create symlinks to them. An alternative is to set the
+# means you need to create symlinks to them.
+# Handiest is to use the ``update_testcases.sh`` script to check out
+# everything into the testcases directory. This is supported by default.
+# An alternative is to set the
 # SCENARIO_BASEDIR environment variable.
-scenario_basedir = os.path.abspath(os.environ.get('SCENARIO_BASEDIR', os.getcwd()))
+if 'SCENARIO_BASEDIR' in os.environ:
+    scenario_basedir = os.path.abspath(os.environ['SCENARIO_BASEDIR'])
+elif 'testcases' in os.listdir('.'):
+    scenario_basedir = os.path.abspath('testcases')
+else:
+    scenario_basedir = os.path.abspath('.')
 
 default_scenario_path = os.path.join(scenario_basedir,
                                      scenarios[scenario]['path'])

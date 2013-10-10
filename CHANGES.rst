@@ -5,6 +5,9 @@ Changelog of python-subgrid
 0.3 (unreleased)
 ----------------
 
+- Added ``update_testcases.sh`` script for checking out the testcases that are
+  needed for our functional tests.
+
 - Started documentation on Fortran variables that you can call
   directly. All variables are documented (as undocumented variables
   raise a ``NotDocumentedError`` exception).
