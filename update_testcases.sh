@@ -20,12 +20,12 @@ cd mozambique
 hg pull -u
 cd ..
 
-if [ ! -d 1dpumps ]
+if [ ! -d 1dpumptest ]
 then
-    echo "1dpumps subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/1dpumps
+    echo "1dpumptest subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/1dpumptest
 fi
-cd 1dpumps
+cd 1dpumptest
 hg pull -u
 cd ..
 
