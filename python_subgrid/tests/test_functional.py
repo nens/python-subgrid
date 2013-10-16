@@ -36,6 +36,10 @@ scenarios = {
         'path': 'mozambique',
         'mdu_filename': "mozambique.mdu",
     },
+    'delfland1d': {
+        'path': 'boezemstelsel Delfland',
+        'mdu_filename': "Boezem_HHD.mdu",
+    },
 }
 
 # Use DelflandiPad by default for now
@@ -107,6 +111,13 @@ class LibSubgridTest(unittest.TestCase):
         print '########### test multiple load'
         for i in range(2):
             with SubgridWrapper(mdu=self.default_mdu):
+                print 'test load #%r' % i
+
+    def test_load_1d(self):
+        print
+        print '########### test multiple load 1d'
+        for i in range(2):
+            with SubgridWrapper(mdu=self._mdu_path('delfland1d')):
                 print 'test load #%r' % i
 
     #@unittest.skip
