@@ -36,8 +36,8 @@ scenarios = {
         'path': 'mozambique',
         'mdu_filename': "mozambique.mdu",
     },
-    'delfland1d': {
-        'path': 'boezemstelsel Delfland',
+    'boezemstelsel-delfland': {
+        'path': 'boezemstelsel-delfland',
         'mdu_filename': "Boezem_HHD.mdu",
     },
 }
@@ -117,7 +117,7 @@ class LibSubgridTest(unittest.TestCase):
         print
         print '########### test multiple load 1d'
         for i in range(2):
-            with SubgridWrapper(mdu=self._mdu_path('delfland1d')):
+            with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
                 print 'test load #%r' % i
 
     #@unittest.skip
