@@ -6,6 +6,7 @@ import os
 import logging
 import io
 from nose.plugins.attrib import attr
+import numpy as np
 
 from python_subgrid.wrapper import SubgridWrapper, logger
 from python_subgrid.utils import NotDocumentedError
@@ -305,11 +306,28 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             # Increase capacity of all pumps by a factor 10
             df['capacity'] = df['capacity'] * 10
-            s1before = self.get_nd('s1').copy()
-            self.update(-1)
-            s1after = self.get_nd('s1').copy()
+            s1before = subgrid.get_nd('s1').copy()
+            subgrid.update(-1)
+            s1after = subgrid.get_nd('s1').copy()
             # There should be water movement now, check S1
-            self.assertGreater((s1after - s1before).abs().sum(), 0)
+            self.assertGreater(np.abs(s1after - s1before).sum(), 0)
+
+
+    def test_pump_it_up_manual(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 1)
+            # Get the current capacity
+            # Make sure you use item(0), otherwise you get a numpy 0d type
+            capacity0 = df.capacity.item(0)
+            pumpid = df.id.item(0)
+            # Increase capacity of all pump1 by a factor 10
+            subgrid.set_structure_field("pumps", pumpid, "capacity", capacity0 * 10)
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(df.id.item(0), pumpid)
+            capacity1 = df.capacity.item(0)
+            self.assertEqual(capacity1, capacity0)
 
 
     # def test_get_water_level(self):
