@@ -618,16 +618,24 @@ class SubgridWrapper(object):
                 fieldctype = fieldctype*fieldshape[0]
             fields[fieldname] = fieldctype
 
+
+        T = fields[field]       # type (c_double)
+        T_p = POINTER(T)        # void pointer, as used in the model
+
         set_structure_field = self.library.set_structure_field
-        set_structure_field.argtypes = [c_char_p, c_char_p, c_char_p, POINTER(fields[field])]
+        set_structure_field.argtypes = [c_char_p, c_char_p, c_char_p, POINTER(T_p)]
         set_structure_field.restype = None
-        c_value = fields[field](value)
+        # So the value is a void pointer by reference....
+        # Create a value wrapped in a c_double_p
+
+        # wrap it up in the first pointer
+        c_value = T_p(T(value))
 
 
         c_name = create_string_buffer(name)
         c_id = create_string_buffer(id)
         c_field = create_string_buffer(field)
-        # Cast should happen automatic
+        # Pass the void_p by reference...
         set_structure_field(c_name, c_id, c_field, byref(c_value))
 
 

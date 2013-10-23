@@ -327,7 +327,7 @@ class LibSubgridTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
-            self.assertEqual(capacity1, capacity0)
+            self.assertEqual(capacity1, capacity0 * 10)
 
 
     # def test_get_water_level(self):
