@@ -18,7 +18,9 @@ import pandas
 
 from ctypes import (
     # Types
-    c_double, c_int, c_char_p, c_bool, c_char, c_float, ARRAY, Structure,
+    c_double, c_int, c_char_p, c_bool, c_char, c_float, c_void_p,
+    # Complex types
+    ARRAY, Structure,
     # Making strings
     create_string_buffer,
     # Pointering
@@ -580,6 +582,62 @@ class SubgridWrapper(object):
         else:
             array = structs2pandas(data.contents)
         return array
+    def set_structure_field(self, name, id, field, value):
+        {
+        'name': 'set_structure_field',
+            'argtypes': [
+                c_char_p,           # variable (pumps)
+                c_char_p,           # id (pump01)
+                c_char_p,           # field (capacity)
+                c_void_p            # pointer to value
+            ],
+        'restype': c_int,
+        }
+        # This only works for 1d
+        rank = self.get_var_rank(name)
+        assert rank == 1
+        # The shape array is fixed size
+        shape = np.empty((MAXDIMS, ), dtype='int32', order='fortran')
+        shape = self.get_var_shape(name)
+        # there should be nothing here...
+        assert sum(shape[rank:]) == 0
+
+
+        # look up the type name
+        typename = self.get_var_type(name)
+        assert typename not in TYPEMAP
+        nfields = self.inq_compound(typename)
+        # for all the fields look up the type, rank and shape
+        fields = {}
+        for i in range(nfields):
+            (fieldname, fieldtype,
+             fieldrank, fieldshape) = self.inq_compound_field(typename, i)
+            assert fieldrank <= 1
+            fieldctype = CTYPESMAP[fieldtype]
+            if fieldrank == 1:
+                fieldctype = fieldctype*fieldshape[0]
+            fields[fieldname] = fieldctype
+
+
+        T = fields[field]       # type (c_double)
+        T_p = POINTER(T)        # void pointer, as used in the model
+
+        set_structure_field = self.library.set_structure_field
+        set_structure_field.argtypes = [c_char_p, c_char_p, c_char_p, POINTER(T_p)]
+        set_structure_field.restype = None
+        # So the value is a void pointer by reference....
+        # Create a value wrapped in a c_double_p
+
+        # wrap it up in the first pointer
+        c_value = T_p(T(value))
+
+
+        c_name = create_string_buffer(name)
+        c_id = create_string_buffer(id)
+        c_field = create_string_buffer(field)
+        # Pass the void_p by reference...
+        set_structure_field(c_name, c_id, c_field, byref(c_value))
+
 
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
