@@ -40,6 +40,10 @@ scenarios = {
         'path': 'boezemstelsel Delfland',
         'mdu_filename': "Boezem_HHD.mdu",
     },
+    'heerenveen': {
+        'path': 'heerenveen',
+        'mdu_filename': "heerenveen.mdu",
+    },
 }
 
 # Use DelflandiPad by default for now
@@ -398,6 +402,28 @@ class LibSubgridTest(unittest.TestCase):
 
             subgrid.changebathy(xc, yc, sz, bval, bmode)
 
+            for i in xrange(5):
+                print 'doing %d...' % i
+                print subgrid.update(-1)  # -1 = use default model time
+
+    def test_changebathy_heerenveen(self):
+        print
+        print '########### test change bathy heerenveen'
+        with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
+            for i in xrange(5):
+                print 'doing %d...' % i
+                print subgrid.update(-1)  # -1 = use default model time
+
+            xc = 188733.
+            yc = 553957.
+            sz = 70
+            bval = -0.5
+            bmode = 1  # 0 = relative, 1 = absolute
+
+            print 'changing bathymetry...'
+            subgrid.changebathy(xc, yc, sz, bval, bmode)
+
+            print 'continue simulation...'
             for i in xrange(5):
                 print 'doing %d...' % i
                 print subgrid.update(-1)  # -1 = use default model time
