@@ -21,6 +21,10 @@ scenarios = {
         'path': '1dpumptest',
         'mdu_filename': "1d2d_kunstw.mdu",
     },
+    '1d-democase': {
+        'path': '1d-democase',
+        'mdu_filename': "1D-democase.mdu",
+    },
     'DelflandiPad': {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
@@ -446,6 +450,16 @@ class LibSubgridTest(unittest.TestCase):
                 print 'doing %d...' % i
                 print subgrid.update(-1)  # -1 = use default model time
 
+    def test_link_table(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            # Note the copy, variables get reused, so copy them if you're calling
+            # get_nd, multiple times
+            data = dict(branch=subgrid.get_nd('link_branchid').copy(),
+                        chainage=subgrid.get_nd('link_chainage').copy(),
+                        idx=subgrid.get_nd('link_idx').copy())
+            df = pandas.DataFrame(data)
+            self.assertEqual(df.idx.item(0), 249)
+            self.assertEqual(df.idx.item(-1), 248)
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
     # #     print

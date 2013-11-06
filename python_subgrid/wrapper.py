@@ -205,11 +205,11 @@ DOCUMENTED_VARIABLES = {
     's1': "water levels",
     'ds1d': "grid size in 1d channels",
     'dps': "bathymetry pixel values on fine base grid",
+    'u1': "velocity on coarse grid",
     'lu1dmx': "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)",
     'link_branchid': "link in inp file",
     'link_chainage': "along branch distance of the node",
     'link_idx': "link number in nflowlink dimension",
-    'link_branchid': "link in inp file",
     'nodtype': "type of node {1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
     'pumps': "pumps"
 }
