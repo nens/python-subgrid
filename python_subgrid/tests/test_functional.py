@@ -76,6 +76,11 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
+
+def float_equals(a, b):
+    return abs(a-b) < EPSILON
+
+
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
 class LibSubgridTest(unittest.TestCase):
@@ -289,7 +294,18 @@ class LibSubgridTest(unittest.TestCase):
 
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
-            asdf
+
+    def test_get_nd_t1(self):
+        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            t1 = subgrid.get_nd('t1')
+            logging.debug(t1)
+            self.assertTrue(float_equals(t1, 300))
 
     def test_get_nd_unknown_variable(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
