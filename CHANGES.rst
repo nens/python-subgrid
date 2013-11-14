@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.3 (unreleased)
+0.3 (2013-11-14)
 ----------------
 
 - Added ``update_testcases.sh`` script for checking out the testcases that are
