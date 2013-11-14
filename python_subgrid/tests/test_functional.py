@@ -205,6 +205,19 @@ class LibSubgridTest(unittest.TestCase):
                 print 'doing %d...' % i
                 subgrid.update(-1)
 
+    def test_manhole_hhnk(self):
+        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+            subgrid.initmodel()
+            manhole_name = 'test_manhole'
+            x = 115741
+            y = 517257
+            discharge_value = 250.0
+            itype = 1
+            subgrid.discharge(x, y, manhole_name, itype, discharge_value)
+            for i in xrange(100):
+                print 'doing %d...' % i
+                subgrid.update(-1)
+
     def test_discard_manhole(self):
         print
         print '############ test discard manhole'
@@ -353,6 +366,7 @@ class LibSubgridTest(unittest.TestCase):
             # Now if we get the pumps again it should be empty
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 0)
+
     def test_pump_it_up(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -365,7 +379,6 @@ class LibSubgridTest(unittest.TestCase):
             s1after = subgrid.get_nd('s1').copy()
             # There should be water movement now, check S1
             self.assertGreater(np.abs(s1after - s1before).sum(), 0)
-
 
     def test_pump_it_up_manual(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
