@@ -205,15 +205,29 @@ FUNCTIONS = [
 DOCUMENTED_VARIABLES = {
     # Purely for documentation purposes. Calling ``.get_nd()`` with a
     # variable warns if the variable isn't documented here.
+    't1': "current time step, relative to reference time",
     's1': "water levels",
     'ds1d': "grid size in 1d channels",
     'dps': "bathymetry pixel values on fine base grid",
+    'q': "discharge on coarse grid",
+    'u1': "velocity on coarse grid",
     'lu1dmx': "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)",
     'link_branchid': "link in inp file",
     'link_chainage': "along branch distance of the node",
     'link_idx': "link number in nflowlink dimension",
-    'link_branchid': "link in inp file",
-    'nodtype': "type of node {1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
+    'link_type': "type of link, {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
+    'nod_chainage': "along the branch distance of the waterlevel node",
+    'nod_idx': "link number in nflowelem dimension",
+    'nod_branchid': "branch number of the node",
+    'nod_type': "type of node {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
+    'nFlowElem1d': "number of 1d elements",
+    'nFlowElem2d': "number of 2d elements",
+    'nFlowElem1dBounds': "number of 1d elements boundaries",
+    'nFlowElem2dBounds': "number of 2d elements boundaries",
+    'nFlowLink1d': "number of links 1d elements",
+    'nFlowLink2d': "number of links 2d elements",
+    'nFlowLink1dBounds': "number of links 1d element boundaries ",
+    'nFlowLink2dBounds': "number of links 2d element boundaries",
     'pumps': "pumps"
 }
 
