@@ -25,6 +25,10 @@ scenarios = {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
     },
+    'hhnk': {
+        'path': 'hhnkipad',
+        'mdu_filename': "HHNKiPad.mdu",
+    },
     'betondorp': {
         'path': 'betondorp',
         'mdu_filename': "betondorp.mdu",
@@ -256,6 +260,32 @@ class LibSubgridTest(unittest.TestCase):
             arr = subgrid.get_nd('s1')
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
+
+    def test_get_nd_pumps(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            subgrid.update(-1)
+            arr = subgrid.get_nd('dps')
+            logging.debug(arr)
+
+            import multiprocessing
+            def dps_fun(my_dps):
+                #my_dps[1] = 0
+                my_dps[:] = 0
+                print 'asdf'
+                logging.debug(my_dps)
+
+            process = multiprocessing.Process(target=dps_fun, args=[arr])
+            process.start()
+            process.join()
+
+            self.assertEqual(len(arr.shape), 1)
+            logging.debug(arr)
+            asdf
 
     def test_get_nd_unknown_variable(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:

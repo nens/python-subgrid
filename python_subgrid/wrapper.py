@@ -35,6 +35,9 @@ try:
 except io.UnsupportedOperation:
     # In notebooks faulthandler does not work.
     pass
+except AttributeError:
+    # In notebooks faulthandler does not work.
+    pass
 
 
 MAXDIMS = 6
