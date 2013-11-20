@@ -35,7 +35,7 @@ scenarios = {
     },
     'betondorp': {
         'path': 'betondorp',
-        'mdu_filename': "betondorp.mdu",
+        'mdu_filename': "betondorp_waternet.mdu",
     },
     'Kaapstad': {
         'path': 'Kaapstad',
