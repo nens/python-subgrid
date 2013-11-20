@@ -41,6 +41,7 @@ except AttributeError:
 
 
 MAXDIMS = 6
+# map c types to ctypes types
 CTYPESMAP = {
     'bool': c_bool,
     'char': c_char,
@@ -48,6 +49,7 @@ CTYPESMAP = {
     'float': c_float,
     'int': c_int
 }
+# map c types to numpy types
 TYPEMAP = {
     "bool": "bool",
     "char": "S",
@@ -55,6 +57,11 @@ TYPEMAP = {
     "float": "float32",
     "int": "int32"
 }
+# boundary types (enum)
+LINK_TYPES = {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}
+NODE_TYPES = {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}
+
+
 LEVELS_PY2F = {
     logging.DEBUG: 1,
     logging.INFO: 2,
@@ -224,12 +231,12 @@ DOCUMENTED_VARIABLES = {
     'lu1dmx': "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)",
     'link_branchid': "link in inp file",
     'link_chainage': "along branch distance of the node",
-    'link_idx': "link number in nflowlink dimension",
-    'link_type': "type of link, {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
+    'link_idx': "link number in nflowlink dimension (0 based)",
+    'link_type': "type of link",
     'nod_chainage': "along the branch distance of the waterlevel node",
-    'nod_idx': "link number in nflowelem dimension",
+    'nod_idx': "link number in nflowelem dimension (0 based)",
     'nod_branchid': "branch number of the node",
-    'nod_type': "type of node {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}",
+    'nod_type': "type of node",
     'nFlowElem1d': "number of 1d elements",
     'nFlowElem2d': "number of 2d elements",
     'nFlowElem1dBounds': "number of 1d elements boundaries",
@@ -238,9 +245,16 @@ DOCUMENTED_VARIABLES = {
     'nFlowLink2d': "number of links 2d elements",
     'nFlowLink1dBounds': "number of links 1d element boundaries ",
     'nFlowLink2dBounds': "number of links 2d element boundaries",
+    'FlowLink_xu': 'x coordinate of link',
+    'FlowLink_yu': 'y coordinate of link',
     'pumps': "pumps"
 }
 
+
+# the following variables need to be copied explicitly because they are not kept in memory
+# implement through introspection??
+NEED_COPYING = {'link_branchid', 'link_chainage', 'link_idx',
+                'nod_branchid', 'nod_chainage', 'nod_idx'}
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
@@ -611,7 +625,10 @@ class SubgridWrapper(object):
             return None
 
         if is_numpytype:
-            array = np.asarray(data)
+            array = np.array(data)
+            if name in NEED_COPYING:
+                logger.debug("copying {}, memory will be reallocated".format(name))
+                array = array.copy()
             # Not sure why we need this....
             array = np.reshape(array.ravel(), shape, order='F')
         else:
