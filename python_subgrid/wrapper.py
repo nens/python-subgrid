@@ -200,6 +200,11 @@ FUNCTIONS = [
         'argtypes': [],
         'restype': None,
     },
+    {
+        'name': 'save_tables',
+        'argtypes': [c_char_p],
+        'restype': None,
+    }
 ]
 
 DOCUMENTED_VARIABLES = {
@@ -682,3 +687,4 @@ class SubgridWrapper(object):
 
         """
         self.stop()
+

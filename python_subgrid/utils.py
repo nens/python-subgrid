@@ -83,6 +83,19 @@ def dlclose(lib):
     else:
         logging.debug('Closed')
 
+def generate_tables():
+    """generate new tables"""
+    import argparse
+    import wrapper
+    # Implement command line
+    # save grid administration file
+    # save table data file
+    parser = argparse.ArgumentParser(description='Fix tables.')
+    parser.add_argument('mdu', help='mdu files to process')
+    args = parser.parse_args()
+    with wrapper.SubgridWrapper(mdu=args.mdu) as subgrid:
+        subgrid.save_tables('newtables.tbl')
+
 
 def generate_functions_documentation():
     """Script to generate documentation on the wrapped Fortran functions.
@@ -119,3 +132,6 @@ def generate_functions_documentation():
     filename = os.path.join(target_dir, 'fortran_functions.rst')
     open(filename, 'w').write(out)
     print("Wrote fortran functions to %s" % filename)
+
+if __name__ == '__main__':
+    generate_tables()
