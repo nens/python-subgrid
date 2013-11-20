@@ -204,6 +204,11 @@ FUNCTIONS = [
         'name': 'save_tables',
         'argtypes': [c_char_p],
         'restype': None,
+    },
+    {
+        'name': 'save_grid',
+        'argtypes': [c_char_p],
+        'restype': None,
     }
 ]
 

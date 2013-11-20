@@ -90,12 +90,14 @@ def generate_tables():
     # Implement command line
     # save grid administration file
     # save table data file
-    parser = argparse.ArgumentParser(description='Fix tables.')
+    parser = argparse.ArgumentParser(description='Save grid and table administration.')
     parser.add_argument('mdu', help='mdu files to process')
-    parser.add_argument('tbl', help='tbl name to generate', default="newtables.tbl")
+    parser.add_argument('-t', '--table', dest="table", help='table name to generate', default="newtable.tbl")
+    parser.add_argument('-g', '--grid', dest="grid", help='grid name to generate', default="newgrid.grd")
     args = parser.parse_args()
     with wrapper.SubgridWrapper(mdu=args.mdu) as subgrid:
-        subgrid.save_tables(args.tbl)
+        subgrid.save_grid(args.grid)
+        subgrid.save_tables(args.table)
 
 
 def generate_functions_documentation():
