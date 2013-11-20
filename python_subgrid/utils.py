@@ -92,9 +92,10 @@ def generate_tables():
     # save table data file
     parser = argparse.ArgumentParser(description='Fix tables.')
     parser.add_argument('mdu', help='mdu files to process')
+    parser.add_argument('tbl', help='tbl name to generate', default="newtables.tbl")
     args = parser.parse_args()
     with wrapper.SubgridWrapper(mdu=args.mdu) as subgrid:
-        subgrid.save_tables('newtables.tbl')
+        subgrid.save_tables(args.tbl)
 
 
 def generate_functions_documentation():
