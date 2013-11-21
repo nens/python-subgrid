@@ -380,6 +380,42 @@ class LibSubgridTest(unittest.TestCase):
             # There should be water movement now, check S1
             self.assertGreater(np.abs(s1after - s1before).sum(), 0)
 
+    def test_pump_it_up2(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 1)
+            # Increase capacity of all pumps by a factor 10
+            df['capacity'] = df['capacity'] * 10
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1_increase = subgrid.get_nd('s1').copy()
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1_default = subgrid.get_nd('s1').copy()
+        # hmm no difference
+        print s1_default
+        print s1_increase
+        self.assertGreater(np.abs(s1_increase - s1_default).sum(), 0)
+
+    def test_pump_it_up3(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1_default = subgrid.get_nd('s1').copy()
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(len(df), 1)  # Fails ... we have 2 pumps now!
+            # Increase capacity of all pumps by a factor 10
+            df['capacity'] = df['capacity'] * 10
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1_increase = subgrid.get_nd('s1').copy()
+
     def test_pump_it_up_manual(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -395,6 +431,36 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
             self.assertEqual(capacity1, capacity0 * 10)
+
+    def test_pump_it_up_1ddemocase(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1nopumps = subgrid.get_nd('s1').copy()
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            # Get the current capacity
+            # Make sure you use item(0), otherwise you get a numpy 0d type
+            capacity0 = df.capacity.item(0)
+            print capacity0  # 5.0
+            pumpid = df.id.item(0)
+            print pumpid  # pump01
+            # Increase capacity of all pump1 by a factor 10
+            subgrid.set_structure_field("pumps", pumpid, "capacity", capacity0 * 10)
+            df = subgrid.get_nd('pumps')
+            self.assertEqual(df.id.item(0), pumpid)
+            capacity1 = df.capacity.item(0)
+            self.assertEqual(capacity1, capacity0 * 10)
+            for i in xrange(10):
+                subgrid.update(-1)
+            s1pumps = subgrid.get_nd('s1').copy()
+
+        print '######################################################'
+        print np.abs(s1pumps - s1nopumps).sum()
+        self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
+        asdf
 
 
     # def test_get_water_level(self):
