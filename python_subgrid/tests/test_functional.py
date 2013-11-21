@@ -386,7 +386,8 @@ class LibSubgridTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)
             # Increase capacity of all pumps by a factor 10
-            df['capacity'] = df['capacity'] * 10
+            pumpid = df.id.item(0)
+            subgrid.set_structure_field("pumps", pumpid, "capacity", df['capacity'] * 10)
             for i in xrange(10):
                 subgrid.update(-1)
             s1_increase = subgrid.get_nd('s1').copy()
@@ -395,12 +396,12 @@ class LibSubgridTest(unittest.TestCase):
             for i in xrange(10):
                 subgrid.update(-1)
             s1_default = subgrid.get_nd('s1').copy()
-        # hmm no difference
         print s1_default
         print s1_increase
         self.assertGreater(np.abs(s1_increase - s1_default).sum(), 0)
 
     def test_pump_it_up3(self):
+        """Check if finalize also resets pumps"""
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             for i in xrange(10):
@@ -435,11 +436,6 @@ class LibSubgridTest(unittest.TestCase):
     def test_pump_it_up_1ddemocase(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(10):
-                subgrid.update(-1)
-            s1nopumps = subgrid.get_nd('s1').copy()
-        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
-            subgrid.initmodel()
             df = subgrid.get_nd('pumps')
             # Get the current capacity
             # Make sure you use item(0), otherwise you get a numpy 0d type
@@ -453,14 +449,23 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
             self.assertEqual(capacity1, capacity0 * 10)
-            for i in xrange(10):
+            for i in xrange(300):
                 subgrid.update(-1)
             s1pumps = subgrid.get_nd('s1').copy()
+            print 't1 a'
+            print subgrid.get_nd('t1')
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(300):
+                subgrid.update(-1)
+            s1nopumps = subgrid.get_nd('s1').copy()
+            print 't1 b'
+            print subgrid.get_nd('t1')
 
         print '######################################################'
-        print np.abs(s1pumps - s1nopumps).sum()
+        print s1pumps
+        print s1nopumps
         self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
-        asdf
 
 
     # def test_get_water_level(self):
@@ -576,15 +581,21 @@ class LibSubgridTest(unittest.TestCase):
                 print subgrid.update(-1)  # -1 = use default model time
 
     def test_link_table(self):
-        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
-            # Note the copy, variables get reused, so copy them if you're calling
-            # get_nd, multiple times
-            data = dict(branch=subgrid.get_nd('link_branchid').copy(),
-                        chainage=subgrid.get_nd('link_chainage').copy(),
-                        idx=subgrid.get_nd('link_idx').copy())
-            df = pandas.DataFrame(data)
-            self.assertEqual(df.idx.item(0), 249)
-            self.assertEqual(df.idx.item(-1), 248)
+        subgrid = SubgridWrapper(mdu=self._mdu_path('1d-democase'))
+        subgrid.start()
+        # with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+        #     # Note the copy, variables get reused, so copy them if you're calling
+        #     # get_nd, multiple times
+        print subgrid.get_nd('link_branchid').copy()
+        print subgrid.get_nd('link_chainage').copy()
+        print subgrid.get_nd('link_idx').copy()
+        data = dict(branch=subgrid.get_nd('link_branchid').copy(),
+                    chainage=subgrid.get_nd('link_chainage').copy(),
+                    idx=subgrid.get_nd('link_idx').copy())
+        df = pandas.DataFrame(data)
+        self.assertEqual(df.idx.item(0), 249)
+        self.assertEqual(df.idx.item(-1), 248)
+
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
     # #     print
