@@ -5,8 +5,10 @@ import unittest
 import os
 import logging
 import io
+
 from nose.plugins.attrib import attr
 import numpy as np
+import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger
 from python_subgrid.utils import NotDocumentedError
