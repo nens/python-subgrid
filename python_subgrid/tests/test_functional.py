@@ -11,6 +11,9 @@ import numpy as np
 from python_subgrid.wrapper import SubgridWrapper, logger
 from python_subgrid.utils import NotDocumentedError
 
+#import gc
+#gc.disable()
+
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
@@ -137,6 +140,17 @@ class LibSubgridTest(unittest.TestCase):
         for i in range(2):
             with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
                 print 'test load #%r' % i
+
+    def test_load_1ddemocase(self):
+        print '################################ load 1d democase '
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+        print '################################ init '
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+        asdf
 
     #@unittest.skip
     def test_timesteps(self):
