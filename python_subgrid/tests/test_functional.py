@@ -38,6 +38,10 @@ scenarios = {
         'path': 'hhnkipad',
         'mdu_filename': "HHNKiPad.mdu",
     },
+    'heerenveen': {
+        'path': 'heerenveen',
+        'mdu_filename': "heerenveen.mdu",
+    },
     'betondorp': {
         'path': 'betondorp',
         'mdu_filename': "betondorp_waternet.mdu",
@@ -142,6 +146,18 @@ class LibSubgridTest(unittest.TestCase):
         for i in range(2):
             with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
                 print 'test load #%r' % i
+
+    def test_load_heerenveen(self):
+        print
+        print '########### test load heerenveen'
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            print 'test load'
+            subgrid.initmodel()
+            subgrid.update(-1)
+        with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
+            print 'test load'
+            subgrid.initmodel()
+            subgrid.update(-1)
 
     def test_load_1ddemocase(self):
         print '################################ load 1d democase '
