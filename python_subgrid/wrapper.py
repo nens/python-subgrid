@@ -253,8 +253,8 @@ DOCUMENTED_VARIABLES = {
 
 # the following variables need to be copied explicitly because they are not kept in memory
 # implement through introspection??
-NEED_COPYING = {'link_branchid', 'link_chainage', 'link_idx',
-                'nod_branchid', 'nod_chainage', 'nod_idx'}
+NEED_COPYING = {'link_branchid', 'link_chainage', 'link_idx', 'link_type'
+                'nod_branchid', 'nod_chainage', 'nod_idx', 'node_type'}
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
