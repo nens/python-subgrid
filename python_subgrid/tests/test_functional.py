@@ -609,7 +609,7 @@ class LibSubgridTest(unittest.TestCase):
                     chainage=subgrid.get_nd('link_chainage'),
                     idx=subgrid.get_nd('link_idx'))
         df = pandas.DataFrame(data)
-        self.assertEqual(df.idx.item(0), 249)
+        self.assertEqual(df.idx.item(0), 1)
         self.assertEqual(df.idx.item(-1), 248)
 
     # # def test_changebathy2(self):
