@@ -159,6 +159,15 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
 
+    def test_heerenveen(self):
+        print
+        print '########### test heerenveen'
+        with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
+            print 'test load'
+            subgrid.initmodel()
+            for x in xrange(10):
+                subgrid.update(-1)
+
     def test_load_1ddemocase(self):
         print '################################ load 1d democase '
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
