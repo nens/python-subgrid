@@ -627,12 +627,12 @@ class LibSubgridTest(unittest.TestCase):
         # with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
         #     # Note the copy, variables get reused, so copy them if you're calling
         #     # get_nd, multiple times
-        print subgrid.get_nd('link_branchid').copy()
-        print subgrid.get_nd('link_chainage').copy()
-        print subgrid.get_nd('link_idx').copy()
-        data = dict(branch=subgrid.get_nd('link_branchid').copy(),
-                    chainage=subgrid.get_nd('link_chainage').copy(),
-                    idx=subgrid.get_nd('link_idx').copy())
+        logger.info(subgrid.get_nd('link_branchid'))
+        logger.info(subgrid.get_nd('link_chainage'))
+        logger.info(subgrid.get_nd('link_idx'))
+        data = dict(branch=subgrid.get_nd('link_branchid'),
+                    chainage=subgrid.get_nd('link_chainage'),
+                    idx=subgrid.get_nd('link_idx'))
         df = pandas.DataFrame(data)
         self.assertEqual(df.idx.item(0), 249)
         self.assertEqual(df.idx.item(-1), 248)
