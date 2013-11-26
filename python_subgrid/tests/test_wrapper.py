@@ -29,12 +29,12 @@ class TestHelperFunctions(unittest.TestCase):
         self.assertRaises(RuntimeError, self.wrapper._library_path)
 
     def test_library_path1(self):
-        self.assertTrue('libsubgrid' in self.wrapper._library_path())
+        self.assertTrue('subgrid' in self.wrapper._library_path())
 
     def test_library_path2(self):
         where = os.environ.get('SUBGRID_PATH', 'somewhere')
         with mock.patch('os.environ', {'SUBGRID_PATH': where}):
-            self.assertTrue('libsubgrid' in self.wrapper._library_path())
+            self.assertTrue('subgrid' in self.wrapper._library_path())
 
     def test_load_library(self):
         self.assertEquals(type(self.wrapper._load_library()),
