@@ -621,20 +621,14 @@ class LibSubgridTest(unittest.TestCase):
                 print subgrid.update(-1)  # -1 = use default model time
 
     def test_link_table(self):
-        subgrid = SubgridWrapper(mdu=self._mdu_path('1d-democase'))
-        subgrid.start()
-        # with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
-        #     # Note the copy, variables get reused, so copy them if you're calling
-        #     # get_nd, multiple times
-        logger.info(subgrid.get_nd('link_branchid'))
-        logger.info(subgrid.get_nd('link_chainage'))
-        logger.info(subgrid.get_nd('link_idx'))
-        data = dict(branch=subgrid.get_nd('link_branchid'),
-                    chainage=subgrid.get_nd('link_chainage'),
-                    idx=subgrid.get_nd('link_idx'))
-        df = pandas.DataFrame(data)
-        self.assertEqual(df.idx.item(0), 1)
-        self.assertEqual(df.idx.item(-1), 248)
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            data = dict(branch=subgrid.get_nd('link_branchid'),
+                        chainage=subgrid.get_nd('link_chainage'),
+                        idx=subgrid.get_nd('link_idx'))
+            df = pandas.DataFrame(data)
+            print data
+            self.assertEqual(df.idx.item(0), 1)
+            self.assertEqual(df.idx.item(-1), 248)
 
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
