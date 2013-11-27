@@ -177,7 +177,6 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
-        asdf
 
     #@unittest.skip
     def test_timesteps(self):
