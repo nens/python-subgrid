@@ -96,6 +96,7 @@ def generate_tables():
     parser.add_argument('-g', '--grid', dest="grid", help='grid name to generate', default="newgrid.grd")
     args = parser.parse_args()
     with wrapper.SubgridWrapper(mdu=args.mdu) as subgrid:
+        subgrid.initmodel()
         subgrid.save_grid(args.grid)
         subgrid.save_tables(args.table)
 

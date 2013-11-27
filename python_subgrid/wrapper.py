@@ -425,6 +425,8 @@ class SubgridWrapper(object):
         if exit_code:
             errormsg = "Loading model {mdu} failed with exit code {code}"
             raise RuntimeError(errormsg.format(mdu=self.mdu, code=exit_code))
+        # Should we not call initmodel?
+        # self.library.initmodel()
 
     def start(self):
         """Initialize and load the Fortran library (and model, if applicable).

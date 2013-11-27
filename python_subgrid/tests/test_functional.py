@@ -11,7 +11,7 @@ import numpy as np
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger
-from python_subgrid.utils import NotDocumentedError
+from python_subgrid.utils import NotDocumentedError, dlclose, isloaded
 
 #import gc
 #gc.disable()
@@ -154,6 +154,8 @@ class LibSubgridTest(unittest.TestCase):
             print 'test load'
             subgrid.initmodel()
             subgrid.update(-1)
+        # while not isloaded(subgrid.library._name):
+        #     dlclose(subgrid.library)
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
             print 'test load'
             subgrid.initmodel()
@@ -638,7 +640,7 @@ class LibSubgridTest(unittest.TestCase):
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
             print data
-            self.assertEqual(df.idx.item(0), 1)
+            self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
 
     # # def test_changebathy2(self):
