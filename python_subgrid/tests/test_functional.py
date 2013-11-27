@@ -245,6 +245,17 @@ class LibSubgridTest(unittest.TestCase):
                 print 'doing %d...' % i
                 subgrid.update(-1)
 
+    def test_hhnk(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(10):
+                subgrid.update(-1)
+        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+            subgrid.initmodel()
+            for i in xrange(10):
+                print 'doing %d...' % i
+                subgrid.update(-1)
+
     def test_manhole_hhnk(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
