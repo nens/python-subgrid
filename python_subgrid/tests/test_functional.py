@@ -639,7 +639,8 @@ class LibSubgridTest(unittest.TestCase):
                         chainage=subgrid.get_nd('link_chainage'),
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
-            print data
+            for counter, branch_id in enumerate(data['branch']):
+                print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
 
