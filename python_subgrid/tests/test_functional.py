@@ -30,6 +30,10 @@ scenarios = {
         'path': '1d-democase',
         'mdu_filename': "1D-democase.mdu",
     },
+    'wijdewormer': {
+        'path': 'wijdewormer_spatiallite',
+        'mdu_filename': "wijdewormer_spatiallite.mdu",
+    },
     'DelflandiPad': {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
@@ -179,6 +183,21 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
+
+    def test_load_1d(self):
+        print '################################ load 1d '
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+        print '################################ load wijdewormer '
+        with SubgridWrapper(mdu=self._mdu_path('wijdewormer')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+            pumps = subgrid.get_nd('pumps')  # pandas DataFrame
+            print '########################################################### pumps'
+            pumps.to_dict()
+            self.assertEquals(pumps.to_dict()['id'].keys(), 0)
+        #asdf
 
     #@unittest.skip
     def test_timesteps(self):
