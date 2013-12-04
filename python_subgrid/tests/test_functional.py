@@ -659,9 +659,21 @@ class LibSubgridTest(unittest.TestCase):
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
-                print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
+                print 'branch id %d -> flowlink %d' % (branch_id, data['idx'][counter])
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
+
+    def test_link_table_node(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            data = dict(branch=subgrid.get_nd('nod_branchid'),  # node number in inp file
+                        chainage=subgrid.get_nd('nod_chainage'),  # node number in nflowlink dimension (?)
+                        idx=subgrid.get_nd('nod_idx'))
+            df = pandas.DataFrame(data)
+            for counter, branch_id in enumerate(data['branch']):
+                print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
+            #self.assertEqual(df.idx.item(0), 249)
+            #self.assertEqual(df.idx.item(-1), 248)
+        asdf  # TODO: look up real indices for this test case
 
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
