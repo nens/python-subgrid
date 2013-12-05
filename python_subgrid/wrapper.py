@@ -208,6 +208,11 @@ FUNCTIONS = [
         'restype': None,
     },
     {
+        'name': 'subscribe_dataset',
+        'argtypes': [c_char_p],
+        'restype': c_int
+    },
+    {
         'name': 'save_tables',
         'argtypes': [c_char_p],
         'restype': None,
@@ -228,6 +233,8 @@ DOCUMENTED_VARIABLES = {
     'dps': "bathymetry pixel values on fine base grid",
     'q': "discharge on coarse grid",
     'u1': "velocity on coarse grid",
+    'qrain': "current rain intensity",
+    'rain': "rain volume in a timestep",
     'lu1dmx': "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)",
     'link_branchid': "link in inp file",
     'link_chainage': "along branch distance of the node",
