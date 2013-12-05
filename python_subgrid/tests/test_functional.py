@@ -30,6 +30,10 @@ scenarios = {
         'path': '1d-democase',
         'mdu_filename': "1D-democase.mdu",
     },
+    'wijdewormer': {
+        'path': 'wijdewormer_spatiallite',
+        'mdu_filename': "wijdewormer_spatiallite.mdu",
+    },
     'DelflandiPad': {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
@@ -179,6 +183,21 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
+
+    def test_load_1d(self):
+        print '################################ load 1d '
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+        print '################################ load wijdewormer '
+        with SubgridWrapper(mdu=self._mdu_path('wijdewormer')) as subgrid:
+            subgrid.initmodel()
+            subgrid.update(-1)
+            pumps = subgrid.get_nd('pumps')  # pandas DataFrame
+            print '########################################################### pumps'
+            pumps.to_dict()
+            self.assertEquals(pumps.to_dict()['id'].keys(), 0)
+        #asdf
 
     #@unittest.skip
     def test_timesteps(self):
@@ -639,9 +658,22 @@ class LibSubgridTest(unittest.TestCase):
                         chainage=subgrid.get_nd('link_chainage'),
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
-            print data
+            for counter, branch_id in enumerate(data['branch']):
+                print 'branch id %d -> flowlink %d' % (branch_id, data['idx'][counter])
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
+
+    def test_link_table_node(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            data = dict(branch=subgrid.get_nd('nod_branchid'),  # node number in inp file
+                        chainage=subgrid.get_nd('nod_chainage'),  # node number in nflowlink dimension (?)
+                        idx=subgrid.get_nd('nod_idx'))
+            df = pandas.DataFrame(data)
+            for counter, branch_id in enumerate(data['branch']):
+                print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
+            #self.assertEqual(df.idx.item(0), 249)
+            #self.assertEqual(df.idx.item(-1), 248)
+        asdf  # TODO: look up real indices for this test case
 
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
