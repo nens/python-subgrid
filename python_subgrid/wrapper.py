@@ -8,12 +8,14 @@ import functools
 import io
 import logging
 import os
-
+import multiprocessing          # for shared memory
 import platform
-import faulthandler
+
+
 from numpy.ctypeslib import ndpointer  # nd arrays
 import numpy as np
 import pandas
+import faulthandler
 
 
 from ctypes import (
@@ -302,11 +304,14 @@ class SubgridWrapper(object):
     MAXSTRLEN = 1024
     MAXDIMS = 6
 
-    def __init__(self, mdu=None):
+    def __init__(self, mdu=None, sharedmem=False):
         """Initialize the class.
 
         The ``mdu`` argument should be the path to a model's ``*.mdu``
         file.
+
+        The ``sharedmem`` argument indicates wheter memory should be
+        allocated using the multiprocessing shared memory (for forking).
 
         Nothing much should happen here so that the code remains easy to
         test. Most of the library-related initialization happens in the
@@ -314,6 +319,7 @@ class SubgridWrapper(object):
         """
         self.mdu = mdu
         self.original_dir = os.getcwd()
+        self.sharedmem = sharedmem
 
     def _setlogger(self):
         # we don't expect anything back
@@ -458,6 +464,7 @@ class SubgridWrapper(object):
         self.library.startup()  # Fortran init function.
         if self.mdu:
             self._load_model()
+
 
     def stop(self):
         """Shutdown the library and clean up the model.
@@ -640,11 +647,23 @@ class SubgridWrapper(object):
             return None
 
         if is_numpytype:
-            array = np.array(data)
-            if name in NEED_COPYING:
-                logger.debug("copying {}, memory will be reallocated".format(name))
-                array = array.copy()
-            # Not sure why we need this....
+            # array can be shared memory (always a copy)
+            if self.sharedmem:
+                shared_arr = multiprocessing.Array(
+                    CTYPESMAP[TYPEMAP[type_]],
+                    np.prod(shape), lock=True
+                )
+                array = np.frombuffer(shared_arr.get_obj())
+                array[:] = np.array(data)
+            # or a copy, if needed
+            else:
+                if name in NEED_COPYING:
+                    logger.debug("copying {}, memory will be reallocated".format(name))
+                    array = np.array(data).copy()
+            # or just a pointer
+                else:
+                    array = np.array(data)
+            # fortran memory -> python memory order.
             array = np.reshape(array.ravel(), shape, order='F')
         else:
             array = structs2pandas(data.contents)

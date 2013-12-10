@@ -26,8 +26,8 @@ app = Flask(__name__)
 
 @app.route("/")
 def render():
-    s1 = np.frombuffer(g.shared_arr.get_obj())
-    response = Response(json.dumps({'s1': s1.tolist()}), mimetype='application/json')
+
+    response = Response(json.dumps({'s1': g.s1.tolist()}), mimetype='application/json')
 
     # # this hangs in parallel blas for me....
     # from matplotlib.figure import Figure
@@ -73,20 +73,16 @@ def wms_process(app, port):
 
 if __name__ == '__main__':
 
-    with SubgridWrapper(mdu=abs_path) as subgrid:
+    with SubgridWrapper(mdu=abs_path, sharedmem=True) as subgrid:
 
-        ctx = app.app_context()
 
         subgrid.initmodel()
 
-        s1 = subgrid.get_nd('s1')
-
-        # Create a block of shared memory
-        # Since multiprocessing is forking we need a separate shared memory array
-        shared_arr = multiprocessing.Array(ctypes.c_double, s1.shape[0])
 
         # push it into the application context
-        ctx.g.shared_arr = shared_arr
+        s1 = subgrid.get_nd('s1')
+        ctx = app.app_context()
+        ctx.g.s1 = s1
         ctx.push()
 
         for port in range(6500, 6504):
@@ -96,10 +92,9 @@ if __name__ == '__main__':
         while True:
             # Calculate
             subgrid.update(-1)
-            # Get a new s1
+            # Get a new s1 and push it into the shared memory
             s1 = subgrid.get_nd('s1')
-            # Update the shared memory
-            shared_arr[:] = s1[:]
+            ctx.g.s1 = s1
             # Wait a bit
             time.sleep(1)
 
