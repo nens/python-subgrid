@@ -196,7 +196,7 @@ class LibSubgridTest(unittest.TestCase):
             pumps = subgrid.get_nd('pumps')  # pandas DataFrame
             print '########################################################### pumps'
             pumps.to_dict()
-            self.assertEquals(pumps.to_dict()['id'].keys(), 0)
+            self.assertEquals(pumps.to_dict()['id'].keys()[0], 0)
         #asdf
 
     #@unittest.skip
