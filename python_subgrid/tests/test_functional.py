@@ -184,7 +184,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
 
-    def test_load_1d(self):
+    def test_load_1d_pumps(self):
         print '################################ load 1d '
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
