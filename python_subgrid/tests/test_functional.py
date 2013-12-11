@@ -685,7 +685,13 @@ class LibSubgridTest(unittest.TestCase):
                 print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
             #self.assertEqual(df.idx.item(0), 249)
             #self.assertEqual(df.idx.item(-1), 248)
-        asdf  # TODO: look up real indices for this test case
+        # TODO: look up real indices for this test case
+
+    def test_flow_link(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            flow_link = subgrid.get_nd('FlowLink')
+            print flow_link[249]  # [140 169]
+            self.assertEqual(list(flow_link[249]), [140, 169])
 
     # # def test_changebathy2(self):
     # #     """Known crashing case"""
