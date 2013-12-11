@@ -19,6 +19,8 @@ from python_subgrid.utils import NotDocumentedError, dlclose, isloaded
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
+
+
 EPSILON = 0.00000001
 
 scenarios = {
@@ -92,6 +94,8 @@ msg = "Scenario models not available {}".format(default_scenario_path)
 
 def float_equals(a, b):
     return abs(a-b) < EPSILON
+
+
 
 
 #TODO: get this to work
@@ -184,7 +188,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
 
-    def test_load_1d(self):
+    def test_load_1d_pumps(self):
         print '################################ load 1d '
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
@@ -196,7 +200,7 @@ class LibSubgridTest(unittest.TestCase):
             pumps = subgrid.get_nd('pumps')  # pandas DataFrame
             print '########################################################### pumps'
             pumps.to_dict()
-            self.assertEquals(pumps.to_dict()['id'].keys(), 0)
+            self.assertEquals(pumps.to_dict()['id'].keys()[0], 0)
         #asdf
 
     #@unittest.skip
@@ -262,7 +266,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 5000.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(100):
+            for i in xrange(10):
                 print 'doing %d...' % i
                 subgrid.update(-1)
 
@@ -355,30 +359,38 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
 
-    def test_get_nd_pumps(self):
-        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+    def test_get_sharedmem(self):
+        import multiprocessing
+        import time
+
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps'), sharedmem=True) as subgrid:
             subgrid.initmodel()
-            subgrid.update(-1)
-            subgrid.update(-1)
-            subgrid.update(-1)
-            subgrid.update(-1)
-            subgrid.update(-1)
-            arr = subgrid.get_nd('dps')
-            logging.debug(arr)
 
-            import multiprocessing
-            def dps_fun(my_dps):
-                #my_dps[1] = 0
-                my_dps[:] = 0
-                print 'asdf'
-                logging.debug(my_dps)
 
-            process = multiprocessing.Process(target=dps_fun, args=[arr])
-            process.start()
-            process.join()
+            q = multiprocessing.Queue()
 
-            self.assertEqual(len(arr.shape), 1)
-            logging.debug(arr)
+            def update_s1():
+                q.put(subgrid.get_nd('s1'))
+
+            p1 = multiprocessing.Process(target=update_s1)
+
+            # Get initial water level
+            s0 = subgrid.get_nd('s1')
+
+            # Start subprocess
+            p1.start()
+            # Wait for process to put array in queue
+            time.sleep(1)
+            # Start updating
+            subgrid.update(-1)
+            # Wait for process to finish
+            p1.join()
+            # Get the array
+            s1 = q.get()
+            # Get the new array, which should now be changed
+            s2 = subgrid.get_nd('s1')
+            self.assertEqual(s0.sum(), s1.sum())
+            self.assertNotEqual(s1.sum(), s2.sum())
 
     def test_get_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
