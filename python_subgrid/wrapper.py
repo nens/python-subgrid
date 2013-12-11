@@ -238,7 +238,7 @@ DOCUMENTED_VARIABLES = {
     'u1': "velocity on coarse grid",
     'qrain': "current rain intensity",
     'rain': "rain volume in a timestep",
-    'FlowLink': 'Flow links/lines between coarse grid cells: line(L,1) = nod1, line(L,2) = nod2',
+    'FlowLink': 'Flow links/lines between coarse grid cells: line(L,1) = nod1, line(L,2) = nod2', # 1-based
     'FlowElem_xcc': 'Cell center coordinates (pressure point) for all quadtree cells (i.e. nodes).',
     'FlowElem_ycc': 'Cell center coordinates (pressure point) for all quadtree cells (i.e. nodes).',
     'FlowElemContour_x': 'List of x-points forming flow element',
@@ -247,7 +247,7 @@ DOCUMENTED_VARIABLES = {
     'link_branchid': "link in inp file",
     'link_chainage': "along branch distance of the node",
     'link_idx': "link number in nflowlink dimension (0 based)",
-    'link_type': "type of link",
+    'link_type': "type of link", # 0-based
     'nod_chainage': "along the branch distance of the waterlevel node",
     'nod_idx': "link number in nflowelem dimension (0 based)",
     'nod_branchid': "branch number of the node",

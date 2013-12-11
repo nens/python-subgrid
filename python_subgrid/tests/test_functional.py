@@ -392,7 +392,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(s0.sum(), s1.sum())
             self.assertNotEqual(s1.sum(), s2.sum())
 
-    def test_get_nd_t1(self):
+    def test_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
