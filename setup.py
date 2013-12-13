@@ -26,13 +26,21 @@ setup(name='python-subgrid',
       description="Python wrapper for the 3Di fortran subgrid library",
       long_description=long_description,
       # Get strings from http://www.python.org/pypi?%3Aaction=list_classifiers
-      classifiers=[],
-      keywords=[],
-      author='Reinout van Rees',
-      author_email='reinout.vanrees@nelen-schuurmans.nl',
-      url='',
-      license='GPL',
+      classifiers=[
+          "Intended Audience :: Science/Research"
+          "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+          "Topic :: Scientific/Engineering",
+          "Topic :: Software Development :: Libraries"
+               ],
+      keywords=["3Di", "subgrid", "hydrodynamic", "simulation", "flooding", "BMI"],
+      author='Fedor Baart',
+      author_email='fedor.baart@deltares.nl',
+      url='https://github.com/nens/python-subgrid',
+      license='GPLv3+',
       packages=['python_subgrid'],
+      scripts=[
+          "scripts/update-subgrid-tables"
+      ],
       include_package_data=True,
       zip_safe=False,
       install_requires=install_requires,
