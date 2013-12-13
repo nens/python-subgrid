@@ -488,18 +488,10 @@ class LibSubgridTest(unittest.TestCase):
         """Check if finalize also resets pumps"""
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(10):
-                subgrid.update(-1)
-            s1_default = subgrid.get_nd('s1').copy()
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)  # Fails ... we have 2 pumps now!
-            # Increase capacity of all pumps by a factor 10
-            df['capacity'] = df['capacity'] * 10
-            for i in xrange(10):
-                subgrid.update(-1)
-            s1_increase = subgrid.get_nd('s1').copy()
 
     def test_pump_it_up_manual(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
@@ -518,6 +510,9 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(capacity1, capacity0 * 10)
 
     def test_pump_it_up_1ddemocase(self):
+
+        # run both models for a few minutes
+        tstop = 3000
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
@@ -527,20 +522,21 @@ class LibSubgridTest(unittest.TestCase):
             print capacity0  # 5.0
             pumpid = df.id.item(0)
             print pumpid  # pump01
-            # Increase capacity of all pump1 by a factor 10
+            # Increase capacity of pump1 by a factor 10
             subgrid.set_structure_field("pumps", pumpid, "capacity", capacity0 * 10)
             df = subgrid.get_nd('pumps')
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
             self.assertEqual(capacity1, capacity0 * 10)
-            for i in xrange(300):
+            while subgrid.get_nd('t1') < tstop:
                 subgrid.update(-1)
             s1pumps = subgrid.get_nd('s1').copy()
             print 't1 a'
             print subgrid.get_nd('t1')
+
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(300):
+            while subgrid.get_nd('t1') < tstop:
                 subgrid.update(-1)
             s1nopumps = subgrid.get_nd('s1').copy()
             print 't1 b'
