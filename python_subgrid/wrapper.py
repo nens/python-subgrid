@@ -262,7 +262,8 @@ DOCUMENTED_VARIABLES = {
     'nFlowLink2dBounds': "number of links 2d element boundaries",
     'FlowLink_xu': 'x coordinate of link',
     'FlowLink_yu': 'y coordinate of link',
-    'pumps': "pumps"
+    'pumps': "pumps",
+    'weirs': "weirs"
 }
 
 
@@ -513,7 +514,9 @@ class SubgridWrapper(object):
         return nfields.value
 
     def inq_compound_field(self, name, index):
-        """TODO"""
+        """
+        Lookup the type,rank and shape of a compound field
+        """
         typename = create_string_buffer(name)
         index = c_int(index+1)
         fieldname = create_string_buffer(self.MAXSTRLEN)
