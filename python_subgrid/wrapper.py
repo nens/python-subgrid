@@ -96,6 +96,8 @@ progresslogger = logging.getLogger('progress')
 progresslogger.setLevel(logging.INFO)
 # Don't pass messages to the rootlogger
 progresslogger.parent = None
+# Add empty handler to avoid warnings about non existent handler
+progresslogger.addHandler(logging.NullHandler())
 
 # always pass the same progress stack
 def fortran_progress(message, progress_p, progressstack = []):
