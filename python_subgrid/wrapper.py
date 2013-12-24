@@ -649,7 +649,7 @@ class SubgridWrapper(object):
             # Store the data in this type
             arraytype = ndpointer(dtype=TYPEMAP[type_],
                                   ndim=rank,
-                                  shape=shape[::-1],
+                                  shape=shape,
                                   flags='F')
         else:
             arraytype = self.make_compound_ctype(name)
@@ -684,8 +684,6 @@ class SubgridWrapper(object):
             # or just a pointer
                 else:
                     array = np.ctypeslib.as_array(data)
-            # fortran memory -> python memory order.
-            array = np.reshape(array.ravel(), shape, order='F')
         else:
             array = structs2pandas(data.contents)
         return array
