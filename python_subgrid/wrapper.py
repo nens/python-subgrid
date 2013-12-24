@@ -272,7 +272,7 @@ WRAPPERDIR = os.path.dirname(WRAPPERFILE)
 with open(os.path.join(WRAPPERDIR, 'extractedvariables.json')) as f:
     JSONVARIABLES = json.load(f)
 DOCUMENTED_VARIABLES = {
-    variable['name']: variable['description']
+    variable.get('altname') or variable['name'] : variable['description']
     for variable
     in JSONVARIABLES['variables']
 }
