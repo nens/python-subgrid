@@ -89,6 +89,35 @@ fortran_log_functype = CFUNCTYPE(None, POINTER(c_int), c_char_p)
 fortran_log_func = fortran_log_functype(fortran_log)
 
 
+progresslogger = logging.getLogger('progress')
+# By default only record start and stop
+progresslogger.setLevel(logging.INFO)
+# Don't pass messages to the rootlogger
+progresslogger.parent = None
+
+# always pass the same progress stack
+def fortran_progress(message, progress_p, progressstack = []):
+    """python progress to be called from fortran"""
+    progress = progress_p.contents.value
+    # push the message in the progress message stack.
+    if progress == 0.0:
+        progressstack.append(message)
+        progresslogger.info('Progress started on {}'.format(message))
+    elif progress == -1:
+        # done with monitoring progress of current message, pop it out
+        message = progressstack.pop()
+        progresslogger.info('Progress stopped on {}'.format(message))
+        return
+    elif not progressstack:
+        # this should not happen
+        return
+    progresslogger.debug("{} {}".format(progressstack[-1], progress))
+
+fortran_progress_functype = CFUNCTYPE(None, c_char_p, POINTER(c_double))
+fortran_progress_func = fortran_progress_functype(fortran_progress)
+
+
+
 def struct2dict(struct):
     """convert a ctypes structure to a dictionary"""
     return {x: getattr(struct, x) for x in dict(struct._fields_).keys()}
@@ -331,12 +360,20 @@ class SubgridWrapper(object):
         self.sharedmem = sharedmem
 
     def _setlogger(self):
+        """subscribe to fortran log messages"""
         # we don't expect anything back
         self.library.set_mh_c_callback.restype = None
         # as an argument we need a pointer to a fortran log func...
         self.library.set_mh_c_callback.argtypes = [
             POINTER(fortran_log_functype)]
         self.library.set_mh_c_callback(byref(fortran_log_func))
+
+    def _setprogress(self):
+        """subscribe to progress updates"""
+        self.library.set_progress_c_callback.restype = None
+        # as an argument we need a pointer to a fortran log func...
+        self.library.set_progress_c_callback.argtypes = [POINTER(fortran_progress_functype)]
+        self.library.set_progress_c_callback(byref(fortran_progress_func))
 
     def _libname(self):
         """Return platform-specific subgridf90 shared library name."""
@@ -469,6 +506,7 @@ class SubgridWrapper(object):
         """
         self.library = self._load_library()
         self._setlogger()
+        self._setprogress()
         self._annotate_functions()
         self.library.startup()  # Fortran init function.
         if self.mdu:
@@ -673,7 +711,7 @@ class SubgridWrapper(object):
                     array = np.array(data).copy()
             # or just a pointer
                 else:
-                    array = np.array(data)
+                    array = np.ctypeslib.as_array(data)
             # fortran memory -> python memory order.
             array = np.reshape(array.ravel(), shape, order='F')
         else:

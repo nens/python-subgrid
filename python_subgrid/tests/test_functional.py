@@ -10,7 +10,7 @@ from nose.plugins.attrib import attr
 import numpy as np
 import pandas
 
-from python_subgrid.wrapper import SubgridWrapper, logger
+from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError, dlclose, isloaded
 
 #import gc
@@ -135,6 +135,28 @@ class LibSubgridTest(unittest.TestCase):
 
         # we should have some messages
         self.assertTrue(foundmessage)
+    def test_progress(self):
+        subgrid = SubgridWrapper(mdu=self.default_mdu)
+        foundmessage = False
+
+        # Create a new handler
+        stream = io.BytesIO()
+        handler = logging.StreamHandler(stream)
+        progresslogger.addHandler(handler)
+
+        # if the model logs it is stored in the handler
+        subgrid.start()
+
+        # flush
+        handler.flush()
+        foundmessage = stream.getvalue()
+
+        # cleanup
+        progresslogger.removeHandler(handler)
+
+        # we should have some messages
+        self.assertTrue(foundmessage)
+
 
     def test_info(self):
         with SubgridWrapper() as subgrid:
