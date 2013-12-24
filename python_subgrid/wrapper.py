@@ -107,10 +107,14 @@ def fortran_progress(message, progress_p, progressstack = []):
         progresslogger.info('Progress started on {}'.format(message))
     elif progress == -1:
         # done with monitoring progress of current message, pop it out
+        if not progressstack:
+            logger.warn("Progress stopped but no current progress message")
+            return
         message = progressstack.pop()
         progresslogger.info('Progress stopped on {}'.format(message))
         return
     elif not progressstack:
+        logger.warn("Progress reported but no current progress message")
         # this should not happen
         return
     progresslogger.debug("{} {}".format(progressstack[-1], progress))
