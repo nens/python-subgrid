@@ -10,6 +10,8 @@ import logging
 import os
 import multiprocessing          # for shared memory
 import platform
+import inspect
+import json
 
 
 from numpy.ctypeslib import ndpointer  # nd arrays
@@ -255,52 +257,18 @@ FUNCTIONS = [
     }
 ]
 
+
+try:
+    WRAPPERFILE = os.path.abspath(__file__)
+except NameError:
+    WRAPPERFILE = os.path.abspath(inspect.getsourcefile(lambda : None))
+WRAPPERDIR = os.path.dirname(WRAPPERFILE)
+with open(os.path.join(WRAPPERDIR, 'extractedvariables.json')) as f:
+    JSONVARIABLES = json.load(f)
 DOCUMENTED_VARIABLES = {
-    # Purely for documentation purposes. Calling ``.get_nd()`` with a
-    # variable warns if the variable isn't documented here.
-    't1': "current time step, relative to reference time",
-    's1': "water levels",
-    'ds1d': "grid size in 1d channels",
-    'dps': "bathymetry pixel values on fine base grid",
-    'dx': 'gridsize for all coarse quadtree levels 1:kmax',
-    'imax': 'number of pixels in x directions',
-    'jmax': 'number of pixels in y directions',
-    'dxp': 'pixel dimensions',
-    'dyp': 'pixel dimensions',
-    'x0p': 'origin of pixel grid',
-    'y0p': 'origin of pixel grid',
-    'x1p': 'origin of pixel grid',
-    'y1p': 'origin of pixel grid',
-    'q': "discharge on coarse grid",
-    'u1': "velocity on coarse grid",
-    'qrain': "current rain intensity",
-    'rain': "rain volume in a timestep",
-    'FlowLink': 'Flow links/lines between coarse grid cells: line(L,1) = nod1, line(L,2) = nod2', # 1-based
-    'FlowElem_xcc': 'Cell center coordinates (pressure point) for all quadtree cells (i.e. nodes).',
-    'FlowElem_ycc': 'Cell center coordinates (pressure point) for all quadtree cells (i.e. nodes).',
-    'FlowElemContour_x': 'List of x-points forming flow element',
-    'FlowElemContour_y': 'List of y-points forming flow element',
-    'lu1dmx': "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)",
-    'link_branchid': "link in inp file",
-    'link_chainage': "along branch distance of the node",
-    'link_idx': "link number in nflowlink dimension (0 based)",
-    'link_type': "type of link", # 0-based
-    'nod_chainage': "along the branch distance of the waterlevel node",
-    'nod_idx': "link number in nflowelem dimension (0 based)",
-    'nod_branchid': "branch number of the node",
-    'nod_type': "type of node",
-    'nFlowElem1d': "number of 1d elements",
-    'nFlowElem2d': "number of 2d elements",
-    'nFlowElem1dBounds': "number of 1d elements boundaries",
-    'nFlowElem2dBounds': "number of 2d elements boundaries",
-    'nFlowLink1d': "number of links 1d elements",
-    'nFlowLink2d': "number of links 2d elements",
-    'nFlowLink1dBounds': "number of links 1d element boundaries ",
-    'nFlowLink2dBounds': "number of links 2d element boundaries",
-    'FlowLink_xu': 'x coordinate of link',
-    'FlowLink_yu': 'y coordinate of link',
-    'pumps': "pumps",
-    'weirs': "weirs"
+    variable['name']: variable['description']
+    for variable
+    in JSONVARIABLES['variables']
 }
 
 
