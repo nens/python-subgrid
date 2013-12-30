@@ -412,6 +412,7 @@ class LibSubgridTest(unittest.TestCase):
             # Get the new array, which should now be changed
             s2 = subgrid.get_nd('s1')
             self.assertEqual(s0.sum(), s1.sum())
+            # breaks if 1d is broken
             self.assertNotEqual(s1.sum(), s2.sum())
 
     def test_nd_t1(self):
