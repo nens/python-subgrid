@@ -1,0 +1,241 @@
+#!/usr/bin/python
+# Convert scriptlet, produce crosssection locations and definition input from old network config 
+# 2013-12-17
+
+FrictionType  = 4 		# Default: Manning's formula for Chezy
+FrictionValue = 0.026 		# Manning coefficient
+
+import sys
+import re
+import pprint			# RL: just for debugging purposes, remove l8r
+
+########################################################################
+
+def readmdu(mdufile):   
+   try:
+      fmdu=open(mdufile,'r')
+   except:
+      return(None)
+   mdutree={}
+   nnode = 0
+   for lin in fmdu:                                      # Node section 
+      ss=((re.sub("!.*$","",lin)).rstrip()).split()
+      ss=re.split('\s*=\s*',(re.sub("#.*$","",lin)).rstrip())
+      if(ss[0]>''):
+         mobj=re.search(r"\[(.*)\]",ss[0])
+         if(mobj):
+            current=mobj.group(1)
+            if(not(current in mdutree)):
+               mdutree[current]={}
+         else:
+            if(ss[1]>''):
+               mdutree[current][ss[0]] = ss[1]
+   return(mdutree)
+
+########################################################################
+
+try: 
+   oldnetwork=sys.argv[1]
+   newnetwrk=sys.argv[2]
+   newcrsdef=sys.argv[3]
+   newcrsloc=sys.argv[4]
+except:
+   sys.stderr.write("4 args needed, %d found, something wrong? Try\n" % (len(sys.argv)-1))
+   sys.stderr.write("./net2cross.py <old networkfile> <new network file> <cross definition> <crosslocations> [mdu-file]\n")
+
+   sys.exit()
+
+mdu = None
+try:
+   fmdu = sys.argv[5]	
+   mdu = readmdu(sys.argv[5])	# See if we can open an mdu-file, optional
+   if ('physics' in mdu):
+      if (('FrictType' in mdu['physics']) and ('FrictCoef' in mdu['physics'])):
+         FrictionType = int(mdu['physics']['FrictType']) 
+         FrictionValue = float(re.sub(r"f","e",mdu['physics']['FrictCoef']))
+except:
+   pass
+
+nodes={}
+crosssections={}
+branches={}
+
+try:
+   fold=open(oldnetwork,'r')
+except:
+   sys.stderr.write("Failed opening "+oldnetwork+" for reading.\n FATAL\n\n")
+   sys.exit()
+
+sys.stderr.write("Reading old network file from %s ...\n" % oldnetwork);
+
+try:
+   nnode = 0
+   for lin in fold:                                      # Node section 
+      ss=((re.sub("!.*$","",lin)).rstrip()).split()
+      if (len(ss)>=1):
+         if (int(ss[0])==-1):
+            break
+      if (len(ss)<5):
+         continue 
+      nnode=nnode+1
+      nodes[ss[0]] = {}
+      nodes[ss[0]]['type'] = ss[1] 
+      nodes[ss[0]]['x'] = ss[2] 
+      nodes[ss[0]]['y'] = ss[3] 
+      nodes[ss[0]]['depth'] = ss[4] 
+   sys.stderr.write(str(nnode)+" nodes\n")
+
+   ncrs = 0
+   for lin in fold:                                      # Crosssection section 
+      ss=((re.sub("!.*$","",lin)).rstrip()).split()
+      if (len(ss)>=1):
+         if (int(ss[0])==-1):
+            break
+      if (len(ss)<3):
+         continue 
+      ncrs=ncrs+1
+      crosssections[ss[0]] = {}
+      crosssections[ss[0]]['type'] = ss[1] 
+      crosssections[ss[0]]['par'] = {}
+      for iss in range (2,len(ss)):
+         crosssections[ss[0]]['par'][iss-2] = ss[iss]
+   sys.stderr.write(str(ncrs)+" crosssections\n")
+
+   nbranch = 0
+   for lin in fold:                                      # Branches section 
+      ss=((re.sub("!.*$","",lin)).rstrip()).split()
+      if (len(ss)>=1):
+         if (int(ss[0])==-1):
+            break
+      if (len(ss)<6):
+         continue 
+      nbranch=nbranch+1
+      branches[ss[0]] = {}
+      branches[ss[0]]['type']    = ss[1] 
+      branches[ss[0]]['from']    = ss[2] 
+      branches[ss[0]]['to']      = ss[3] 
+      branches[ss[0]]['c_from']  = ss[4] 
+      branches[ss[0]]['c_to']    = ss[5] 
+      ncolreq = 6
+      if(int(branches[ss[0]]['type'])>0):            # if isolated, expect number of gridpoints
+         ncolreq = 7
+         branches[ss[0]]['npt']  = ss[6] 
+      if(len(ss)>ncolreq):                      # optional columns provided 
+         branches[ss[0]]['length']  = ss[7]     # if channel length not explicitly specified,
+   sys.stderr.write(str(nbranch)+" branches\n")
+   fold.close
+except:
+   sys.stderr.write("Reading "+oldnetwork+" failed somehow....\n FATAL\n\n")
+   sys.exit()
+
+#  pprint.pprint(nodes)
+#  pprint.pprint(crosssections)
+#  pprint.pprint(branches)
+fold.close()
+
+# Write crosssection definition file 
+try:
+   fnewdef=open(newcrsdef,'w')
+except:
+   sys.stderr.write("Failed opening "+newcrsdef+" for writing.\n FATAL\n\n")
+   sys.exit()
+
+sys.stderr.write("Writing crossssection definitions to %s ...\n" % newcrsdef);
+for CSid,CStype in crosssections.items():
+   fnewdef.write("[Definition]\n")
+   fnewdef.write("id = %s\n" % CSid);
+   if (int(CStype['type'])==1): 
+      fnewdef.write("type = rectangle\n");
+      fnewdef.write("width = %8.2f\n" % float(CStype['par'][0]))
+   else:
+      sys.stderr.write("Crosssection '%s' of type %d unknown !!" % CSid,CStype.type)  
+   fnewdef.write("\n")
+fnewdef.close()
+
+# Write crosssection location file 
+try:
+   fnewloc=open(newcrsloc,'w')
+except:
+   sys.stderr.write("Failed opening "+newcrsloc+" for writing.\n FATAL\n\n")
+   sys.exit()
+
+sys.stderr.write("Writing crosssection locations to %s ...\n" % newcrsloc);
+for Branchid,Branch in branches.items():
+   validbranch=True
+   # check if from and to nodes exist 
+   if ((not 'from' in Branch) or (not 'to' in Branch)):
+      validbranch=False
+   else: 
+      if ((not Branch['from'] in nodes) or (not Branch['to'] in nodes)):
+         validbranch=False
+      else: 
+         from_node=nodes[Branch['from']]
+         to_node=nodes[Branch['to']]
+
+   # check if the crossTYPES of from_node and to_node exist 
+   if ((not 'c_from' in Branch) or (not 'c_to' in Branch)):
+      validbranch=False
+   else: 
+      if ((not Branch['c_from'] in crosssections) or (not Branch['c_to'] in crosssections)):
+         validbranch=False
+      else: 
+         from_crsdef=crosssections[Branch['c_from']]
+         to_crsdef=crosssections[Branch['c_to']]
+
+   if (validbranch):
+      fnewloc.write("[CrossSection]\n")
+      fnewloc.write("id = %sA\n" % Branchid);
+      fnewloc.write("definition = %s\n" % Branch['c_from']);
+      fnewloc.write("branchid = %s\n" % Branchid);
+      fnewloc.write("chainage = 0\n");
+      fnewloc.write("bottomlevel = %10.4f\n" % (-1.0*float(from_node['depth'])));
+      fnewloc.write("frictiontype = %d\n" % FrictionType)
+      fnewloc.write("frictionvalue = %10.4f\n" % FrictionValue)
+
+      if ('length' in Branch): 
+         maxchainage = float(Branch['length'])
+      else:
+         dxbranch = float(to_node['x']) - float(from_node['x'])
+         dybranch = float(to_node['y']) - float(from_node['y'])
+         maxchainage = (dxbranch**2.+dybranch**2.)**0.5
+
+      fnewloc.write("\n")
+      fnewloc.write("[CrossSection]\n")
+      fnewloc.write("id = %sB\n" % Branchid);
+      fnewloc.write("definition = %s\n" % Branch['c_to']);
+      fnewloc.write("branchid = %s\n" % Branchid);
+      fnewloc.write("chainage = %8.3f\n" % maxchainage);
+      fnewloc.write("bottomlevel = %10.4f\n" % (-1.0*float(to_node['depth'])));
+      fnewloc.write("frictiontype = %d\n" % FrictionType)
+      fnewloc.write("frictionvalue = %10.4f\n" % FrictionValue)
+      fnewloc.write("\n")
+   
+fnewloc.close()
+   
+# Finally, write a cleaned up network file 
+# containing only nodes and branch section 
+
+try:
+   fnewnet=open(newnetwrk,'w')
+except:
+   sys.stderr.write("Failed opening "+newnetwrk+" for writing.\n FATAL\n\n")
+   sys.exit()
+
+sys.stderr.write("Writing cleaned network to %s ...\n" % newnetwrk);
+# Node section 
+for Nodeid,Node in sorted(nodes.items()):
+   fnewnet.write("%s %s %s %s\n" % (Nodeid, Node['type'], Node['x'], Node['y'])) 
+fnewnet.write("-1\n")
+# Branch section 
+for Branchid,Branch in sorted(branches.items()):
+   if(int(Branch['type'])==0):               # embedded, no number of gridpoints
+      fnewnet.write("%s %s %s %s\n" % (Branchid, Branch['type'], Branch['from'], Branch['to']))
+   else:
+      fnewnet.write("%s %s %s %s  %s\n" % (Branchid, Branch['type'], Branch['from'], Branch['to'], Branch['npt']))
+fnewnet.close()
+sys.stderr.write("done!\n");
+
+if(mdu):
+	sys.stderr.write("Friction taken from the mdu\n")
+
+
