@@ -12,7 +12,9 @@ install_requires = [
     'setuptools',
     'faulthandler',
     'numpy',
-    'pandas'
+    'pandas',
+    'webob',
+    'netCDF4'
     ],
 
 tests_require = [
@@ -39,7 +41,8 @@ setup(name='python-subgrid',
       license='GPLv3+',
       packages=['python_subgrid'],
       scripts=[
-          "scripts/update-subgrid-tables"
+          "scripts/update-subgrid-tables",
+          "scripts/update-subgrid-network"
       ],
       include_package_data=True,
       zip_safe=False,

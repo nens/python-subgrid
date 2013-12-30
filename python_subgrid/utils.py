@@ -5,6 +5,10 @@ import ctypes
 import logging
 import os
 import platform
+import ConfigParser
+import re
+
+from webob.multidict import MultiDict
 
 SUFFIXES = collections.defaultdict(lambda: '.so')
 SUFFIXES['Darwin'] = '.dylib'
@@ -46,6 +50,71 @@ VARIABLE_TEMPLATE = """
     {description}
 
 """
+
+
+OPTCRE = re.compile(
+    r'(?P<option>[^:=\s][^:=]*)'          # very permissive!
+    r'\s*(?P<vi>[:=])\s*'                 # any number of space/tab,
+    # followed by separator
+    # (either : or =), followed
+    # by any # space/tab
+    r'(?P<value>.*?)'                      # the value, non greedy
+    r'\s*(?P<comment>#.*)?'                   # an optional comment
+    r'$'                                   # the end of line
+)
+
+
+class MduParser(ConfigParser.ConfigParser):
+    """
+    Parse an mdu file, a sort of ini file but with fortran numbers and comments
+    """
+    OPTCRE = OPTCRE
+
+    def getfloat(self, section, option):
+        """return float after fixing fortran specific 1d-1 notation"""
+        fixfloat = lambda x: float(str(x).lower().replace('d', 'e'))
+        return self._get(section, fixfloat, option)
+
+
+class MultiSectionConfigParser(ConfigParser.ConfigParser):
+    """
+    Yet another type of ini file in use. This time with non-unique sections.
+    """
+    def __init__(self, *args, **kwargs):
+        # ignore dict_type, always use multidict.
+        # old style class
+        ConfigParser.ConfigParser.__init__(self,
+                                           dict_type=MultiDict,
+                                           *args, **kwargs)
+
+    def add_section(self, section):
+        """Create a new section in the configuration.
+
+        Multiple sections with the same name can exist
+        Raise ValueError if name is DEFAULT or any of it's
+        case-insensitive variants.
+        """
+        if section.lower() == "default":
+            raise ValueError, 'Invalid section name: %s' % section
+
+        self._sections.add(section, self._dict())
+
+    def write(self, fp):
+        """Write an .ini-format representation of the configuration state."""
+        if self._defaults:
+            fp.write("[%s]\n" % ConfigParser.DEFAULTSECT)
+            for (key, value) in self._defaults.items():
+                fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
+            fp.write("\n")
+        for section, options in self._sections.items():
+            fp.write("[%s]\n" % section)
+            for (key, value) in options.items():
+                if key == "__name__":
+                    continue
+                if (value is not None) or (self._optcre == self.OPTCRE):
+                    key = " = ".join((key, str(value).replace('\n', '\n\t')))
+                fp.write("%s\n" % (key))
+            fp.write("\n")
 
 
 class NotDocumentedError(Exception):
