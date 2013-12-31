@@ -72,7 +72,11 @@ class MduParser(ConfigParser.ConfigParser):
 
     def getfloat(self, section, option):
         """return float after fixing fortran specific 1d-1 notation"""
-        fixfloat = lambda x: float(str(x).lower().replace('d', 'e').replace('f', 'e'))
+        def fixfloat(x):
+            """convert fortran numbers (2D-1) to normal numbers"""
+            x = str(x).lower()
+            x = x.replace('d', 'e').replace('f', 'e')
+            return float(x)
         return self._get(section, fixfloat, option)
 
 
