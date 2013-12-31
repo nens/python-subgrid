@@ -72,10 +72,12 @@ class MduParser(ConfigParser.ConfigParser):
 
     def getfloat(self, section, option):
         """return float after fixing fortran specific 1d-1 notation"""
-        fixfloat = lambda x: float(str(x).lower().replace('d', 'e'))
+        fixfloat = lambda x: float(str(x).lower().replace('d', 'e').replace('f', 'e'))
         return self._get(section, fixfloat, option)
 
 
+# TODO: merge with MduParser above to a MultiSection Fortran ini file parser.
+# TODO: check with Sander for merge
 class MultiSectionConfigParser(ConfigParser.ConfigParser):
     """
     Yet another type of ini file in use. This time with non-unique sections.

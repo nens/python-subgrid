@@ -125,8 +125,6 @@ def main():
     # Read mdu file
     mduparser = MduParser(defaults=DEFAULTS)
     mduparser.readfp(open(arguments.mdu))
-    frictcoef = mduparser.getfloat('physics', 'FrictCoef')
-    fricttype = mduparser.getint('physics', 'FrictType')
     networkfilename = mduparser.get('geometry', 'NetworkFile')
 
     # Split up the old network file
@@ -144,7 +142,15 @@ def main():
     crosssectionsdf = merge_tables(nodesdf,
                                    definitionsdf,
                                    branchesdf)
+
+    # Some manual changes
+
+    # rectangles all the way down
+    definitionsdf["type"] = "rectangle"
+
     # Add some friction
+    frictcoef = mduparser.getfloat('physics', 'FrictCoef')
+    fricttype = mduparser.getint('physics', 'FrictType')
     crosssectionsdf['frictiontype'] = fricttype
     crosssectionsdf['frictionvalue'] = frictcoef
 
@@ -158,10 +164,10 @@ def main():
 
     # and write the crosssections
     config = MultiSectionConfigParser()
-    for i, crosssection in crosssectionsdf.iterrows():
-        config.add_section('crosssection')
+    for i, crosssection in crosssectionsdf.sort('id').iterrows():
+        config.add_section('CrossSection')
         for key, value in crosssection.iteritems():
-            config.set('crosssection', key, value)
+            config.set('CrossSection', key, value)
     config.write(open(arguments.crosssection, 'w'))
 
     # and write the network
