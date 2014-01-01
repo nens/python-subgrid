@@ -12,7 +12,7 @@ import multiprocessing          # for shared memory
 import platform
 import inspect
 import json
-
+import sys
 
 from numpy.ctypeslib import ndpointer  # nd arrays
 import numpy as np
@@ -26,13 +26,35 @@ from ctypes import (
     # Complex types
     ARRAY, Structure,
     # Making strings
-    create_string_buffer,
     # Pointering
     POINTER, byref, CFUNCTYPE,
     # Loading
     cdll)
 
-from python_subgrid import utils
+
+def create_string_buffer(init, size=None):
+    """create_string_buffer(aBytes) -> character array
+    create_string_buffer(anInteger) -> character array
+    create_string_buffer(aString, anInteger) -> character array
+    """
+    # a create_string_buffer that works...
+    if isinstance(init, (str, bytes)):
+        if size is None:
+            size = len(init)+1
+        buftype = c_char * size
+        buf = buftype()
+        if isinstance(init, bytes):
+            buf.value = init
+        else:
+            # just work....
+            buf.value = init.encode(sys.getdefaultencoding())
+        return buf
+    elif isinstance(init, int):
+        buftype = c_char * init
+        buf = buftype()
+        return buf
+    raise TypeError(init)
+
 
 try:
     faulthandler.enable()
@@ -43,10 +65,19 @@ except AttributeError:
     # In notebooks faulthandler does not work.
     pass
 
+class NotDocumentedError(Exception):
+    pass
+
 
 MAXDIMS = 6
 # map c types to ctypes types
+# Add both bytes and strings for 2/3 compat
 CTYPESMAP = {
+    b'bool': c_bool,
+    b'char': c_char,
+    b'double': c_double,
+    b'float': c_float,
+    b'int': c_int,
     'bool': c_bool,
     'char': c_char,
     'double': c_double,
@@ -55,6 +86,11 @@ CTYPESMAP = {
 }
 # map c types to numpy types
 TYPEMAP = {
+    b"bool": "bool",
+    b"char": "S",
+    b"double": "double",
+    b"float": "float32",
+    b"int": "int32",
     "bool": "bool",
     "char": "S",
     "double": "double",
@@ -460,7 +496,7 @@ class SubgridWrapper(object):
             os.path.abspath(os.getcwd())
         )
         logger.info(logmsg)
-        exit_code = self.library.loadmodel(self.mdu)
+        exit_code = self.library.loadmodel(self.mdu.encode("utf-8"))
         if exit_code:
             errormsg = "Loading model {mdu} failed with exit code {code}"
             raise RuntimeError(errormsg.format(mdu=self.mdu, code=exit_code))
@@ -500,9 +536,6 @@ class SubgridWrapper(object):
             self.library.finalizemodel()
         logger.info('library shutdown...')
         self.library.shutdown()  # Fortran cleanup function.
-        # while utils.isloaded(self._library_path()):
-        #     logger.info('dlclose...')
-        #     utils.dlclose(self.library)
         logger.info('chdir...')
         # del self.library  # This one doesn't work.
         os.chdir(self.original_dir)
@@ -634,7 +667,7 @@ class SubgridWrapper(object):
             # dictionary near the top of this Python file.
             msg = "Requesting variable '{}', but it isn't documented.".format(
                 name)
-            raise utils.NotDocumentedError(msg)
+            raise NotDocumentedError(msg)
         # How many dimensions.
         rank = self.get_var_rank(name)
         # The shape array is fixed size

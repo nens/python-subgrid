@@ -1,11 +1,16 @@
 """Utilities. For the moment documentation-generation related."""
-from __future__ import print_function
+
 import collections
 import ctypes
 import logging
 import os
 import platform
-import ConfigParser
+try:
+    # py3
+    import configparser
+except ImportError:
+    # py2
+    import ConfigParser as configparser
 import re
 
 from webob.multidict import MultiDict
@@ -64,7 +69,7 @@ OPTCRE = re.compile(
 )
 
 
-class MduParser(ConfigParser.ConfigParser):
+class MduParser(configparser.ConfigParser):
     """
     Parse an mdu file, a sort of ini file but with fortran numbers and comments
     """
@@ -82,14 +87,14 @@ class MduParser(ConfigParser.ConfigParser):
 
 # TODO: merge with MduParser above to a MultiSection Fortran ini file parser.
 # TODO: check with Sander for merge
-class MultiSectionConfigParser(ConfigParser.ConfigParser):
+class MultiSectionConfigParser(configparser.ConfigParser):
     """
     Yet another type of ini file in use. This time with non-unique sections.
     """
     def __init__(self, *args, **kwargs):
         # ignore dict_type, always use multidict.
         # old style class
-        ConfigParser.ConfigParser.__init__(self,
+        configparser.ConfigParser.__init__(self,
                                            dict_type=MultiDict,
                                            *args, **kwargs)
 
@@ -101,14 +106,14 @@ class MultiSectionConfigParser(ConfigParser.ConfigParser):
         case-insensitive variants.
         """
         if section.lower() == "default":
-            raise ValueError, 'Invalid section name: %s' % section
+            raise ValueError('Invalid section name: %s' % section)
 
         self._sections.add(section, self._dict())
 
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""
         if self._defaults:
-            fp.write("[%s]\n" % ConfigParser.DEFAULTSECT)
+            fp.write("[%s]\n" % configparser.DEFAULTSECT)
             for (key, value) in self._defaults.items():
                 fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
             fp.write("\n")
@@ -161,7 +166,8 @@ def dlclose(lib):
 def generate_tables():
     """generate new tables"""
     import argparse
-    import wrapper
+    # TODO circular dependency, move this (wrapper import utils, utils imports wrapper)
+    from . import wrapper
     # Implement command line
     # save grid administration file
     # save table data file
@@ -191,6 +197,7 @@ def generate_functions_documentation():
     out = ''
     out += FILE_HEADER
 
+    # TODO circular dependency
     from python_subgrid.wrapper import FUNCTIONS
     out += FUNCTIONS_HEADER
     for function in FUNCTIONS:

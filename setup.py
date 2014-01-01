@@ -1,5 +1,5 @@
 from setuptools import setup
-
+import sys
 version = '0.6.dev0'
 
 long_description = '\n\n'.join([
@@ -10,12 +10,15 @@ long_description = '\n\n'.join([
 
 install_requires = [
     'setuptools',
-    'faulthandler',
     'numpy',
     'pandas',
     'webob',
     'netCDF4'
-    ],
+    ]
+
+if sys.version_info[0] < 3:
+    install_requires.append('faulthandler')
+
 
 tests_require = [
     'nose',
