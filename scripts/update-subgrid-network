@@ -157,9 +157,9 @@ def main():
     # Write out the definitions
     config = MultiSectionConfigParser()
     for i, definition in definitionsdf.iterrows():
-        config.add_section('definition')
+        config.add_section('Definition')
         for key, value in definition.iteritems():
-            config.set('definition', key, value)
+            config.set('Definition', key, str(value))
     config.write(open(arguments.definition, 'w'))
 
     # and write the crosssections
@@ -167,7 +167,7 @@ def main():
     for i, crosssection in crosssectionsdf.sort('id').iterrows():
         config.add_section('CrossSection')
         for key, value in crosssection.iteritems():
-            config.set('CrossSection', key, value)
+            config.set('CrossSection', key, str(value))
     config.write(open(arguments.crosssection, 'w'))
 
     # and write the network
