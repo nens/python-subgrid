@@ -187,7 +187,8 @@ def main():
         config.add_section('Definition')
         for key, value in definition.iteritems():
             config.set('Definition', key, str(value))
-    config.write(open(arguments.definition, 'w'))
+    with open(os.path.join(mdudir, arguments.definition), 'w') as f:
+        config.write(f)
 
     # and write the crosssections
     config = MultiSectionConfigParser()
@@ -195,7 +196,8 @@ def main():
         config.add_section('CrossSection')
         for key, value in crosssection.iteritems():
             config.set('CrossSection', key, str(value))
-    config.write(open(arguments.crosssection, 'w'))
+    with open(os.path.join(mdudir, arguments.crosssection), 'w') as f:
+        config.write(f)
 
     # and write the network
     lines = []
