@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.6 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Updated for subgrid 0.3.
 
 
 0.5 (2013-12-16)
