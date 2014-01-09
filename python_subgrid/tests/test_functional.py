@@ -570,7 +570,6 @@ class LibSubgridTest(unittest.TestCase):
         print s1nopumps
         self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
 
-
     # def test_get_water_level(self):
     #     print
     #     print '########### test get water level'
