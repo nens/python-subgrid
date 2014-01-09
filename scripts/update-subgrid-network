@@ -214,7 +214,7 @@ def main():
     commentedmdu.readfp(open(arguments.mdu))
     commentedmdu.set("geometry", "CrossSectionFile", arguments.crosssection)
     commentedmdu.set("geometry", "CrossSectionDefinitionFile", arguments.definition)
-    with open(arguments.mdu + ".new" , 'w') as mdufile:
+    with open(arguments.mdu , 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()
