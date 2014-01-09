@@ -570,70 +570,12 @@ class LibSubgridTest(unittest.TestCase):
         print s1nopumps
         self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
 
-    # def test_get_water_level(self):
-    #     print
-    #     print '########### test get water level'
-    #     abs_path = os.path.join(scenario_basedir,
-    #                             scenarios[scenario]['path'])
-    #     load_model(abs_path, scenarios[scenario]['mdu_filename'])
-    #     subgrid.initmodel()
-    #     self.model_initialized = True
+    def test_weir_it_out(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('weirs')
+            self.assertGreater(len(df), 0)
 
-    #     for i in xrange(10):
-    #         print 'doing %d...' % i
-    #         #print libsubgrid.funcall('update',
-    #                 'ctypes.byref(ctypes.c_double(-1))')
-    #                 # -1 = use default model timestep.
-    #         print subgrid.update(-1) # -1 = use default model time
-    #     level = ctypes.c_double(-1234.0)
-    #     #level_p = ctypes.POINTER(0.0) #ctypes.c_double(0.0)
-    #     xtest = ctypes.c_double(251929.987738)
-    #     ytest = ctypes.c_double(589375.641241)
-
-    #     result = subgrid.getwaterlevel(
-    #         ctypes.byref(xtest),
-    #         ctypes.byref(ytest),
-    #         ctypes.byref(level)
-    #     )
-    #     # result = libsubgrid.funcall(
-    #     #     'GETWATERLEVEL',
-    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]),
-    #                                   ctypes.byref(args[3])',
-    #     #     xtest, ytest, level)
-    #     print "na getwaterlevel, result at (%r, %r): %r" % (
-    #                      xtest, ytest, level)
-    #     print 'true? %r' % (abs(level.value - -1.6409107876960418) < EPSILON)
-    #     # The value is -999 now..
-    #     #unittest.assertTrue((level.value - -1.6409107876960418) < EPSILON)
-
-    #     for i in xrange(10):
-    #         print 'doing %d...' % i
-    #         print subgrid.update(-1) # -1 = use default model time
-    #         # print libsubgrid.funcall(
-    #         #     'update', 'ctypes.byref(ctypes.c_double(-1))')
-    #                 # -1 = use default model timestep.
-
-    #     result = subgrid.getwaterlevel(
-    #         ctypes.byref(xtest),
-    #         ctypes.byref(ytest),
-    #         ctypes.byref(level)
-    #     )
-
-    #     # result = libsubgrid.funcall(
-    #     #     'GETWATERLEVEL',
-    #     #     'ctypes.byref(args[1]), ctypes.byref(args[2]),
-    #           ctypes.byref(args[3])',
-    #     #     xtest, ytest, level)
-    #     print "na getwaterlevel2, result at (%r, %r): %r" % (
-    #                xtest, ytest, level)
-    #     # After one run it has this value... don't know if we have to check,
-    #     # but it's a got change follower
-    #     # The value is -999 now..
-    #     print 'true? %r' % (abs(level.value - -1.4157227881505232) < EPSILON)
-    #     print 'true? %r' % (abs(level.value - -1.2157227881505232) < EPSILON)
-    #     #unittest.assertTrue((level.value - -1.4157227881505232) < EPSILON)
-
-    #     #libsubgrid.funcall('finalizemodel')
 
     def test_changebathy(self):
         print
@@ -710,30 +652,6 @@ class LibSubgridTest(unittest.TestCase):
             flow_link = subgrid.get_nd('FlowLink')
             print flow_link[249]  # [140 169]
             self.assertEqual(list(flow_link[249]), [140, 169])
-
-    # # def test_changebathy2(self):
-    # #     """Known crashing case"""
-    # #     print
-    # #     print '########### test change bathy2'
-    # #     abs_path = os.path.join(scenario_basedir,
-    #                 scenarios['betondorp']['path'])
-    # #     load_model(abs_path, scenarios['betondorp']['mdu_filename'])
-    # #     libsubgrid.funcall('initmodel')
-    # #     self.model_initialized = True
-
-    # #     xc = 125209.332
-    # #     yc = 483799.384
-    # #     sz = 50.000
-    # #     bval = -3.000
-    # #     bmode = 0
-
-    # #     libsubgrid.funcall(
-    # #         'changebathy',
-    # #         'ctypes.c_double(args[1]), ctypes.c_double(args[2]),
-    #             ctypes.c_double(args[3]), ctypes.c_double(args[4]),
-    #             ctypes.c_int(args[5])',
-    # #         xc, yc, sz, bval, bmode)
-    # #     #libsubgrid.funcall('finalizemodel')
 
     def test_floodfill(self):
         print
