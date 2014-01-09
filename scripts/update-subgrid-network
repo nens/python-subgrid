@@ -5,12 +5,28 @@ Convert scriptlet, produce crosssection locations and definition
 input from old network config
 """
 
+# TODO:
+# By default using naming convention of inp files:
+# - ..net....inp
+# - ..cros....inp
+# - ..str....inp
+
+# Change mdu file with new naming convention files
+
+# Allow to use mdu file from any directory
+
+# Script will be run like this:
+# find . -name *.mdu -exec update-subgrid-network {} \;
+
+import os
 import argparse
+import sys
+import datetime
 
 import numpy as np
 import pandas
 
-from python_subgrid.utils import MduParser, MultiSectionConfigParser
+from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
 
 
 DEFAULTS = {
@@ -105,16 +121,26 @@ def parse_args():
     argumentparser.add_argument('mdu', help='mdu files to process')
     argumentparser.add_argument('-n', '--network', dest='network',
                                 help='new network file name',
-                                default='newnetwork.inp')
+                                default='one_d/network_MDUBASENAME.inp')
     argumentparser.add_argument('-c', '--crosssection',
                                 dest="crosssection",
                                 help='new crosssection file name',
-                                default="newcrosssection.inp")
+                                default="one_d/crosssections_MDUBASENAME.inp")
     argumentparser.add_argument('-d', '--definition',
                                 dest="definition",
                                 help='new crosssection definition file name',
-                                default="newdefinition.inp")
+                                default="one_d/definitions_MDUBASENAME.inp")
     arguments = argumentparser.parse_args()
+    # replace MDUBASENAME with basename
+    for dest in ("network", "crosssection", "definition"):
+        if argumentparser.get_default(dest) == getattr(arguments, dest):
+            basename = os.path.basename(arguments.mdu)
+            basename = os.path.splitext(basename)[0]
+            filename = getattr(arguments, dest).replace("MDUBASENAME", basename)
+            setattr(arguments,
+                    dest,
+                    filename)
+
     return arguments
 
 
@@ -123,12 +149,13 @@ def main():
     arguments = parse_args()
 
     # Read mdu file
+    mdudir = os.path.dirname(arguments.mdu)
     mduparser = MduParser(defaults=DEFAULTS)
     mduparser.readfp(open(arguments.mdu))
     networkfilename = mduparser.get('geometry', 'NetworkFile')
 
     # Split up the old network file
-    lines = open(networkfilename).readlines()
+    lines = open(os.path.join(mdudir, networkfilename)).readlines()
     records = [line.split() for line in lines]
     breaks = [i for i, record in enumerate(records) if record == ['-1']]
     nodes, definitions, branches = (records[:breaks[0]],
@@ -183,5 +210,16 @@ def main():
     with open(arguments.network, 'w') as networkfile:
         networkfile.writelines(line + "\n" for line in lines)
 
+    commentedmdu = MduParserKeepComments()
+    commentedmdu.readfp(open(arguments.mdu))
+    commentedmdu.set("geometry", "CrossSectionFile", arguments.crosssection)
+    commentedmdu.set("geometry", "CrossSectionDefinitionFile", arguments.definition)
+    with open(arguments.mdu + ".new" , 'w') as mdufile:
+        comment = "# mdu file changed by {} at {}".format(
+            sys.argv[0],
+            datetime.datetime.now()
+        )
+        mdufile.write(comment + "\n")
+        commentedmdu.write(mdufile)
 if __name__ == "__main__":
     main()

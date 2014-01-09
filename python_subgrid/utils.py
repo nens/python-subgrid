@@ -75,6 +75,7 @@ class MduParser(configparser.ConfigParser):
     """
     OPTCRE = OPTCRE
 
+
     def getfloat(self, section, option):
         """return float after fixing fortran specific 1d-1 notation"""
         def fixfloat(x):
@@ -84,9 +85,52 @@ class MduParser(configparser.ConfigParser):
             return float(x)
         return self._get(section, fixfloat, option)
 
+class MduParserKeepComments(configparser.ConfigParser):
+    """
+    parse an mdu file, without splitting comments, without lowercasing
+    """
+
+    def optionxform(self, optionstr):
+        return str(optionstr)
+    def write(self, fp):
+        """Write an .ini-format representation of the configuration state."""
+        if self._defaults:
+            fp.write("[%s]\n" % configparser.DEFAULTSECT)
+            for (key, value) in self._defaults.items():
+                fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
+            fp.write("\n")
+
+        # compute max length:
+        maxkey = 0
+        maxval = 0
+        for section, options in self._sections.items():
+            for key, value in options.items():
+                maxkey = max(len(key), maxkey)
+                # lookup length before comment
+                maxval = max(len(value.split("#", 1)[0]), maxval)
+        lineformat = ("{key:%d} = {val}" % (maxkey, ))
+        for section, options in self._sections.items():
+            fp.write("[%s]\n" % section)
+            for (key, value) in options.items():
+                if key == "__name__":
+                    continue
+                if (value is not None) or (self._optcre == self.OPTCRE):
+                    val = str(value).replace('\n', '\n\t')
+                    split = val.split("#", 1) # split of first comment
+                    # we have comments in the value, align....
+                    if len(split) > 1:
+                        valformat = "{val:%d} # {comment}" % (maxval,)
+                        val = valformat.format(val=split[0], comment=split[1].strip())
+
+                line = lineformat.format(key=key, val=val)
+                fp.write("%s\n" % (line))
+            fp.write("\n")
+
 
 # TODO: merge with MduParser above to a MultiSection Fortran ini file parser.
 # TODO: check with Sander for merge
+# The idea seems to be that you subclass, but I want initialisation options
+
 class MultiSectionConfigParser(configparser.ConfigParser):
     """
     Yet another type of ini file in use. This time with non-unique sections.
@@ -110,22 +154,6 @@ class MultiSectionConfigParser(configparser.ConfigParser):
 
         self._sections.add(section, self._dict())
 
-    def write(self, fp):
-        """Write an .ini-format representation of the configuration state."""
-        if self._defaults:
-            fp.write("[%s]\n" % configparser.DEFAULTSECT)
-            for (key, value) in self._defaults.items():
-                fp.write("%s = %s\n" % (key, str(value).replace('\n', '\n\t')))
-            fp.write("\n")
-        for section, options in self._sections.items():
-            fp.write("[%s]\n" % section)
-            for (key, value) in options.items():
-                if key == "__name__":
-                    continue
-                if (value is not None) or (self._optcre == self.OPTCRE):
-                    key = " = ".join((key, str(value).replace('\n', '\n\t')))
-                fp.write("%s\n" % (key))
-            fp.write("\n")
 
 
 class NotDocumentedError(Exception):
