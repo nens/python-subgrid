@@ -3,24 +3,28 @@
 """
 subgrid model runner
 """
-from python_subgrid.wrapper import SubgridWrapper
+import datetime
+import logging
+import itertools
+import argparse
 from multiprocessing import Process
+
 import zmq
 import zmq.eventloop.zmqstream
 from zmq.eventloop import ioloop, zmqstream
 
-import datetime
-import logging
+import python_subgrid.wrapper
+
 logging.basicConfig()
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 ioloop.install()
-import argparse
 
 
 INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x', 'FlowElemContour_y', 'dx', 'nmax', 'mmax',
-            'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type'}
+            'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type', 'dps'}
 OUTPUTVARS = ['s1']
 def send_array(socket, A, flags=0, copy=False, track=False, metadata=None):
     """send a numpy array with metadata"""
@@ -36,6 +40,16 @@ def send_array(socket, A, flags=0, copy=False, track=False, metadata=None):
     socket.send(msg, flags, copy=copy, track=track)
     return
 
+
+def recv_array(socket, flags=0, copy=False, track=False):
+    """recv a numpy array"""
+    md = socket.recv_json(flags=flags)
+    msg = socket.recv(flags=flags, copy=copy, track=track)
+    buf = buffer(msg)
+    A = np.frombuffer(buf, dtype=md['dtype'])
+    A.reshape(md['shape'])
+    return A, md
+
 def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument('-p', '--publishport', dest='publish_port',
@@ -49,7 +63,7 @@ def parse_args():
     argparser.add_argument('-n', '--interval', dest='interval',
                            help='publishing results every [n] tiemsteps',
                            type=int,
-                           default=10)
+                           default=1)
     argparser.add_argument('-o', '--outputvariables', dest='outputvariables',
                            metavar='O',
                            nargs='*',
@@ -75,47 +89,66 @@ def parse_args():
     return argparser.parse_args()
 
 
-def make_rep_socket(port, data):
-    """make a socket that replies to message with the grid"""
 
-    context = zmq.Context()
-    repsock = context.socket(zmq.REP)
-    repsock.bind(
-        "tcp://*:{port}".format(port=port)
-    )
-
-    #  TODO handle update messages here
-    # do we need to pass ioloop here?
-    repstream = zmqstream.ZMQStream(repsock)
-
-    def respond(stream, msg):
-        stream.send_pyobj(
-            data
-        )
-    repstream.on_recv_stream(respond)
-    # start listening to grid requests
-    ioloop.IOLoop.instance().start()
-
-def make_pub_socket(port):
-    context = zmq.Context()
-
-    # for sending messages
-    pubsock = context.socket(zmq.PUB)
-    pubsock.bind(
-        "tcp://*:{port}".format(port=port)
-    )
     return pubsock
 # see or an in memory numpy message:
 # http://zeromq.github.io/pyzmq/serialization.html
 
 
+def process_incoming(poller, rep, pull):
+    """
+    process incoming messages
+    """
+    # Check for new messages
+    items = poller.poll(100)
+    logger.info("{}".format(items))
+    for sock, n in items:
+        for i in range(n):
+            if sock == rep:
+                logger.info("got reply message, reading")
+                msg = sock.recv()
+                logger.info("got message: {}, replying with data".format(msg))
+                sock.send_pyobj(data)
+                logger.info("sent".format(msg))
+            elif sock == pull:
+                logger.info("got push message, reading array")
+                recv_array(sock)
+                logger.info("got {metadata}".format(metadata=metadata))
+            else:
+                logger.warn("got message from unknown socket {}".format(sock))
+    else:
+        logger.info("No incoming data")
+
 if __name__ == '__main__':
 
     arguments = parse_args()
 
+    # make a socket that replies to message with the grid
+
+    context = zmq.Context()
+    # Socket to handle init data
+    rep = context.socket(zmq.REP)
+    rep.bind(
+        "tcp://*:{port}".format(port=5556)
+    )
+    pull = context.socket(zmq.PULL)
+    pull.bind(
+        "tcp://*:{port}".format(port=5557)
+    )
+    # for sending model messages
+    pub = context.socket(zmq.PUB)
+    pub.bind(
+        "tcp://*:{port}".format(port=5558)
+    )
+
+    poller = zmq.Poller()
+    poller.register(rep, zmq.POLLIN)
+    poller.register(pull, zmq.POLLIN)
+
+    python_subgrid.wrapper.logger.setLevel(logging.WARN)
 
     # for replying to grid requests
-    with SubgridWrapper(mdu=arguments.ini, sharedmem=False) as subgrid:
+    with python_subgrid.wrapper.SubgridWrapper(mdu=arguments.ini, sharedmem=False) as subgrid:
         subgrid.initmodel()
 
         # Start a reply process in the background, with variables available
@@ -126,21 +159,26 @@ if __name__ == '__main__':
             in arguments.globalvariables
         }
 
-        Process(target=make_rep_socket, args=(arguments.reply_port, data)).start()
-        pubsock = make_pub_socket(port=arguments.publish_port)
+        process_incoming(poller, rep, pull)
 
-        i = 0
+        counter = itertools.count()
         while True:
+            process_incoming(poller, rep, pull)
+
+            i = counter.next()
             # Calculate
             subgrid.update(-1)
 
-            i+=1
-            # not on an interval
+            process_incoming(poller, rep, pull)
+
+            # increase and check counter.
+
             if (i % arguments.interval):
                 continue
+
             for key in arguments.outputvariables:
                 value = subgrid.get_nd(key)
                 metadata = {'name': key, 'iteration': i}
                 # 4ms for 1M doubles
                 logger.info("sending {}".format(metadata))
-                send_array(pubsock, value, metadata=metadata)
+                send_array(pub, value, metadata=metadata)

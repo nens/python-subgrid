@@ -19,13 +19,21 @@ logging.basicConfig()
 logger = logging.getLogger("listener")
 logger.setLevel(logging.INFO)
 
+zmqctx = zmq.Context()
+
+
+logger.info("Getting grid info")
+reqsock = zmqctx.socket(zmq.REQ)
+reqsock.connect("tcp://localhost:5556")
+reqsock.send_pyobj("hi hi")
+reply = reqsock.recv_pyobj()
+logger.info("got back {}".format(reply))
 
 logger.info("Subscribe to model updates")
-
-zmqctx = zmq.Context()
 subsock = zmqctx.socket(zmq.SUB)
-subsock.connect("tcp://localhost:5556")
+subsock.connect("tcp://localhost:5558")
 subsock.setsockopt(zmq.SUBSCRIBE,'')
+
 
 
 while True:
