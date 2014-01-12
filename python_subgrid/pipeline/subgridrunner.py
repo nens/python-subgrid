@@ -96,7 +96,7 @@ def parse_args():
 # http://zeromq.github.io/pyzmq/serialization.html
 
 
-def process_incoming(subgrid, poller, rep, pull):
+def process_incoming(subgrid, poller, rep, pull, data):
     """
     process incoming messages
     """
@@ -112,7 +112,8 @@ def process_incoming(subgrid, poller, rep, pull):
                 logger.info("sent".format(msg))
             elif sock == pull:
                 logger.info("got push message(s), reducing")
-                recv_array(sock)
+                data, metadata = recv_array(sock)
+                logger.info("got metadata: {metadata}".format(metadata=metadata))
                 if "action" in metadata:
                     logger.info("found action applying update")
                     # TODO: support same operators as MPI_ops here....,
@@ -120,11 +121,12 @@ def process_incoming(subgrid, poller, rep, pull):
                     action = metadata['action']
                     arr = subgrid.get_nd(metadata['name'])
                     S = tuple(slice(*x) for x in  action['slice'])
+                    print(repr(arr[S]))
                     if action['operator'] == 'setitem':
                         arr[S] = data
                     elif action['operator'] == 'add':
                         arr[S] += data
-                logger.info("got {metadata}".format(metadata=metadata))
+
             else:
                 logger.warn("got message from unknown socket {}".format(sock))
     else:
@@ -159,7 +161,7 @@ if __name__ == '__main__':
     python_subgrid.wrapper.logger.setLevel(logging.WARN)
 
     # for replying to grid requests
-    with python_subgrid.wrapper.SubgridWrapper(mdu=arguments.ini, sharedmem=False) as subgrid:
+    with python_subgrid.wrapper.SubgridWrapper(mdu=arguments.ini) as subgrid:
         subgrid.initmodel()
 
         # Start a reply process in the background, with variables available
@@ -170,7 +172,7 @@ if __name__ == '__main__':
             in arguments.globalvariables
         }
 
-        process_incoming(subgrid, poller, rep, pull)
+        process_incoming(subgrid, poller, rep, pull, data)
 
         # Keep on counting indefinitely
         counter = itertools.count()
@@ -178,7 +180,7 @@ if __name__ == '__main__':
         for i in counter:
 
             # Any requests?
-            process_incoming(subgrid, poller, rep, pull)
+            process_incoming(subgrid, poller, rep, pull, data)
 
             # Calculate
             subgrid.update(-1)
