@@ -12,6 +12,7 @@ from multiprocessing import Process
 import zmq
 import zmq.eventloop.zmqstream
 from zmq.eventloop import ioloop, zmqstream
+import numpy as np
 
 import python_subgrid.wrapper
 
@@ -31,7 +32,7 @@ def send_array(socket, A, flags=0, copy=False, track=False, metadata=None):
     md = dict(
         dtype = str(A.dtype),
         shape = A.shape,
-        send = datetime.datetime.now().isoformat()
+        timestamp = datetime.datetime.now().isoformat()
     )
     if metadata:
         md.update(metadata)
@@ -49,6 +50,8 @@ def recv_array(socket, flags=0, copy=False, track=False):
     A = np.frombuffer(buf, dtype=md['dtype'])
     A.reshape(md['shape'])
     return A, md
+
+
 
 def parse_args():
     argparser = argparse.ArgumentParser()
@@ -89,19 +92,16 @@ def parse_args():
     return argparser.parse_args()
 
 
-
-    return pubsock
 # see or an in memory numpy message:
 # http://zeromq.github.io/pyzmq/serialization.html
 
 
-def process_incoming(poller, rep, pull):
+def process_incoming(subgrid, poller, rep, pull):
     """
     process incoming messages
     """
     # Check for new messages
     items = poller.poll(100)
-    logger.info("{}".format(items))
     for sock, n in items:
         for i in range(n):
             if sock == rep:
@@ -111,8 +111,19 @@ def process_incoming(poller, rep, pull):
                 sock.send_pyobj(data)
                 logger.info("sent".format(msg))
             elif sock == pull:
-                logger.info("got push message, reading array")
+                logger.info("got push message(s), reducing")
                 recv_array(sock)
+                if "action" in metadata:
+                    logger.info("found action applying update")
+                    # TODO: support same operators as MPI_ops here....,
+                    # TODO: reduce before apply
+                    action = metadata['action']
+                    arr = subgrid.get_nd(metadata['name'])
+                    S = tuple(slice(*x) for x in  action['slice'])
+                    if action['operator'] == 'setitem':
+                        arr[S] = data
+                    elif action['operator'] == 'add':
+                        arr[S] += data
                 logger.info("got {metadata}".format(metadata=metadata))
             else:
                 logger.warn("got message from unknown socket {}".format(sock))
@@ -132,8 +143,8 @@ if __name__ == '__main__':
         "tcp://*:{port}".format(port=5556)
     )
     pull = context.socket(zmq.PULL)
-    pull.bind(
-        "tcp://*:{port}".format(port=5557)
+    pull.connect(
+        "tcp://localhost:{port}".format(port=5557)
     )
     # for sending model messages
     pub = context.socket(zmq.PUB)
@@ -159,20 +170,20 @@ if __name__ == '__main__':
             in arguments.globalvariables
         }
 
-        process_incoming(poller, rep, pull)
+        process_incoming(subgrid, poller, rep, pull)
 
+        # Keep on counting indefinitely
         counter = itertools.count()
-        while True:
-            process_incoming(poller, rep, pull)
 
-            i = counter.next()
+        for i in counter:
+
+            # Any requests?
+            process_incoming(subgrid, poller, rep, pull)
+
             # Calculate
             subgrid.update(-1)
 
-            process_incoming(poller, rep, pull)
-
-            # increase and check counter.
-
+            # check counter
             if (i % arguments.interval):
                 continue
 

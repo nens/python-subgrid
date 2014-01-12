@@ -39,7 +39,7 @@ subsock.setsockopt(zmq.SUBSCRIBE,'')
 while True:
     data, metadata = recv_array(subsock)
     logger.info("data contains {} {}".format(metadata, data.shape))
-    if "send" in metadata:
-        then = dateutil.parser.parse(metadata["send"])
+    if "timestamp" in metadata:
+        then = dateutil.parser.parse(metadata["timestamp"])
         now = datetime.datetime.now()
         logger.info("received in {}".format(now - then))
