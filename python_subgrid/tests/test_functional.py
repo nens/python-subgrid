@@ -20,7 +20,6 @@ from python_subgrid.utils import NotDocumentedError
 # only in the test_wrapper and the wrapper itself.
 
 
-
 EPSILON = 0.00000001
 
 scenarios = {
@@ -96,8 +95,6 @@ def float_equals(a, b):
     return abs(a-b) < EPSILON
 
 
-
-
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
 class LibSubgridTest(unittest.TestCase):
@@ -135,6 +132,7 @@ class LibSubgridTest(unittest.TestCase):
 
         # we should have some messages
         self.assertTrue(foundmessage)
+
     def test_progress(self):
         subgrid = SubgridWrapper(mdu=self.default_mdu)
         foundmessage = False
@@ -156,7 +154,6 @@ class LibSubgridTest(unittest.TestCase):
 
         # we should have some messages
         self.assertTrue(foundmessage)
-
 
     def test_info(self):
         with SubgridWrapper() as subgrid:
@@ -220,7 +217,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
             pumps = subgrid.get_nd('pumps')  # pandas DataFrame
-            print '########################################################### pumps'
+            print '################################################### pumps'
             pumps.to_dict()
             self.assertEquals(pumps.to_dict()['id'].keys()[0], 0)
         #asdf
@@ -384,9 +381,9 @@ class LibSubgridTest(unittest.TestCase):
         import multiprocessing
         import time
 
-        with SubgridWrapper(mdu=self._mdu_path('1dpumps'), sharedmem=True) as subgrid:
+        with SubgridWrapper(
+                mdu=self._mdu_path('1dpumps'), sharedmem=True) as subgrid:
             subgrid.initmodel()
-
 
             q = multiprocessing.Queue()
 
@@ -493,7 +490,8 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             # Increase capacity of all pumps by a factor 10
             pumpid = df.id.item(0)
-            subgrid.set_structure_field("pumps", pumpid, "capacity", df['capacity'] * 10)
+            subgrid.set_structure_field("pumps", pumpid,
+                                        "capacity", df['capacity'] * 10)
             for i in xrange(10):
                 subgrid.update(-1)
             s1_increase = subgrid.get_nd('s1').copy()
@@ -525,7 +523,8 @@ class LibSubgridTest(unittest.TestCase):
             capacity0 = df.capacity.item(0)
             pumpid = df.id.item(0)
             # Increase capacity of all pump1 by a factor 10
-            subgrid.set_structure_field("pumps", pumpid, "capacity", capacity0 * 10)
+            subgrid.set_structure_field("pumps", pumpid,
+                                        "capacity", capacity0 * 10)
             df = subgrid.get_nd('pumps')
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
@@ -545,7 +544,8 @@ class LibSubgridTest(unittest.TestCase):
             pumpid = df.id.item(0)
             print pumpid  # pump01
             # Increase capacity of pump1 by a factor 10
-            subgrid.set_structure_field("pumps", pumpid, "capacity", capacity0 * 10)
+            subgrid.set_structure_field("pumps", pumpid,
+                                        "capacity", capacity0 * 10)
             df = subgrid.get_nd('pumps')
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
@@ -574,7 +574,6 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
-
 
     def test_changebathy(self):
         print
@@ -630,18 +629,22 @@ class LibSubgridTest(unittest.TestCase):
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
-                print 'branch id %d -> flowlink %d' % (branch_id, data['idx'][counter])
+                print 'branch id %d -> flowlink %d' % (
+                    branch_id, data['idx'][counter])
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
 
     def test_link_table_node(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
-            data = dict(branch=subgrid.get_nd('nod_branchid'),  # node number in inp file
-                        chainage=subgrid.get_nd('nod_chainage'),  # node number in nflowlink dimension (?)
+            data = dict(branch=subgrid.get_nd('nod_branchid'),
+                        # ^^^ node number in inp file
+                        chainage=subgrid.get_nd('nod_chainage'),
+                        # ^^^ node number in nflowlink dimension (?)
                         idx=subgrid.get_nd('nod_idx'))
             # df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
-                print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
+                print 'branch id %d -> flowelem %d' % (
+                    branch_id, data['idx'][counter])
             #self.assertEqual(df.idx.item(0), 249)
             #self.assertEqual(df.idx.item(-1), 248)
         # TODO: look up real indices for this test case
