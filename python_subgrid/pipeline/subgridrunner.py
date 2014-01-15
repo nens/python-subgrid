@@ -24,19 +24,23 @@ logger.setLevel(logging.DEBUG)
 ioloop.install()
 
 
-INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x', 'FlowElemContour_y', 'dx', 'nmax', 'mmax',
-            'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type', 'dps'}
+INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
+            'FlowElemContour_y', 'dx', 'nmax', 'mmax',
+            'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type',
+            'dps'}
 OUTPUTVARS = ['s1']
+
+
 def send_array(socket, A, flags=0, copy=False, track=False, metadata=None):
     """send a numpy array with metadata"""
     md = dict(
-        dtype = str(A.dtype),
-        shape = A.shape,
-        timestamp = datetime.datetime.now().isoformat()
+        dtype=str(A.dtype),
+        shape=A.shape,
+        timestamp=datetime.datetime.now().isoformat()
     )
     if metadata:
         md.update(metadata)
-    socket.send_json(md, flags|zmq.SNDMORE)
+    socket.send_json(md, flags | zmq.SNDMORE)
     msg = buffer(A)
     socket.send(msg, flags, copy=copy, track=track)
     return
@@ -52,43 +56,46 @@ def recv_array(socket, flags=0, copy=False, track=False):
     return A, md
 
 
-
 def parse_args():
     argparser = argparse.ArgumentParser()
-    argparser.add_argument('-p', '--publishport', dest='publish_port',
-                                help='publishing port (port that publishes model results)',
-                                type=int,
-                                default=5556)
-    argparser.add_argument('-r', '--replyport', dest='reply_port',
-                           help='reply port (port which responds to requests)',
-                           type=int,
-                           default=5557)
-    argparser.add_argument('-n', '--interval', dest='interval',
-                           help='publishing results every [n] tiemsteps',
-                           type=int,
-                           default=1)
-    argparser.add_argument('-o', '--outputvariables', dest='outputvariables',
-                           metavar='O',
-                           nargs='*',
-                           help='variables to be published',
-                           default=OUTPUTVARS
-                       )
-    argparser.add_argument('-g', '--global', dest='globalvariables',
-                           metavar='G',
-                           nargs='*',
-                           help='variables that can be send back to a reply (not changed during run)',
-                           default=INITVARS
-    )
-    argparser.add_argument('-c', '--config', dest='config',
-                           help='configuration file',
-                           default=None
-    )
-    argparser.add_argument('ini',
-                           help='model configuration file')
-    argparser.add_argument("-s", "--serialization",
-                           dest="serialization protocol (numpy, json, bytes)",
-                           default="numpy"
-                       )
+    argparser.add_argument(
+        '-p', '--publishport', dest='publish_port',
+        help='publishing port (port that publishes model results)',
+        type=int,
+        default=5556)
+    argparser.add_argument(
+        '-r', '--replyport', dest='reply_port',
+        help='reply port (port which responds to requests)',
+        type=int,
+        default=5557)
+    argparser.add_argument(
+        '-n', '--interval', dest='interval',
+        help='publishing results every [n] tiemsteps',
+        type=int,
+        default=1)
+    argparser.add_argument(
+        '-o', '--outputvariables', dest='outputvariables',
+        metavar='O',
+        nargs='*',
+        help='variables to be published',
+        default=OUTPUTVARS)
+    argparser.add_argument(
+        '-g', '--global', dest='globalvariables',
+        metavar='G',
+        nargs='*',
+        help='variables that can be send back to a reply (not changed during run)',
+        default=INITVARS)
+    argparser.add_argument(
+        '-c', '--config', dest='config',
+        help='configuration file',
+        default=None)
+    argparser.add_argument(
+        'ini',
+        help='model configuration file')
+    argparser.add_argument(
+        "-s", "--serialization",
+        dest="serialization protocol (numpy, json, bytes)",
+        default="numpy")
     return argparser.parse_args()
 
 
@@ -113,14 +120,14 @@ def process_incoming(subgrid, poller, rep, pull, data):
             elif sock == pull:
                 logger.info("got push message(s), reducing")
                 data, metadata = recv_array(sock)
-                logger.info("got metadata: {metadata}".format(metadata=metadata))
+                logger.info("got metadata: %s", metadata)
                 if "action" in metadata:
                     logger.info("found action applying update")
                     # TODO: support same operators as MPI_ops here....,
                     # TODO: reduce before apply
                     action = metadata['action']
                     arr = subgrid.get_nd(metadata['name'])
-                    S = tuple(slice(*x) for x in  action['slice'])
+                    S = tuple(slice(*x) for x in action['slice'])
                     print(repr(arr[S]))
                     if action['operator'] == 'setitem':
                         arr[S] = data

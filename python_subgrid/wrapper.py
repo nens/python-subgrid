@@ -65,6 +65,7 @@ except AttributeError:
     # In notebooks faulthandler does not work.
     pass
 
+
 class NotDocumentedError(Exception):
     pass
 
@@ -98,8 +99,16 @@ TYPEMAP = {
     "int": "int32"
 }
 # boundary types (enum)
-LINK_TYPES = {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}
-NODE_TYPES = {0:'internal boundary', 1:'2d',2:'1d',3:'2d boundary',4:'1d boundary'}
+LINK_TYPES = {0: 'internal boundary',
+              1: '2d',
+              2: '1d',
+              3: '2d boundary',
+              4: '1d boundary'}
+NODE_TYPES = {0: 'internal boundary',
+              1: '2d',
+              2: '1d',
+              3: '2d boundary',
+              4: '1d boundary'}
 
 
 LEVELS_PY2F = {
@@ -135,8 +144,9 @@ progresslogger.parent = None
 # Add empty handler to avoid warnings about non existent handler
 progresslogger.addHandler(logging.NullHandler())
 
+
 # always pass the same progress stack
-def fortran_progress(message, progress_p, progressstack = []):
+def fortran_progress(message, progress_p, progressstack=[]):
     """python progress to be called from fortran"""
     progress = progress_p.contents.value
     # push the message in the progress message stack.
@@ -159,7 +169,6 @@ def fortran_progress(message, progress_p, progressstack = []):
 
 fortran_progress_functype = CFUNCTYPE(None, c_char_p, POINTER(c_double))
 fortran_progress_func = fortran_progress_functype(fortran_progress)
-
 
 
 def struct2dict(struct):
@@ -303,21 +312,22 @@ FUNCTIONS = [
 try:
     WRAPPERFILE = os.path.abspath(__file__)
 except NameError:
-    WRAPPERFILE = os.path.abspath(inspect.getsourcefile(lambda : None))
+    WRAPPERFILE = os.path.abspath(inspect.getsourcefile(lambda: None))
 WRAPPERDIR = os.path.dirname(WRAPPERFILE)
 with open(os.path.join(WRAPPERDIR, 'extractedvariables.json')) as f:
     JSONVARIABLES = json.load(f)
 DOCUMENTED_VARIABLES = {
-    variable.get('altname') or variable['name'] : variable['description']
+    variable.get('altname') or variable['name']: variable['description']
     for variable
     in JSONVARIABLES['variables']
 }
 
 
-# the following variables need to be copied explicitly because they are not kept in memory
-# implement through introspection??
+# the following variables need to be copied explicitly because they are not
+# kept in memory implement through introspection??
 NEED_COPYING = {'link_branchid', 'link_chainage', 'link_idx', 'link_type'
                 'nod_branchid', 'nod_chainage', 'nod_idx', 'node_type'}
+
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
@@ -382,7 +392,8 @@ class SubgridWrapper(object):
         """subscribe to progress updates"""
         self.library.set_progress_c_callback.restype = None
         # as an argument we need a pointer to a fortran log func...
-        self.library.set_progress_c_callback.argtypes = [POINTER(fortran_progress_functype)]
+        self.library.set_progress_c_callback.argtypes = [
+            POINTER(fortran_progress_functype)]
         self.library.set_progress_c_callback(byref(fortran_progress_func))
 
     def _libname(self):
@@ -521,7 +532,6 @@ class SubgridWrapper(object):
         self.library.startup()  # Fortran init function.
         if self.mdu:
             self._load_model()
-
 
     def stop(self):
         """Shutdown the library and clean up the model.
@@ -714,7 +724,8 @@ class SubgridWrapper(object):
             # or a copy, if needed
             else:
                 if name in NEED_COPYING:
-                    logger.debug("copying {}, memory will be reallocated".format(name))
+                    logger.debug("copying %s, memory will be reallocated",
+                                 name)
                     array = np.array(data).copy()
             # or just a pointer
                 else:
@@ -722,17 +733,18 @@ class SubgridWrapper(object):
         else:
             array = structs2pandas(data.contents)
         return array
+
     def set_structure_field(self, name, id, field, value):
-        {
-        'name': 'set_structure_field',
-            'argtypes': [
-                c_char_p,           # variable (pumps)
-                c_char_p,           # id (pump01)
-                c_char_p,           # field (capacity)
-                c_void_p            # pointer to value
-            ],
-        'restype': c_int,
-        }
+        # some_unused_dict_why_is_this_here = {
+        #     'name': 'set_structure_field',
+        #     'argtypes': [
+        #         c_char_p,           # variable (pumps)
+        #         c_char_p,           # id (pump01)
+        #         c_char_p,           # field (capacity)
+        #         c_void_p            # pointer to value
+        #     ],
+        #     'restype': c_int,
+        # }
         # This only works for 1d
         rank = self.get_var_rank(name)
         assert rank == 1
@@ -741,7 +753,6 @@ class SubgridWrapper(object):
         shape = self.get_var_shape(name)
         # there should be nothing here...
         assert sum(shape[rank:]) == 0
-
 
         # look up the type name
         typename = self.get_var_type(name)
@@ -758,12 +769,12 @@ class SubgridWrapper(object):
                 fieldctype = fieldctype*fieldshape[0]
             fields[fieldname] = fieldctype
 
-
         T = fields[field]       # type (c_double)
         T_p = POINTER(T)        # void pointer, as used in the model
 
         set_structure_field = self.library.set_structure_field
-        set_structure_field.argtypes = [c_char_p, c_char_p, c_char_p, POINTER(T_p)]
+        set_structure_field.argtypes = [
+            c_char_p, c_char_p, c_char_p, POINTER(T_p)]
         set_structure_field.restype = None
         # So the value is a void pointer by reference....
         # Create a value wrapped in a c_double_p
@@ -771,13 +782,11 @@ class SubgridWrapper(object):
         # wrap it up in the first pointer
         c_value = T_p(T(value))
 
-
         c_name = create_string_buffer(name)
         c_id = create_string_buffer(id)
         c_field = create_string_buffer(field)
         # Pass the void_p by reference...
         set_structure_field(c_name, c_id, c_field, byref(c_value))
-
 
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
@@ -797,4 +806,3 @@ class SubgridWrapper(object):
 
         """
         self.stop()
-

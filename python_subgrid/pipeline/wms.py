@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig()
 logger.setLevel(logging.DEBUG)
 
+
 def recv_array(socket, flags=0, copy=False, track=False):
     """recv a numpy array"""
     md = socket.recv_json(flags=flags)
@@ -43,6 +44,7 @@ def render():
     ctx.canvas.print_png(stream)
     response = Response(stream.getvalue(), content_type="image/png")
     return response
+
 
 @app.route("/")
 def index():
@@ -68,8 +70,6 @@ def model_listener(ctx):
 if __name__ == '__main__':
 
     # push it into the application context
-
-
     logger.info("Connecting to grid")
     zmqctx = zmq.Context()
     reqsock = zmqctx.socket(zmq.REQ)
@@ -79,7 +79,6 @@ if __name__ == '__main__':
 
     logger.info("Share grid with WMS")
 
-
     logger = logging.getLogger("listener")
     logger.setLevel(logging.INFO)
 
@@ -87,8 +86,7 @@ if __name__ == '__main__':
     zmqctx = zmq.Context()
     subsock = zmqctx.socket(zmq.SUB)
     subsock.connect("tcp://localhost:5556")
-    subsock.setsockopt(zmq.SUBSCRIBE,'')
-
+    subsock.setsockopt(zmq.SUBSCRIBE, '')
 
     with app.app_context() as ctx:
         ctx.g.grid = grid
@@ -96,9 +94,12 @@ if __name__ == '__main__':
         ctx.fig = Figure()
         ctx.canvas = FigureCanvas(ctx.fig)
         ctx.ax = ctx.fig.add_subplot(111)
-        ctx.sc = ctx.ax.scatter(g.grid["FlowElem_xcc"][1:-2], g.grid["FlowElem_ycc"][1:-2], c=np.zeros_like(g.grid["FlowElem_ycc"][1:-2]), vmin=0, vmax=3)
+        ctx.sc = ctx.ax.scatter(g.grid["FlowElem_xcc"][1:-2],
+                                g.grid["FlowElem_ycc"][1:-2],
+                                c=np.zeros_like(g.grid["FlowElem_ycc"][1:-2]),
+                                vmin=0,
+                                vmax=3)
         ctx.push()
-
 
         logger.info("Starting listener")
         thread = threading.Thread(target=model_listener, args=[ctx])
@@ -106,5 +107,3 @@ if __name__ == '__main__':
     app.run(port=6001)
     logger.info("Starting servers")
     # memory address
-
-

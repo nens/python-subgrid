@@ -5,6 +5,7 @@ import datetime
 import dateutil.parser
 import numpy as np
 
+
 def recv_array(socket, flags=0, copy=False, track=False):
     """recv a numpy array"""
     md = socket.recv_json(flags=flags)
@@ -32,8 +33,7 @@ logger.info("got back {}".format(reply))
 logger.info("Subscribe to model updates")
 subsock = zmqctx.socket(zmq.SUB)
 subsock.connect("tcp://localhost:5558")
-subsock.setsockopt(zmq.SUBSCRIBE,'')
-
+subsock.setsockopt(zmq.SUBSCRIBE, '')
 
 
 while True:

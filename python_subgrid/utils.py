@@ -75,7 +75,6 @@ class MduParser(configparser.ConfigParser):
     """
     OPTCRE = OPTCRE
 
-
     def getfloat(self, section, option):
         """return float after fixing fortran specific 1d-1 notation"""
         def fixfloat(x):
@@ -85,6 +84,7 @@ class MduParser(configparser.ConfigParser):
             return float(x)
         return self._get(section, fixfloat, option)
 
+
 class MduParserKeepComments(configparser.ConfigParser):
     """
     parse an mdu file, without splitting comments, without lowercasing
@@ -92,6 +92,7 @@ class MduParserKeepComments(configparser.ConfigParser):
 
     def optionxform(self, optionstr):
         return str(optionstr)
+
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""
         if self._defaults:
@@ -116,11 +117,12 @@ class MduParserKeepComments(configparser.ConfigParser):
                     continue
                 if (value is not None) or (self._optcre == self.OPTCRE):
                     val = str(value).replace('\n', '\n\t')
-                    split = val.split("#", 1) # split of first comment
+                    split = val.split("#", 1)  # split of first comment
                     # we have comments in the value, align....
                     if len(split) > 1:
                         valformat = "{val:%d} # {comment}" % (maxval,)
-                        val = valformat.format(val=split[0], comment=split[1].strip())
+                        val = valformat.format(val=split[0],
+                                               comment=split[1].strip())
 
                 line = lineformat.format(key=key, val=val)
                 fp.write("%s\n" % (line))
@@ -171,6 +173,7 @@ class MultiSectionConfigParser(configparser.ConfigParser):
                 fp.write("%s\n" % (key))
             fp.write("\n")
 
+
 class NotDocumentedError(Exception):
     pass
 
@@ -206,18 +209,29 @@ def dlclose(lib):
     else:
         logging.debug('Closed')
 
+
 def generate_tables():
     """generate new tables"""
     import argparse
-    # TODO circular dependency, move this (wrapper import utils, utils imports wrapper)
+    # TODO circular dependency, move this (wrapper import utils, utils imports
+    # wrapper)
     from . import wrapper
     # Implement command line
     # save grid administration file
     # save table data file
-    parser = argparse.ArgumentParser(description='Save grid and table administration.')
+    parser = argparse.ArgumentParser(
+        description='Save grid and table administration.')
     parser.add_argument('mdu', help='mdu files to process')
-    parser.add_argument('-t', '--table', dest="table", help='table name to generate', default="newtable.tbl")
-    parser.add_argument('-g', '--grid', dest="grid", help='grid name to generate', default="newgrid.grd")
+    parser.add_argument('-t',
+                        '--table',
+                        dest="table",
+                        help='table name to generate',
+                        default="newtable.tbl")
+    parser.add_argument('-g',
+                        '--grid',
+                        dest="grid",
+                        help='grid name to generate',
+                        default="newgrid.grd")
     args = parser.parse_args()
     with wrapper.SubgridWrapper(mdu=args.mdu) as subgrid:
         subgrid.initmodel()
