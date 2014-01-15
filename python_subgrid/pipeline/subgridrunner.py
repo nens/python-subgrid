@@ -7,11 +7,10 @@ import datetime
 import logging
 import itertools
 import argparse
-from multiprocessing import Process
 
 import zmq
 import zmq.eventloop.zmqstream
-from zmq.eventloop import ioloop, zmqstream
+from zmq.eventloop import ioloop
 import numpy as np
 
 import python_subgrid.wrapper

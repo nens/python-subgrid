@@ -72,6 +72,7 @@ class NotDocumentedError(Exception):
 
 MAXDIMS = 6
 # map c types to ctypes types
+# TODO: check what the proper way is to accept both bytes and unicode.
 # Add both bytes and strings for 2/3 compat
 CTYPESMAP = {
     b'bool': c_bool,
@@ -735,16 +736,6 @@ class SubgridWrapper(object):
         return array
 
     def set_structure_field(self, name, id, field, value):
-        # some_unused_dict_why_is_this_here = {
-        #     'name': 'set_structure_field',
-        #     'argtypes': [
-        #         c_char_p,           # variable (pumps)
-        #         c_char_p,           # id (pump01)
-        #         c_char_p,           # field (capacity)
-        #         c_void_p            # pointer to value
-        #     ],
-        #     'restype': c_int,
-        # }
         # This only works for 1d
         rank = self.get_var_rank(name)
         assert rank == 1
