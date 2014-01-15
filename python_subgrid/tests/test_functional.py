@@ -11,7 +11,7 @@ import numpy as np
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.utils import NotDocumentedError, dlclose, isloaded
+from python_subgrid.utils import NotDocumentedError
 
 #import gc
 #gc.disable()
@@ -339,7 +339,6 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             # add it
-            import numpy as np
             for i in range(5):
                 deltas = np.linspace(0, 100000, num=5)
                 for i, delta in enumerate(deltas):
@@ -640,7 +639,7 @@ class LibSubgridTest(unittest.TestCase):
             data = dict(branch=subgrid.get_nd('nod_branchid'),  # node number in inp file
                         chainage=subgrid.get_nd('nod_chainage'),  # node number in nflowlink dimension (?)
                         idx=subgrid.get_nd('nod_idx'))
-            df = pandas.DataFrame(data)
+            # df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
                 print 'branch id %d -> flowelem %d' % (branch_id, data['idx'][counter])
             #self.assertEqual(df.idx.item(0), 249)
