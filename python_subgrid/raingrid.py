@@ -26,6 +26,7 @@ class RainGrid(object):
         self.size_y = size_y
         self.dt_current = None
         self.memcdf_name = memcdf_name
+        self.diskless = False
 
         # Read pixels in model to create grid for rain
         pixels = {}
@@ -39,6 +40,7 @@ class RainGrid(object):
         pixels['jmax'] = subgrid.get_nd('jmax')
         pixels['x'] = np.arange(pixels['x0p'], pixels['x0p'] + pixels['imax']*pixels['dxp'], pixels['dxp'])
         pixels['y'] = np.arange(pixels['y0p'], pixels['y0p'] + pixels['jmax']*pixels['dyp'], pixels['dyp'])
+        #logger.info(pixels)
 
         # Create a new grid for our rain
         self.interp = {}
@@ -51,40 +53,47 @@ class RainGrid(object):
 
         # TODO: replace precipitation.nc with a unique name
         # TODO: add diskless=True, requires netcdf version >= 4.2.x
-        self.memcdf = netCDF4.Dataset(self.memcdf_name, mode="w", diskless=False)
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="w", diskless=self.diskless)
 
-        self.memcdf.createDimension("nx", self.interp['x'].shape[0])
+        memcdf.createDimension("nx", self.interp['x'].shape[0])
         logger.info('interp x shape %r' % self.interp['x'].shape[0])
-        self.memcdf.createDimension("ny", self.interp['y'].shape[0])
+        memcdf.createDimension("ny", self.interp['y'].shape[0])
         logger.info('interp y shape %r' % self.interp['y'].shape[0])
 
         # Put coordinates and values in the netcdf
-        var = self.memcdf.createVariable("x", datatype="double", dimensions=("nx",))
+        var = memcdf.createVariable("x", datatype="double", dimensions=("nx",))
         var[:] = self.interp['x']
         var.standard_name = 'projected_x_coordinate'
         var.units = 'm'
 
-        var = self.memcdf.createVariable("y", datatype="double", dimensions=("ny", ))
+        var = memcdf.createVariable("y", datatype="double", dimensions=("ny", ))
         var[:] = self.interp['y']
         var.standard_name = 'projected_y_coordinate'
         var.units = 'm'
 
-        self.rainfall_var = self.memcdf.createVariable(
+        rainfall_var = memcdf.createVariable(
             "rainfall", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
         logger.info('interp X shape')
         logger.info(self.interp['X'].shape)
 
-        self.rainfall_var.standard_name = 'precipitation'
-        self.rainfall_var.coordinates = 'y x'
-        self.rainfall_var.units = 'm/min'
+        rainfall_var.standard_name = 'precipitation'
+        rainfall_var.coordinates = 'y x'
+        rainfall_var.units = 'm/min'
+        #memcdf.sync()
+        memcdf.close()
+
         self.fill(initial_value)
 
         #self.memcdf.close()
 
     def fill(self, value=0.0):
         """Fill rainfall variable"""
-        self.rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
-        self.memcdf.sync()
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=self.diskless)
+        #print(memcdf.variables.keys())
+        rainfall_var = memcdf.variables["rainfall"]
+        rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
+        memcdf.sync()
+        memcdf.close()
 
     def update(self, dt):
         """Update the (interpolated) grid with given datetime"""
@@ -155,14 +164,17 @@ class RainGrid(object):
 
         #self.rainfall_var = memcdf.createVariable("rainfall", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
         #var = memcdf.createVariable("rain", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
-        self.rainfall_var[:,:] = self.interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
-        self.memcdf.sync()
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=self.diskless)
+        #print(memcdf.variables.keys())
+        rainfall_var = memcdf.variables["rainfall"]
+        #rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
+        rainfall_var[:,:] = self.interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
+        memcdf.sync()
+        memcdf.close()
+
+        #self.memcdf.sync()
         #self.rainfall_var.standard_name = 'precipitation'
         #self.rainfall_var.coordinates = 'y x'
         #self.rainfall_var.units = 'm/min'
 
         self.dt_current = dt_request
-
-    def netcdf(self):
-        """Return current netcdf"""
-        return self.memcdf

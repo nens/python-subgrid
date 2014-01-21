@@ -50,7 +50,7 @@ class RainGridTest(unittest.TestCase):
             subgrid, url_template, 
             memcdf_name=memcdf_name, initial_value=10.0)
         #rain_grid.update(dt=datetime.datetime(2013,10,10,0,0))
-        #asdfa
+        asdfa
         subgrid.subscribe_dataset(memcdf_name)
         print 'test load'
         s0 = subgrid.get_nd('s1').copy()
