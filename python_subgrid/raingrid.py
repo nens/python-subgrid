@@ -95,7 +95,7 @@ class RainGrid(object):
         memcdf.sync()
         memcdf.close()
 
-    def update(self, dt):
+    def update(self, dt, multiplier=1.0):
         """Update the (interpolated) grid with given datetime"""
         # Quantize on 5 minutes
         minutes = dt.minute / 5 * 5
@@ -168,7 +168,7 @@ class RainGrid(object):
         #print(memcdf.variables.keys())
         rainfall_var = memcdf.variables["rainfall"]
         #rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
-        rainfall_var[:,:] = self.interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
+        rainfall_var[:,:] = self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier #  mm/5min * 5min/min * m/mm -> m/min 
         memcdf.sync()
         memcdf.close()
 
