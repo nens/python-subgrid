@@ -429,19 +429,25 @@ class LibSubgridTest(unittest.TestCase):
             self.assertRaises(NotDocumentedError, subgrid.get_nd, 'reinout')
 
     def test_compound_rank(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            rank = subgrid.get_var_rank('pumps')
+            self.assertEqual(rank, 1)
+    def test_compound_rank_2donly(self):
+        """test compound rank for a model with only 2d"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
 
     def test_compound_type(self):
-        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
 
     def test_make_compound(self):
-        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             valtype = subgrid.make_compound_ctype("pumps")
             # check if the type is a pointer to the compound array type
