@@ -16,12 +16,14 @@ def make_quad_grid(subgrid):
     """
     # Create lookup index
     grid = {}
-    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx'}:
+    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx', 'nmax', 'mmax'}:
         grid[var] = subgrid.get_nd(var)
     m = (grid['nodm']-1)*grid['dx'][grid['nodk']-1]/grid['dxp']
     n = (grid['nodn']-1)*grid['dx'][grid['nodk']-1]/grid['dxp']
     size = np.round(grid['dx'][grid['nodk']-1]/grid['dxp']).astype('int32')
-    quad_grid_shape = (int(((grid['nmax']*grid['dx'])/grid['dxp'])[0]),)*2
+    # Compute the maximum size which could contain quad_cells
+    size_n = int(((grid['nmax']*grid['dx'])/grid['dxp'])[0])
+    quad_grid_shape = (size_n, size_n)
     # Grid containing the integers for value lookup
     quad_grid = np.ma.empty(quad_grid_shape, dtype='int32')
     quad_grid.mask = True
