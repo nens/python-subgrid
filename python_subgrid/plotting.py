@@ -16,18 +16,17 @@ def make_quad_grid(subgrid):
     """
     # Create lookup index
     grid = {}
-    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx', 'nmax', 'mmax'}:
+    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx', 'nmax', 'mmax', 'imaxk', 'jmaxk', 'imax', 'jmax'}:
         grid[var] = subgrid.get_nd(var)
-    m = (grid['nodm']-1)*grid['dx'][grid['nodk']-1]/grid['dxp']
-    n = (grid['nodn']-1)*grid['dx'][grid['nodk']-1]/grid['dxp']
-    size = np.round(grid['dx'][grid['nodk']-1]/grid['dxp']).astype('int32')
-    # Compute the maximum size which could contain quad_cells
-    size_n = int(((grid['nmax']*grid['dx'])/grid['dxp'])[0])
-    quad_grid_shape = (size_n, size_n)
-    # Grid containing the integers for value lookup
+
+    m = (grid['nodm']-1)*grid['imaxk'][grid['nodk']-1]
+    n = (grid['nodn']-1)*grid['jmaxk'][grid['nodk']-1]
+    size = grid['imaxk'][grid['nodk']-1]
+
+
+    quad_grid_shape = (grid['jmax'], grid['imax'])
     quad_grid = np.ma.empty(quad_grid_shape, dtype='int32')
     quad_grid.mask = True
-
     quad_grid.fill_value = -1
     for i, (m_i, n_i, size_i) in enumerate(zip(m,n,size)):
         quad_grid[n_i:(n_i+ size_i), m_i:(m_i+size_i)] = i

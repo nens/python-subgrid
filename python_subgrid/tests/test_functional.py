@@ -5,6 +5,7 @@ import unittest
 import os
 import logging
 import io
+from functools import wraps
 
 from nose.plugins.attrib import attr
 import numpy as np
@@ -55,6 +56,10 @@ scenarios = {
         'path': 'Kaapstad',
         'mdu_filename': "Kaapstad.mdu",
     },
+    'kaapstad_centrum': {
+        'path': 'kaapstad_centrum',
+        'mdu_filename': "kaapstad_centrum.mdu",
+    },
     'mozambique': {
         'path': 'mozambique',
         'mdu_filename': "mozambique.mdu",
@@ -95,6 +100,17 @@ def float_equals(a, b):
     return abs(a-b) < EPSILON
 
 
+
+def printname(f):
+    """print the name of the test being called"""
+    # needed because it does not show up if the test segfaults
+    # this can probably be done easier
+    @wraps(f)
+    def wrapper(*args, **kwds):
+        print("### running test {f}".format(f=f))
+        return f(*args, **kwds)
+    return wrapper
+
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
 class LibSubgridTest(unittest.TestCase):
@@ -111,6 +127,7 @@ class LibSubgridTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
+    @printname
     def test_logging(self):
         subgrid = SubgridWrapper()
         foundmessage = False
@@ -133,6 +150,7 @@ class LibSubgridTest(unittest.TestCase):
         # we should have some messages
         self.assertTrue(foundmessage)
 
+    @printname
     def test_progress(self):
         subgrid = SubgridWrapper(mdu=self.default_mdu)
         foundmessage = False
@@ -155,87 +173,86 @@ class LibSubgridTest(unittest.TestCase):
         # we should have some messages
         self.assertTrue(foundmessage)
 
+    @printname
     def test_info(self):
         with SubgridWrapper() as subgrid:
             subgrid.subgrid_info()
 
     @attr('debug')
+    @printname
     def test_load(self):
-        print
-        print '########### test multiple load'
+        """test load model twice"""
         for i in range(2):
             with SubgridWrapper(mdu=self.default_mdu):
-                print 'test load #%r' % i
+                print('test load #%r' % i)
 
+
+    @printname
     def test_load_1d(self):
-        print
-        print '########### test multiple load 1d'
+        """test load a 1d model twice"""
         for i in range(2):
             with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
-                print 'test load #%r' % i
+                print('test load #%r' % i)
 
-    def test_load_heerenveen(self):
-        print
-        print '########### test load heerenveen'
+    @printname
+    def test_1ddemo_heerenveen(self):
+        """load the heerenveen model after loading a 1d model"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
-            print 'test load'
             subgrid.initmodel()
             subgrid.update(-1)
-        # while not isloaded(subgrid.library._name):
-        #     dlclose(subgrid.library)
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
-            print 'test load'
             subgrid.initmodel()
             subgrid.update(-1)
 
+    @printname
     def test_heerenveen(self):
-        print
-        print '########### test heerenveen'
+        """load the heereveent mode"""
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
-            print 'test load'
             subgrid.initmodel()
-            for x in xrange(10):
+            for x in range(10):
                 subgrid.update(-1)
 
-    def test_load_1ddemocase(self):
-        print '################################ load 1d democase '
+    @printname
+    def test_load_1ddemo_1ddemo(self):
+        """load the model twice"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
-        print '################################ init '
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
 
-    def test_load_1d_pumps(self):
-        print '################################ load 1d '
+    @printname
+    def test_load_1ddemo_wijder(self):
+        """load the 1d demo model, then the wijdewormer"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
-        print '################################ load wijdewormer '
         with SubgridWrapper(mdu=self._mdu_path('wijdewormer')) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
             pumps = subgrid.get_nd('pumps')  # pandas DataFrame
-            print '################################################### pumps'
             pumps.to_dict()
             self.assertEquals(pumps.to_dict()['id'].keys()[0], 0)
-        #asdf
 
-    #@unittest.skip
+    @printname
+    def test_kaapstad_wkt(self):
+        """load kaapstad and extract the well known text"""
+        with SubgridWrapper(mdu=self._mdu_path('kaapstad_centrum')) as subgrid:
+            subgrid.initmodel()
+            wkt = subgrid.get_nd('wkt')
+        # we should have some coordinate system
+        self.assertTrue("GEOGCS" in wkt)
+
+    @printname
     def test_timesteps(self):
-        print
-        print '########### test timesteps'
+        """test the model for 10 timesteps"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            for i in xrange(10):
-                print 'doing %d...' % i
-                # print libsubgrid.funcall(
-                #     'update',
-                #     'ctypes.byref(ctypes.c_double(-1))')
-                print subgrid.update(-1)
+            for i in range(10):
                 # -1 = use default model timestep.
+                subgrid.update(-1)
 
-    #@unittest.skip
+    @printname
     def test_dropinstantrain(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -246,16 +263,15 @@ class LibSubgridTest(unittest.TestCase):
             clouddiam = 100.0
             rainfall = 100.0
             # do ome timesteps
-            for i in xrange(10):
+            for i in range(10):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
                 subgrid.update(-1)
 
-    #@unittest.skip
+    @printname
     def test_manhole(self):
-        print
-        print '############ test manhole'
+        """use discharge points to simulate manholes"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = 'test_manhole'
             x = 85830.97071920538
@@ -263,21 +279,17 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(10):
-                print 'doing %d...' % i
+            for i in range(10):
                 subgrid.update(-1)
                 subgrid.discharge(
-                    85830.97071920538, 448605.8983910042,
-                    manhole_name, 1, 100.0)
+                    x, y,
+                    manhole_name, 1, discharge_value)
 
     #@unittest.skip
+    @printname
     def test_manhole_mozambique(self):
-        print
-        print '############ test manhole mozambique'
+        """load the mozambique model and add a discharge point"""
         mdu_filename = self._mdu_path('mozambique')
-        # if not os.path.exists(mdu_filename):
-        #     print 'ignored'
-        #     return
         with SubgridWrapper(mdu=mdu_filename) as subgrid:
             manhole_name = 'test_manhole'
             x = 695570
@@ -285,22 +297,23 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 5000.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(10):
-                print 'doing %d...' % i
+            for i in range(10):
                 subgrid.update(-1)
 
+    @printname
     def test_hhnk(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(10):
+            for i in range(10):
                 subgrid.update(-1)
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(10):
-                print 'doing %d...' % i
+            for i in range(10):
                 subgrid.update(-1)
 
+    @printname
     def test_manhole_hhnk(self):
+        """add a manhole to hhnk model"""
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
             manhole_name = 'test_manhole'
@@ -309,13 +322,11 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 250.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in xrange(100):
-                print 'doing %d...' % i
+            for i in range(100):
                 subgrid.update(-1)
 
+    @printname
     def test_discard_manhole(self):
-        print
-        print '############ test discard manhole'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = 'test_manhole'
             x = 85830.97071920538
@@ -325,10 +336,8 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
-    @unittest.skip
+    @printname
     def test_manhole_workflow(self):
-        print
-        print '############ test manhole workflow'
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = 'test_manhole'
             x = 85830.97071920538
@@ -352,24 +361,28 @@ class LibSubgridTest(unittest.TestCase):
                 # add it again
                 subgrid.update(-1)
 
+    @printname
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             rank = subgrid.get_var_rank('s1')
             self.assertEqual(1, rank)
 
+    @printname
     def test_get_var_type(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             typename = subgrid.get_var_type('s1')
             self.assertEqual(typename, 'double')
 
+    @printname
     def test_get_var_shape(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             shape = subgrid.get_var_shape('s1')
             self.assertGreater(shape[0], 10)
 
+    @printname
     def test_get_nd(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -377,6 +390,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
 
+    @printname
     def test_get_sharedmem(self):
         import multiprocessing
         import time
@@ -411,6 +425,7 @@ class LibSubgridTest(unittest.TestCase):
             # breaks if 1d is broken
             self.assertNotEqual(s1.sum(), s2.sum())
 
+    @printname
     def test_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
@@ -423,16 +438,19 @@ class LibSubgridTest(unittest.TestCase):
             logging.debug(t1)
             self.assertTrue(float_equals(t1, 300))
 
+    @printname
     def test_get_nd_unknown_variable(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             self.assertRaises(NotDocumentedError, subgrid.get_nd, 'reinout')
 
+    @printname
     def test_compound_rank(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
+    @printname
     def test_compound_rank_2donly(self):
         """test compound rank for a model with only 2d"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -440,12 +458,14 @@ class LibSubgridTest(unittest.TestCase):
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
 
+    @printname
     def test_compound_type(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
 
+    @printname
     def test_make_compound(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -456,6 +476,7 @@ class LibSubgridTest(unittest.TestCase):
                 'COMPOUND_Array'))
             self.assertEqual(valtype._type_._type_.__name__, 'COMPOUND')
 
+    @printname
     def test_compound_getnd(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -463,6 +484,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
 
+    @printname
     def test_remove_pump(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -476,6 +498,7 @@ class LibSubgridTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 0)
 
+    @printname
     def test_pump_it_up(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -489,6 +512,7 @@ class LibSubgridTest(unittest.TestCase):
             # There should be water movement now, check S1
             self.assertGreater(np.abs(s1after - s1before).sum(), 0)
 
+    @printname
     def test_pump_it_up2(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -498,18 +522,17 @@ class LibSubgridTest(unittest.TestCase):
             pumpid = df.id.item(0)
             subgrid.set_structure_field("pumps", pumpid,
                                         "capacity", df['capacity'] * 10)
-            for i in xrange(10):
+            for i in range(10):
                 subgrid.update(-1)
             s1_increase = subgrid.get_nd('s1').copy()
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
-            for i in xrange(10):
+            for i in range(10):
                 subgrid.update(-1)
             s1_default = subgrid.get_nd('s1').copy()
-        print s1_default
-        print s1_increase
         self.assertGreater(np.abs(s1_increase - s1_default).sum(), 0)
 
+    @printname
     def test_pump_it_up3(self):
         """Check if finalize also resets pumps"""
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
@@ -519,6 +542,7 @@ class LibSubgridTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)  # Fails ... we have 2 pumps now!
 
+    @printname
     def test_pump_it_up_manual(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -536,6 +560,7 @@ class LibSubgridTest(unittest.TestCase):
             capacity1 = df.capacity.item(0)
             self.assertEqual(capacity1, capacity0 * 10)
 
+    @printname
     def test_pump_it_up_1ddemocase(self):
 
         # run both models for a few minutes
@@ -546,9 +571,7 @@ class LibSubgridTest(unittest.TestCase):
             # Get the current capacity
             # Make sure you use item(0), otherwise you get a numpy 0d type
             capacity0 = df.capacity.item(0)
-            print capacity0  # 5.0
             pumpid = df.id.item(0)
-            print pumpid  # pump01
             # Increase capacity of pump1 by a factor 10
             subgrid.set_structure_field("pumps", pumpid,
                                         "capacity", capacity0 * 10)
@@ -559,35 +582,28 @@ class LibSubgridTest(unittest.TestCase):
             while subgrid.get_nd('t1') < tstop:
                 subgrid.update(-1)
             s1pumps = subgrid.get_nd('s1').copy()
-            print 't1 a'
-            print subgrid.get_nd('t1')
 
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             while subgrid.get_nd('t1') < tstop:
                 subgrid.update(-1)
             s1nopumps = subgrid.get_nd('s1').copy()
-            print 't1 b'
-            print subgrid.get_nd('t1')
 
-        print '######################################################'
-        print s1pumps
-        print s1nopumps
         self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
 
+    @printname
     def test_weir_it_out(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
 
+    @printname
     def test_changebathy(self):
-        print
-        print '########### test change bathy'
+
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            for i in xrange(5):
-                print 'doing %d...' % i
-                print subgrid.update(-1)  # -1 = use default model time
+            for i in range(5):
+                subgrid.update(-1)  # -1 = use default model time
 
             xc = 250808.205511
             yc = 589490.224168
@@ -602,16 +618,14 @@ class LibSubgridTest(unittest.TestCase):
 
             subgrid.changebathy(xc, yc, sz, bval, bmode)
 
-            for i in xrange(5):
-                print 'doing %d...' % i
-                print subgrid.update(-1)  # -1 = use default model time
+            for i in range(5):
+                subgrid.update(-1)  # -1 = use default model time
 
+    @printname
     def test_changebathy_heerenveen(self):
-        print
-        print '########### test change bathy heerenveen'
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
-            for i in xrange(5):
-                print 'doing %d...' % i
+            for i in range(5):
+                print('doing %d...' % i)
                 print subgrid.update(-1)  # -1 = use default model time
 
             xc = 188733.
@@ -620,14 +634,15 @@ class LibSubgridTest(unittest.TestCase):
             bval = -0.5
             bmode = 1  # 0 = relative, 1 = absolute
 
-            print 'changing bathymetry...'
+            print('changing bathymetry...')
             subgrid.changebathy(xc, yc, sz, bval, bmode)
 
-            print 'continue simulation...'
-            for i in xrange(5):
-                print 'doing %d...' % i
+            print('continue simulation...')
+            for i in range(5):
+                print('doing %d...' % i)
                 print subgrid.update(-1)  # -1 = use default model time
 
+    @printname
     def test_link_table(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             data = dict(branch=subgrid.get_nd('link_branchid'),
@@ -635,11 +650,12 @@ class LibSubgridTest(unittest.TestCase):
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
-                print 'branch id %d -> flowlink %d' % (
+                print('branch id %d -> flowlink %d' %
                     branch_id, data['idx'][counter])
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
 
+    @printname
     def test_link_table_node(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             data = dict(branch=subgrid.get_nd('nod_branchid'),
@@ -649,21 +665,20 @@ class LibSubgridTest(unittest.TestCase):
                         idx=subgrid.get_nd('nod_idx'))
             # df = pandas.DataFrame(data)
             for counter, branch_id in enumerate(data['branch']):
-                print 'branch id %d -> flowelem %d' % (
+                print('branch id %d -> flowelem %d' %
                     branch_id, data['idx'][counter])
             #self.assertEqual(df.idx.item(0), 249)
             #self.assertEqual(df.idx.item(-1), 248)
         # TODO: look up real indices for this test case
 
+    @printname
     def test_flow_link(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
-            print flow_link[249]  # [140 169]
             self.assertEqual(list(flow_link[249]), [140, 169])
 
+    @printname
     def test_floodfill(self):
-        print
-        print '########### test floodfill'
         with SubgridWrapper(mdu=self._mdu_path('betondorp')) as subgrid:
 
             x = 125176.875732

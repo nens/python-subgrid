@@ -32,6 +32,7 @@ from ctypes import (
     cdll)
 
 
+# Custom version of create_string_buffer that also accepts py3 strings.
 def create_string_buffer(init, size=None):
     """create_string_buffer(aBytes) -> character array
     create_string_buffer(anInteger) -> character array
@@ -72,19 +73,13 @@ class NotDocumentedError(Exception):
 
 MAXDIMS = 6
 # map c types to ctypes types
-# TODO: check what the proper way is to accept both bytes and unicode.
-# Add both bytes and strings for 2/3 compat
+# For python3 every string exchanged with fortran is bytes
 CTYPESMAP = {
     b'bool': c_bool,
     b'char': c_char,
     b'double': c_double,
     b'float': c_float,
-    b'int': c_int,
-    'bool': c_bool,
-    'char': c_char,
-    'double': c_double,
-    'float': c_float,
-    'int': c_int
+    b'int': c_int
 }
 # map c types to numpy types
 TYPEMAP = {
@@ -92,13 +87,10 @@ TYPEMAP = {
     b"char": "S",
     b"double": "double",
     b"float": "float32",
-    b"int": "int32",
-    "bool": "bool",
-    "char": "S",
-    "double": "double",
-    "float": "float32",
-    "int": "int32"
+    b"int": "int32"
 }
+
+
 # boundary types (enum)
 LINK_TYPES = {0: 'internal boundary',
               1: '2d',
@@ -123,6 +115,7 @@ LEVELS_PY2F = {
 LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
 
+logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -318,7 +311,7 @@ WRAPPERDIR = os.path.dirname(WRAPPERFILE)
 with open(os.path.join(WRAPPERDIR, 'extractedvariables.json')) as f:
     JSONVARIABLES = json.load(f)
 DOCUMENTED_VARIABLES = {
-    variable.get('altname') or variable['name']: variable['description']
+    bytes(variable.get('altname') or variable['name']): variable['description']
     for variable
     in JSONVARIABLES['variables']
 }
@@ -326,9 +319,17 @@ DOCUMENTED_VARIABLES = {
 
 # the following variables need to be copied explicitly because they are not
 # kept in memory implement through introspection??
-NEED_COPYING = {'link_branchid', 'link_chainage', 'link_idx', 'link_type'
-                'nod_branchid', 'nod_chainage', 'nod_idx', 'node_type'}
+NEED_COPYING = {b'link_branchid', b'link_chainage', b'link_idx', b'link_type'
+                b'nod_branchid', b'nod_chainage', b'nod_idx', b'node_type'}
 
+# Add variables here that are indexed 0 based or n+1 based in fortran and where
+# the extra dimension should not be returned
+# Not used by default yet. (Use sliced=True in get_nd)
+SLICES = {
+    b's1': np.s_[1:],
+    b'vol1': np.s_[1:],
+    b'dps': np.s_[1:-1,1:-1]
+}
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
@@ -669,7 +670,7 @@ class SubgridWrapper(object):
         self.library.get_var_shape(name, shape)
         return tuple(shape[:rank])
 
-    def get_nd(self, name):
+    def get_nd(self, name, sliced=False):
         """Return an nd array from subgrid library"""
         if not name in DOCUMENTED_VARIABLES:
             # Enforcing documentation is really the only way to
@@ -733,6 +734,13 @@ class SubgridWrapper(object):
                     array = np.ctypeslib.as_array(data)
         else:
             array = structs2pandas(data.contents)
+
+        if rank == 1 and type_ == 'char':
+            # convert to string and strip for convenience
+            array = "".join(array).rstrip()
+        if name in SLICES and sliced:
+            # return slice if needed
+            array = array[SLICES[name]]
         return array
 
     def set_structure_field(self, name, id, field, value):

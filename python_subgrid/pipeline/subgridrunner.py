@@ -127,7 +127,7 @@ def process_incoming(subgrid, poller, rep, pull, data):
                     # TODO: support same operators as MPI_ops here....,
                     # TODO: reduce before apply
                     action = metadata['action']
-                    arr = subgrid.get_nd(metadata['name'])
+                    arr = subgrid.get_nd(metadata['name'], sliced=True)
                     S = tuple(slice(*x) for x in action['slice'])
                     print(repr(arr[S]))
                     if action['operator'] == 'setitem':
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         # Start a reply process in the background, with variables available
         # after initialization, sent all at once as py_obj
         data = {
-            var: subgrid.get_nd(var)
+            var: subgrid.get_nd(var, sliced=True)
             for var
             in arguments.globalvariables
         }
@@ -199,7 +199,7 @@ if __name__ == '__main__':
                 continue
 
             for key in arguments.outputvariables:
-                value = subgrid.get_nd(key)
+                value = subgrid.get_nd(key, sliced=True)
                 metadata = {'name': key, 'iteration': i}
                 # 4ms for 1M doubles
                 logger.info("sending {}".format(metadata))
