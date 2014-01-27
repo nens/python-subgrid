@@ -152,3 +152,5 @@ class RainGridTest(unittest.TestCase):
         print(np.sum(v0))
         print(np.sum(v1))
         print(np.sum(v1-v0))
+if __name__ == '__main__':
+    unittest.main()

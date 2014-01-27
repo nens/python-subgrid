@@ -57,7 +57,7 @@ class RainGrid(object):
 
         # TODO: replace precipitation.nc with a unique name
         # TODO: add diskless=True, requires netcdf version >= 4.2.x
-        memcdf = netCDF4.Dataset(self.memcdf_name, mode="w", diskless=self.diskless)
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="w", diskless=self.diskless, format='NETCDF3_64BIT')
 
         memcdf.createDimension("nx", self.interp['x'].shape[0])
         logger.info('interp x shape %r' % self.interp['x'].shape[0])
@@ -92,7 +92,7 @@ class RainGrid(object):
 
     def fill(self, value=0.0):
         """Fill rainfall variable"""
-        memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=self.diskless)
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="r+", diskless=self.diskless)
         #print(memcdf.variables.keys())
         rainfall_var = memcdf.variables["rainfall"]
         rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
