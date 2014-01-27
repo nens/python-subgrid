@@ -57,6 +57,7 @@ class RainGrid(object):
 
         # TODO: replace precipitation.nc with a unique name
         # TODO: add diskless=True, requires netcdf version >= 4.2.x
+        # For now use netcdf classic, issue with netcdf redefinition in hdf5 format
         memcdf = netCDF4.Dataset(self.memcdf_name, mode="w", diskless=self.diskless, format='NETCDF3_64BIT')
 
         memcdf.createDimension("nx", self.interp['x'].shape[0])
