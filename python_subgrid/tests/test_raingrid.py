@@ -51,6 +51,7 @@ class RainGridTest(unittest.TestCase):
             memcdf_name=memcdf_name, initial_value=9.)
         #asdfa
         subgrid.subscribe_dataset(memcdf_name)
+        #rain_grid.fill(1.0)  # HDF error
         #rain_grid.update(dt=datetime.datetime(2013,10,15,0,0), multiplier=1.0)
         print 'test load'
         s0 = subgrid.get_nd('s1').copy()
