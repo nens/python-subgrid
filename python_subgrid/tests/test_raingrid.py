@@ -61,6 +61,19 @@ class RainGridTest(unittest.TestCase):
             for i in range(2):
                 subgrid.update(-1)        
 
+    def test_smoke3(self):
+        """RuntimeError: Can't add HDF5 file metadata"""
+        with SubgridWrapper(mdu=self.mdu) as subgrid:
+            rain_grid = RainGrid(
+                subgrid, 
+                initial_value=9.)
+            subgrid.subscribe_dataset(rain_grid.memcdf_name)
+        with SubgridWrapper(mdu=self.mdu) as subgrid:
+            rain_grid2 = RainGrid(
+                subgrid,
+                initial_value=1.)
+            subgrid.subscribe_dataset(rain_grid2.memcdf_name)
+
     def test_basic(self):
         url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
         memcdf_name = 'precipitation.nc'
@@ -80,9 +93,11 @@ class RainGridTest(unittest.TestCase):
         #rain_grid.update(dt=datetime.datetime(2013,10,15,0,0), multiplier=1.0)
         print 'test load'
         s0 = subgrid.get_nd('s1').copy()
-        for i in range(10):
+        v0 = subgrid.get_nd('vol1').copy()
+        for i in range(12):
             subgrid.update(-1)        
         s1 = subgrid.get_nd('s1').copy()
+        v1 = subgrid.get_nd('vol1').copy()
 
         #print(s1-s0)
         #print('rainfall sum')
@@ -95,4 +110,8 @@ class RainGridTest(unittest.TestCase):
         print(np.sum(s1))
         print('s1-s0 sum')
         print(np.sum(s1-s0))
+        print('v0, v1, v1-v0 sum')
+        print(np.sum(v0))
+        print(np.sum(v1))
+        print(np.sum(v1-v0))
         asdf

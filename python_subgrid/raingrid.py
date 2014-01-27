@@ -15,12 +15,16 @@ class RainGrid(object):
     Only works on the Netherlands.
     """
     def __init__(
-        self, subgrid, url_template, memcdf_name='precipitation.nc', 
+        self, subgrid, url_template='', memcdf_name='precipitation.nc', 
         size_x=500, size_y=500, initial_value=0.0):
 
         """
         subgrid is used to initialize the rain grid.
+
+        url_template is needed in function update: it fetches data from an opendap server
         """
+        if not url_template:
+            logger.warning('No url_template given.')
         self.url_template = url_template
         self.size_x = size_x
         self.size_y = size_y
@@ -97,6 +101,10 @@ class RainGrid(object):
 
     def update(self, dt, multiplier=1.0):
         """Update the (interpolated) grid with given datetime"""
+        if not self.url_template:
+            logger.error('No url_template given, cannot use opendap server.')
+            return
+
         # Quantize on 5 minutes
         minutes = dt.minute / 5 * 5
         dt_request = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, minutes, 0)
