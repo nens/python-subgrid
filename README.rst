@@ -1,14 +1,20 @@
 Python wrapper for the 3di subgrid library
 ==========================================
 
-Setup
+Prerequisites
 -----
 
 We need the compiled Fortran subgrid library. There are a couple of common
-locations (like ``/usr/lib/``) where we look for it.
+locations where we look for it.::
 
-A convention on linux is to install the library into ``/opt/3di/``. This
-lcoation is found by default, too.
+   .
+   ~/local/lib
+   ~/.local/lib
+   /opt/3di/lib
+   /usr/local/lib
+   /usr/lib
+
+A convention on linux is to install the library into ``/opt/3di/``.
 
 In case you have an alternative location, you can set the ``SUBGRID_PATH``
 environment variable::
@@ -105,3 +111,20 @@ the tests like this, for instance::
     $ SCENARIO_BASEDIR=/some/directory bin/test
 
 If the scenarios cannot be found, the functional model tests are skipped, btw.
+
+
+Convenience scripts
+-------------------
+
+The python subgrid library contains some scripts that can be used to update input files::
+
+  update-subgrid-network
+  update-subgrid-tables
+
+The script ``update-subgrid-network`` updates input files from the old format (2x -1 in ``network.inp``)  to the new format.
+The script ``update-subgrid-tables`` generates the ``*.tbl`` and ``*.grd`` files to the current format. These files can be used to speed-up initialisation.
+
+For details on the usage of these scripts please see::
+
+  update-subgrid-network --help
+  update-subgrid-tables --help
