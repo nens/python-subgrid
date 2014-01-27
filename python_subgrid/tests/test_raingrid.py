@@ -9,7 +9,10 @@ import datetime
 #from python_subgrid.wrapper import SubgridWrapper
 import python_subgrid.wrapper
 
+from python_subgrid.wrapper import SubgridWrapper
+
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.tests.test_functional import scenarios
 
 
 if 'SCENARIO_BASEDIR' in os.environ:
@@ -26,6 +29,12 @@ class RainGridTest(unittest.TestCase):
         self.mdu = os.path.join(scenario_basedir,
                                 'hhnkipad', 'HHNKiPad.mdu')
 
+    def _mdu(self, model_slug):
+        return os.path.join(scenario_basedir,
+                            scenarios[model_slug]['path'], 
+                            scenarios[model_slug]['mdu_filename'])
+
+
     def tearDown(self):
         pass
 
@@ -34,6 +43,22 @@ class RainGridTest(unittest.TestCase):
             print 'test load'
             subgrid.initmodel()
             for i in range(5):
+                subgrid.update(-1)        
+
+    def test_smoke2(self):
+        mdu1 = self._mdu('hhnk')
+        mdu2 = self._mdu('1d-democase')
+        with SubgridWrapper(mdu=mdu1) as subgrid:
+            subgrid.initmodel()
+            for i in range(2):
+                subgrid.update(-1)        
+        with SubgridWrapper(mdu=mdu2) as subgrid:
+            subgrid.initmodel()
+            for i in range(2):
+                subgrid.update(-1)        
+        with SubgridWrapper(mdu=mdu1) as subgrid:
+            subgrid.initmodel()
+            for i in range(2):
                 subgrid.update(-1)        
 
     def test_basic(self):
