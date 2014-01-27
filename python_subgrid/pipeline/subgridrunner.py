@@ -14,6 +14,8 @@ from zmq.eventloop import ioloop
 import numpy as np
 
 import python_subgrid.wrapper
+import python_subgrid.plotting
+
 
 logging.basicConfig()
 
@@ -26,7 +28,7 @@ ioloop.install()
 INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
             'FlowElemContour_y', 'dx', 'nmax', 'mmax',
             'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type',
-            'dps'}
+            'dps', 'x0p', 'y0p', 'dxp', 'dyp'}
 OUTPUTVARS = ['s1']
 
 
@@ -177,7 +179,8 @@ if __name__ == '__main__':
             for var
             in arguments.globalvariables
         }
-
+        # add the quad_grid for easy plotting
+        data["quad_grid"] = python_subgrid.plotting.make_quad_grid(subgrid)
         process_incoming(subgrid, poller, rep, pull, data)
 
         # Keep on counting indefinitely
