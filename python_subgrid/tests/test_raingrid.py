@@ -127,9 +127,9 @@ class RainGridTest(unittest.TestCase):
             subgrid, url_template, 
             memcdf_name=memcdf_name, initial_value=9.)
         #asdfa
+        #rain_grid.fill(1.0)
         subgrid.subscribe_dataset(memcdf_name)
-        rain_grid.fill(1.0)
-        #rain_grid.update(dt=datetime.datetime(2013,10,15,0,0), multiplier=1.0)
+        rain_grid.update(dt=datetime.datetime(2013,10,15,0,0), multiplier=1.0)
         s0 = subgrid.get_nd('s1').copy()
         v0 = subgrid.get_nd('vol1').copy()
         for i in range(12):
@@ -152,4 +152,3 @@ class RainGridTest(unittest.TestCase):
         print(np.sum(v0))
         print(np.sum(v1))
         print(np.sum(v1-v0))
-        asdf

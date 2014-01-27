@@ -101,7 +101,6 @@ class RainGrid(object):
 
     def update(self, dt, multiplier=1.0):
         """Update the (interpolated) grid with given datetime"""
-        logger.info('blaaaa')
         if not self.url_template:
             logger.error('No url_template given, cannot use opendap server.')
             return
@@ -172,8 +171,6 @@ class RainGrid(object):
         # var.units = 'm'
 
         ds.close()
-        print 'bla'
-        print self.memcdf_name, self.diskless
 
         #self.rainfall_var = memcdf.createVariable("rainfall", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
         #var = memcdf.createVariable("rain", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
