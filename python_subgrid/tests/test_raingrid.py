@@ -87,11 +87,49 @@ class RainGridTest(unittest.TestCase):
         rain_grid = RainGrid(
             subgrid, url_template, 
             memcdf_name=memcdf_name, initial_value=9.)
+        subgrid.subscribe_dataset(memcdf_name)
+        rain_grid.fill(1.0) 
+        s0 = subgrid.get_nd('s1').copy()
+        v0 = subgrid.get_nd('vol1').copy()
+        for i in range(12):
+            subgrid.update(-1)        
+        s1 = subgrid.get_nd('s1').copy()
+        v1 = subgrid.get_nd('vol1').copy()
+
+        #print(s1-s0)
+        #print('rainfall sum')
+        #print(np.sum(rain_grid.rainfall_var))
+        print('shape of dps')
+        print(subgrid.get_nd('dps').shape)
+        print('s0 sum')
+        print(np.sum(s0))
+        print('s1 sum')
+        print(np.sum(s1))
+        print('s1-s0 sum')
+        print(np.sum(s1-s0))
+        print('v0, v1, v1-v0 sum')
+        print(np.sum(v0))
+        print(np.sum(v1))
+        print(np.sum(v1-v0))
+
+    def test_opendap(self):
+        print('opendap test')
+        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        memcdf_name = 'precipitation.nc'
+
+        subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
+        python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
+        subgrid.start()
+
+        #subgrid.initmodel()
+
+        rain_grid = RainGrid(
+            subgrid, url_template, 
+            memcdf_name=memcdf_name, initial_value=9.)
         #asdfa
         subgrid.subscribe_dataset(memcdf_name)
-        #rain_grid.fill(1.0)  # HDF error
+        rain_grid.fill(1.0)
         #rain_grid.update(dt=datetime.datetime(2013,10,15,0,0), multiplier=1.0)
-        print 'test load'
         s0 = subgrid.get_nd('s1').copy()
         v0 = subgrid.get_nd('vol1').copy()
         for i in range(12):
