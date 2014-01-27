@@ -69,6 +69,22 @@ The two changes:
 
 - A ``--prefix`` to install it into ``/opt/3di/``.
 
+Setup
+------
+Before you can use a python package you have to add it to your path. The python-subgrid package works in buildout (under linux)
+and can also run in a virtualenv. The buildout way::
+
+  python ./bootstrap.py # optionally with -v 1.0.0
+  bin/buildout
+
+The virtualenv way (assumes mkvirtualenv and virtualenv are installed)::
+
+  mkvirtualenv main
+  workon main
+  pip install ./python-subgrid
+  # or if you want to add your source directory to the path
+  python setup.py develop
+
 
 Usage
 -----
