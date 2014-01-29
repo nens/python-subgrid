@@ -326,6 +326,9 @@ NEED_COPYING = {b'link_branchid', b'link_chainage', b'link_idx', b'link_type'
 # the extra dimension should not be returned
 # Not used by default yet. (Use sliced=True in get_nd)
 SLICES = {
+    b'FlowElem_xcc': np.s_[1:],
+    b'FlowElem_ycc': np.s_[1:],
+    b'nod_type': np.s_[1:],
     b's1': np.s_[1:],
     b'vol1': np.s_[1:],
     b'dps': np.s_[1:-1,1:-1]
@@ -670,6 +673,7 @@ class SubgridWrapper(object):
         self.library.get_var_shape(name, shape)
         return tuple(shape[:rank])
 
+    # Change sliced to True, once we have a complete list of slices...
     def get_nd(self, name, sliced=False):
         """Return an nd array from subgrid library"""
         if not name in DOCUMENTED_VARIABLES:
