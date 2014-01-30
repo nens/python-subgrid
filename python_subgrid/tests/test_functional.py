@@ -72,6 +72,10 @@ scenarios = {
         'path': 'heerenveen',
         'mdu_filename': "heerenveen.mdu",
     },
+    'brouwersdam': {
+        'path': 'brouwersdam',
+        'mdu_filename': "brouwersdam.mdu",
+    },
 }
 
 # Use DelflandiPad by default for now
@@ -716,6 +720,21 @@ class LibSubgridTest(unittest.TestCase):
 
             subgrid.floodfilling(x, y, level, mode)
 
+    @printname
+    def test_orifice_table(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            orifices = subgrid.get_nd('orifices')
+            d = {}
+            for i in range(len(orifices)):
+                orifice = orifices.irow(i)
+                # workaround: need variables are not in subgrid core yet
+                # TODO: we need orifices 'left_calc_point', 'right_calc_point',
+                # 'link_number'
+                # for now, using crest_level, crest_width, branchid
+                s = "%s;%s;%s" % (orifice['crest_level'],
+                                  orifice['crest_width'], orifice['branchid'])
+                d[orifice['id'].strip()] = s
+            print d
 
 # For Martijn
 if __name__ == '__main__':
