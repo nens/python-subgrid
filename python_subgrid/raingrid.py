@@ -183,6 +183,8 @@ class RainGrid(object):
         memcdf.sync()
         memcdf.close()
 
+        logger.info('Rainfall sum: %f' % np.sum(self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier))
+
         #self.memcdf.sync()
         #self.rainfall_var.standard_name = 'precipitation'
         #self.rainfall_var.coordinates = 'y x'
