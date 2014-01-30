@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.7 (unreleased)
 ----------------
 
-- Nothing changed yet.
+- Added RainGrid functionality with tests.
 
 
 0.6 (2014-01-09)
