@@ -601,6 +601,27 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
+    @printname
+    def test_back_orifice(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('orifices')
+            self.assertGreater(len(df), 0)
+
+    @printname
+    def test_back_orifice(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('orifices')
+            # Get the current crest_level
+            # Make sure you use item(0), otherwise you get a numpy 0d type
+            crest_level = df['crest_level'].item(0)
+            orificeid = df['id'].item(0)
+            subgrid.set_structure_field("orifices", orificeid,
+                                        "crest_level", crest_level + 10)
+            df = subgrid.get_nd('orifices')
+            self.assertEqual(df['crest_level'].item(0), crest_level + 10)
+
 
     @printname
     def test_changebathy(self):
@@ -720,21 +741,18 @@ class LibSubgridTest(unittest.TestCase):
 
             subgrid.floodfilling(x, y, level, mode)
 
+    #
     @printname
     def test_orifice_table(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            # get a data frame with all the orrifce information
             orifices = subgrid.get_nd('orifices')
-            d = {}
-            for i in range(len(orifices)):
-                orifice = orifices.irow(i)
-                # workaround: need variables are not in subgrid core yet
-                # TODO: we need orifices 'left_calc_point', 'right_calc_point',
-                # 'link_number'
-                # for now, using crest_level, crest_width, branchid
-                s = "%s;%s;%s" % (orifice['crest_level'],
-                                  orifice['crest_width'], orifice['branchid'])
-                d[orifice['id'].strip()] = s
-            print d
+            for var in {"crest_level", "crest_width", "branchid", "link_number", "left_calc_point", "right_calc_point"}:
+                self.assertIn(var, orifices.columns)
+
+            for i, orifice in orifices.iterrows():
+                # should be labeled with increasing indices
+                self.assertEqual(orifice["id"].strip(), str(i + 1))
 
 # For Martijn
 if __name__ == '__main__':
