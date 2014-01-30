@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.7 (unreleased)
+0.7 (2014-01-30)
 ----------------
 
 - Added RainGrid functionality with tests.
