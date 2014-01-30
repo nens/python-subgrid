@@ -609,7 +609,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertGreater(len(df), 0)
 
     @printname
-    def test_back_orifice(self):
+    def test_set_back_orifice(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('orifices')
