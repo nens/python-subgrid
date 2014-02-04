@@ -156,6 +156,7 @@ class LibSubgridTest(unittest.TestCase):
 
     @printname
     def test_progress(self):
+        """test progress handler"""
         subgrid = SubgridWrapper(mdu=self.default_mdu)
         foundmessage = False
 
@@ -179,7 +180,8 @@ class LibSubgridTest(unittest.TestCase):
 
     @printname
     def test_info(self):
-        with SubgridWrapper() as subgrid:
+        """test if we can print info"""
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.subgrid_info()
 
     @attr('debug')
@@ -213,7 +215,7 @@ class LibSubgridTest(unittest.TestCase):
         """load the heereveent mode"""
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
             subgrid.initmodel()
-            for x in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
@@ -252,22 +254,21 @@ class LibSubgridTest(unittest.TestCase):
     def test_timesteps(self):
         """test the model for 10 timesteps"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            for i in range(10):
+            for _ in range(10):
                 # -1 = use default model timestep.
                 subgrid.update(-1)
 
     @printname
     def test_dropinstantrain(self):
+        """test if we can call dropinstantrain a few times"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
-            self.model_initialized = True
-
             x = 85830.97071920538
             y = 448605.8983910042
             clouddiam = 100.0
             rainfall = 100.0
             # do ome timesteps
-            for i in range(10):
+            for _ in range(10):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
@@ -283,7 +284,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
                 subgrid.discharge(
                     x, y,
@@ -301,18 +302,19 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 5000.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
     def test_hhnk(self):
+        """test if we can start 1d democase, followed by hhnk"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
@@ -326,7 +328,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 250.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(100):
+            for _ in range(100):
                 subgrid.update(-1)
 
     @printname
@@ -349,7 +351,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             # add it
-            for i in range(5):
+            for _ in range(5):
                 deltas = np.linspace(0, 100000, num=5)
                 for i, delta in enumerate(deltas):
                     subgrid.discharge(x + delta, y + delta,
