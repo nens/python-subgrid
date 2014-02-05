@@ -166,6 +166,8 @@ class RainGridTest(unittest.TestCase):
                 subgrid, 
                 initial_value=9.)
             subgrid.subscribe_dataset(rain_grid.memcdf_name)
+            for _ in range(5):
+                subgrid.update(-1)
 
 if __name__ == '__main__':
     unittest.main()
