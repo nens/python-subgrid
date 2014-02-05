@@ -33,7 +33,7 @@ def make_quad_grid(subgrid):
     return quad_grid
 
 
-def colors(var, cmap='Blues', vmin=None, vmax=None):
+def colors(var, cmap='Blues', vmin=None, vmax=None, **args):
     """return colors for variable var, with an appended transparent pixel"""
     if vmin is None:
         vmin = var.min()
@@ -44,7 +44,7 @@ def colors(var, cmap='Blues', vmin=None, vmax=None):
     # and lookup the colormap
     C = matplotlib.cm.cmap_d[cmap]
     # Apply both
-    colors = C(N(var))
+    colors = C(N(var), **args)
     # append a transparent
     colors = np.r_[colors, np.array([0,0,0,0])[np.newaxis,:]]
     return colors

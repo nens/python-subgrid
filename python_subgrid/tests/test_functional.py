@@ -156,6 +156,7 @@ class LibSubgridTest(unittest.TestCase):
 
     @printname
     def test_progress(self):
+        """test progress handler"""
         subgrid = SubgridWrapper(mdu=self.default_mdu)
         foundmessage = False
 
@@ -179,7 +180,8 @@ class LibSubgridTest(unittest.TestCase):
 
     @printname
     def test_info(self):
-        with SubgridWrapper() as subgrid:
+        """test if we can print info"""
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.subgrid_info()
 
     @attr('debug')
@@ -213,7 +215,7 @@ class LibSubgridTest(unittest.TestCase):
         """load the heereveent mode"""
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
             subgrid.initmodel()
-            for x in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
@@ -252,22 +254,21 @@ class LibSubgridTest(unittest.TestCase):
     def test_timesteps(self):
         """test the model for 10 timesteps"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            for i in range(10):
+            for _ in range(10):
                 # -1 = use default model timestep.
                 subgrid.update(-1)
 
     @printname
     def test_dropinstantrain(self):
+        """test if we can call dropinstantrain a few times"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
-            self.model_initialized = True
-
             x = 85830.97071920538
             y = 448605.8983910042
             clouddiam = 100.0
             rainfall = 100.0
             # do ome timesteps
-            for i in range(10):
+            for _ in range(10):
                 # rain
                 subgrid.dropinstantrain(x, y, clouddiam, rainfall)
                 # compute
@@ -283,7 +284,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
                 subgrid.discharge(
                     x, y,
@@ -301,18 +302,19 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 5000.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
     def test_hhnk(self):
+        """test if we can start 1d democase, followed by hhnk"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
-            for i in range(10):
+            for _ in range(10):
                 subgrid.update(-1)
 
     @printname
@@ -326,7 +328,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 250.0
             itype = 1
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
-            for i in range(100):
+            for _ in range(100):
                 subgrid.update(-1)
 
     @printname
@@ -349,7 +351,7 @@ class LibSubgridTest(unittest.TestCase):
             discharge_value = 100.0
             itype = 1
             # add it
-            for i in range(5):
+            for _ in range(5):
                 deltas = np.linspace(0, 100000, num=5)
                 for i, delta in enumerate(deltas):
                     subgrid.discharge(x + delta, y + delta,
@@ -601,6 +603,27 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
+    @printname
+    def test_back_orifice(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('orifices')
+            self.assertGreater(len(df), 0)
+
+    @printname
+    def test_set_back_orifice(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('orifices')
+            # Get the current crest_level
+            # Make sure you use item(0), otherwise you get a numpy 0d type
+            crest_level = df['crest_level'].item(0)
+            orificeid = df['id'].item(0)
+            subgrid.set_structure_field("orifices", orificeid,
+                                        "crest_level", crest_level + 10)
+            df = subgrid.get_nd('orifices')
+            self.assertEqual(df['crest_level'].item(0), crest_level + 10)
+
 
     @printname
     def test_changebathy(self):
@@ -720,21 +743,18 @@ class LibSubgridTest(unittest.TestCase):
 
             subgrid.floodfilling(x, y, level, mode)
 
+    #
     @printname
     def test_orifice_table(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            # get a data frame with all the orrifce information
             orifices = subgrid.get_nd('orifices')
-            d = {}
-            for i in range(len(orifices)):
-                orifice = orifices.irow(i)
-                # workaround: need variables are not in subgrid core yet
-                # TODO: we need orifices 'left_calc_point', 'right_calc_point',
-                # 'link_number'
-                # for now, using crest_level, crest_width, branchid
-                s = "%s;%s;%s" % (orifice['crest_level'],
-                                  orifice['crest_width'], orifice['branchid'])
-                d[orifice['id'].strip()] = s
-            print d
+            for var in {"crest_level", "crest_width", "branchid", "link_number", "left_calc_point", "right_calc_point"}:
+                self.assertIn(var, orifices.columns)
+
+            for i, orifice in orifices.iterrows():
+                # should be labeled with increasing indices
+                self.assertEqual(orifice["id"].strip(), str(i + 1))
 
     @printname
     def test_s1(self):

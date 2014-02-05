@@ -159,5 +159,13 @@ class RainGridTest(unittest.TestCase):
         print(np.sum(v2-v1))
         asdf
 
+    def test_back_orifice(self):
+        """Orifice with rain"""
+        with SubgridWrapper(mdu=self._mdu('brouwersdam')) as subgrid:
+            rain_grid = RainGrid(
+                subgrid, 
+                initial_value=9.)
+            subgrid.subscribe_dataset(rain_grid.memcdf_name)
+
 if __name__ == '__main__':
     unittest.main()

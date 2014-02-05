@@ -28,7 +28,7 @@ ioloop.install()
 INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
             'FlowElemContour_y', 'dx', 'nmax', 'mmax',
             'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type',
-            'dps', 'x0p', 'y0p', 'dxp', 'dyp'}
+            'dps', 'x0p', 'y0p', 'x1p', 'y1p', 'dxp', 'dyp'}
 OUTPUTVARS = ['s1']
 
 
