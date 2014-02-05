@@ -736,6 +736,12 @@ class LibSubgridTest(unittest.TestCase):
                 d[orifice['id'].strip()] = s
             print d
 
+    @printname
+    def test_s1(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            s1 = subgrid.get_nd('s1').copy()
+            
+
 # For Martijn
 if __name__ == '__main__':
     unittest.main()
