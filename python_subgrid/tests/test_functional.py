@@ -603,12 +603,36 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
+
     @printname
     def test_back_orifice(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('orifices')
             self.assertGreater(len(df), 0)
+
+    @printname
+    def test_orifice_write_read(self):
+        """Write orifice, then read value"""
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            orifices = subgrid.get_nd('orifices').copy()
+            print("aaaa")
+            for orifice_idx in range(len(orifices)):
+                orifice = orifices.irow(orifice_idx)
+                print(orifice.to_dict())
+
+            subgrid.set_structure_field(
+                "orifices", str(4),
+                "crest_width", float(26.0))
+
+            subgrid.update(-1)
+
+            print("bbbb")
+            orifices = subgrid.get_nd('orifices').copy()
+            for orifice_idx in range(len(orifices)):
+                orifice = orifices.irow(orifice_idx)
+                print(orifice.to_dict())
 
     @printname
     def test_set_back_orifice(self):
