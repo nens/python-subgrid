@@ -784,6 +784,12 @@ class LibSubgridTest(unittest.TestCase):
     def test_s1(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             s1 = subgrid.get_nd('s1').copy()
+
+    @printname
+    def test_link_value(self):
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            q = subgrid.get_nd('q').copy()
+            print(q[1245])
             
 
 # For Martijn
