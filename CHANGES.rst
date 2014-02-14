@@ -2,10 +2,16 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.8 (unreleased)
+0.9 (unreleased)
 ----------------
 
 - Nothing changed yet.
+
+
+0.8 (2014-02-05)
+----------------
+
+- More tests and fixes for orifices.
 
 
 0.7 (2014-01-30)
