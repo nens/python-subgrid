@@ -343,6 +343,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discard_manhole(x, y)
 
     @printname
+    @unittest.skip("https://issuetracker.deltares.nl/browse/THREEDI-169")
     def test_manhole_workflow(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = 'test_manhole'
@@ -560,11 +561,15 @@ class LibSubgridTest(unittest.TestCase):
             pumpid = df.id.item(0)
             # Increase capacity of all pump1 by a factor 10
             subgrid.set_structure_field("pumps", pumpid,
+                                        "oldcapacity", capacity0)
+            subgrid.set_structure_field("pumps", pumpid,
                                         "capacity", capacity0 * 10)
             df = subgrid.get_nd('pumps')
             self.assertEqual(df.id.item(0), pumpid)
             capacity1 = df.capacity.item(0)
             self.assertEqual(capacity1, capacity0 * 10)
+            oldcapacity = df.oldcapacity.item(0)
+            self.assertEqual(oldcapacity, capacity0)
 
     @printname
     def test_pump_it_up_1ddemocase(self):
@@ -605,13 +610,22 @@ class LibSubgridTest(unittest.TestCase):
             self.assertGreater(len(df), 0)
     @printname
     def test_back_orifice(self):
+        """can we get orifices back as a dataframe"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('orifices')
             self.assertGreater(len(df), 0)
 
     @printname
+    def test_back_orifice_id(self):
+        """can we change a crest level"""
+        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('orifices')
+            self.assertEqual(df['id'].item(0), '1')
+    @printname
     def test_set_back_orifice(self):
+        """can we change a crest level"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('orifices')
