@@ -15,7 +15,7 @@ import numpy as np
 
 import python_subgrid.wrapper
 import python_subgrid.plotting
-
+from mmi import send_array, recv_array
 
 logging.basicConfig()
 
@@ -28,33 +28,11 @@ ioloop.install()
 INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
             'FlowElemContour_y', 'dx', 'nmax', 'mmax',
             'mbndry', 'nbndry', 'ip', 'jp', 'nodm', 'nodn', 'nodk', 'nod_type',
-            'dps', 'x0p', 'y0p', 'x1p', 'y1p', 'dxp', 'dyp'}
+            'dps', 'x0p', 'y0p', 'x1p', 'y1p', 'dxp', 'dyp', 'wkt',
+            'imaxk', 'jmaxk', 'dmax', 'imax', 'jmax'}
 OUTPUTVARS = ['s1']
 
 
-def send_array(socket, A, flags=0, copy=False, track=False, metadata=None):
-    """send a numpy array with metadata"""
-    md = dict(
-        dtype=str(A.dtype),
-        shape=A.shape,
-        timestamp=datetime.datetime.now().isoformat()
-    )
-    if metadata:
-        md.update(metadata)
-    socket.send_json(md, flags | zmq.SNDMORE)
-    msg = buffer(A)
-    socket.send(msg, flags, copy=copy, track=track)
-    return
-
-
-def recv_array(socket, flags=0, copy=False, track=False):
-    """recv a numpy array"""
-    md = socket.recv_json(flags=flags)
-    msg = socket.recv(flags=flags, copy=copy, track=track)
-    buf = buffer(msg)
-    A = np.frombuffer(buf, dtype=md['dtype'])
-    A.reshape(md['shape'])
-    return A, md
 
 
 def parse_args():
@@ -112,28 +90,24 @@ def process_incoming(subgrid, poller, rep, pull, data):
     items = poller.poll(100)
     for sock, n in items:
         for i in range(n):
-            if sock == rep:
-                logger.info("got reply message, reading")
-                msg = sock.recv()
-                logger.info("got message: {}, replying with data".format(msg))
+            A, metadata = recv_array(sock)
+            logger.info("got metadata: %s", metadata)
+            if "pyobj" in metadata:
+                logger.info("sending grid")
+                # temporary implementation
                 sock.send_pyobj(data)
-                logger.info("sent".format(msg))
-            elif sock == pull:
-                logger.info("got push message(s), reducing")
-                data, metadata = recv_array(sock)
-                logger.info("got metadata: %s", metadata)
-                if "action" in metadata:
-                    logger.info("found action applying update")
-                    # TODO: support same operators as MPI_ops here....,
-                    # TODO: reduce before apply
-                    action = metadata['action']
-                    arr = subgrid.get_nd(metadata['name'], sliced=True)
-                    S = tuple(slice(*x) for x in action['slice'])
-                    print(repr(arr[S]))
-                    if action['operator'] == 'setitem':
-                        arr[S] = data
-                    elif action['operator'] == 'add':
-                        arr[S] += data
+            elif "action" in metadata:
+                logger.info("found action applying update")
+                # TODO: support same operators as MPI_ops here....,
+                # TODO: reduce before apply
+                action = metadata['action']
+                arr = subgrid.get_nd(metadata['name'], sliced=True)
+                S = tuple(slice(*x) for x in action['slice'])
+                print(repr(arr[S]))
+                if action['operator'] == 'setitem':
+                    arr[S] = data
+                elif action['operator'] == 'add':
+                    arr[S] += data
 
             else:
                 logger.warn("got message from unknown socket {}".format(sock))
