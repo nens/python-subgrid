@@ -188,6 +188,10 @@ def structs2pandas(structs):
     """convert ctypes structure or structure array to pandas data frame"""
     records = list(structs2records(structs))
     df = pandas.DataFrame.from_records(records)
+    # TODO: do this for string columns, for now just for id
+    # How can we check for string columns, this is not nice:
+    # df.columns[df.dtypes == object]
+    df["id"] = df["id"].apply(str.rstrip)
     return df
 
 

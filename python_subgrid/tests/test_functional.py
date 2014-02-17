@@ -610,6 +610,14 @@ class LibSubgridTest(unittest.TestCase):
             self.assertGreater(len(df), 0)
 
     @printname
+    def test_weir_it_out_strip(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('weirs')
+            # we should have stripped the spaces
+            self.assertFalse(df['id'].item(0).endswith(' '))
+
+    @printname
     def test_back_orifice(self):
         """can we get orifices back as a dataframe"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
