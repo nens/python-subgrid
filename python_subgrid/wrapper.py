@@ -191,7 +191,8 @@ def structs2pandas(structs):
     # TODO: do this for string columns, for now just for id
     # How can we check for string columns, this is not nice:
     # df.columns[df.dtypes == object]
-    df["id"] = df["id"].apply(str.rstrip)
+    if 'id' in df:
+        df["id"] = df["id"].apply(str.rstrip)
     return df
 
 
