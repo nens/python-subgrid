@@ -618,6 +618,14 @@ class LibSubgridTest(unittest.TestCase):
             self.assertFalse(df['id'].item(0).endswith(' '))
 
     @printname
+    def test_culvert_verpulverd(self):
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('culverts')
+            logger.info('Culverts are NOT being verpulverd')
+            self.assertEqual(True, False)
+
+    @printname
     def test_back_orifice(self):
         """can we get orifices back as a dataframe"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:

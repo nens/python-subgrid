@@ -2,7 +2,25 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.9 (unreleased)
+0.12 (unreleased)
+-----------------
+
+- Nothing changed yet.
+
+
+0.11 (2014-02-19)
+-----------------
+
+- Test.
+
+
+0.10 (2014-02-19)
+-----------------
+
+- Added extra check for 'id' before str.rstripping.
+
+
+0.9 (2014-02-19)
 ----------------
 
 - Nothing changed yet.
