@@ -76,6 +76,10 @@ scenarios = {
         'path': 'brouwersdam',
         'mdu_filename': "brouwersdam.mdu",
     },
+    'testcase': {
+        'path': 'testcase',
+        'mdu_filename': 'testcase.mdu',
+    }
 }
 
 # Use DelflandiPad by default for now
@@ -822,6 +826,13 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             q = subgrid.get_nd('q').copy()
             print(q[1245])
+
+    @printname
+    def test_testcase(self):
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
 
 
 # For Martijn
