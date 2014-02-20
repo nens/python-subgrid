@@ -296,6 +296,11 @@ FUNCTIONS = [
         'restype': c_int
     },
     {
+        'name': 'restart',
+        'argtypes': [c_char_p, POINTER(c_int)],
+        'restype': c_int,
+    },
+    {
         'name': 'save_tables',
         'argtypes': [c_char_p],
         'restype': None,
