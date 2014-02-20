@@ -13,7 +13,8 @@ install_requires = [
     'numpy',
     'pandas',
     'webob',
-    'netCDF4'
+    'netCDF4',
+    'mmi'
     ]
 
 if sys.version_info[0] < 3:
