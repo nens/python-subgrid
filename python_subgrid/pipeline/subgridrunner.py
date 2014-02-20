@@ -92,7 +92,7 @@ def process_incoming(subgrid, poller, rep, pull, data):
         for i in range(n):
             A, metadata = recv_array(sock)
             logger.info("got metadata: %s", metadata)
-            if "pyobj" in metadata:
+            if metadata.get("action") == "send grid":
                 logger.info("sending grid")
                 # temporary implementation
                 sock.send_pyobj(data)
@@ -119,6 +119,9 @@ if __name__ == '__main__':
     arguments = parse_args()
 
     # make a socket that replies to message with the grid
+
+    # You probably want to read:
+    # http://zguide.zeromq.org/page:all
 
     context = zmq.Context()
     # Socket to handle init data
