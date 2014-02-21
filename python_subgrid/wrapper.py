@@ -29,7 +29,8 @@ from ctypes import (
     # Pointering
     POINTER, byref, CFUNCTYPE,
     # Loading
-    cdll)
+    cdll
+)
 
 
 # Custom version of create_string_buffer that also accepts py3 strings.
