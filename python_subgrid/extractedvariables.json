@@ -229,11 +229,11 @@
             "name": "dx"
         }, 
         {
-            "description": "(FlowLink) Flow links/lines between coarse grid cells: line(L,1) = nod1, line(L,2) = nod2", 
+            "description": "Flow links/lines between coarse grid cells: line(L,1) = nod1, line(L,2) = nod2", 
             "fortrantype": "integer", 
             "rank": 2, 
             "json": null, 
-            "altname": null, 
+            "altname": "FlowLink", 
             "type": "int", 
             "dimension": "(:,:)", 
             "unit": "-", 
