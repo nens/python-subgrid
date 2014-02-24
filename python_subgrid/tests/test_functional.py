@@ -491,12 +491,6 @@ class LibSubgridTest(unittest.TestCase):
             q = subgrid.get_nd('q').copy()
             print(q[1245])
 
-    @printname
-    def test_testcase(self):
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
 
 
 # For Martijn
