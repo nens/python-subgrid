@@ -25,6 +25,7 @@ tests_require = [
     'nose',
     'mock',
     'coverage',
+    'psutil'
     ]
 
 setup(
@@ -45,6 +46,7 @@ setup(
     url='https://github.com/nens/python-subgrid',
     license='GPLv3+',
     packages=['python_subgrid'],
+    # TODO replace with console_scripts.
     scripts=[
         "scripts/update-subgrid-tables",
         "scripts/update-subgrid-network"
