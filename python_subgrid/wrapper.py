@@ -297,8 +297,13 @@ FUNCTIONS = [
         'restype': c_int
     },
     {
-        'name': 'restart',
-        'argtypes': [c_char_p, POINTER(c_int)],
+        'name': 'read_restart',
+        'argtypes': [c_char_p],
+        'restype': c_int,
+    },
+    {
+        'name': 'write_restart',
+        'argtypes': [c_char_p],
         'restype': c_int,
     },
     {

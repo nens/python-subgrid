@@ -338,10 +338,11 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             s1_0 = subgrid.get_nd('s1').copy()
+            subgrid.write_restart("subgrid_restart.nc")
             for i in range(5):
                 subgrid.update(-1)
             s1_1 = subgrid.get_nd('s1').copy()
-            subgrid.restart("subgrid_restart.nc", 0)
+            subgrid.read_restart("subgrid_restart.nc")
             s1_2 = subgrid.get_nd('s1').copy()
             # something should have happened to the water level
             self.assertGreater(np.abs(s1_1 - s1_0).max(), 0.001)
@@ -497,6 +498,7 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             q = subgrid.get_nd('q').copy()
             print(q[1245])
+
 
     @printname
     def test_testcase(self):
