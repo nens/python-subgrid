@@ -223,6 +223,22 @@ class LibSubgridTest(unittest.TestCase):
                 subgrid.update(-1)
 
     @printname
+    def test_dropinstantrain2(self):
+        """test if we can call dropinstantrain a few times"""
+        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+            subgrid.initmodel()
+            x = 115677.87112031868
+            y = 517275.320798662
+            clouddiam = 1313.3254051208348
+            rainfall = 0.00016666666666666666
+            # do ome timesteps
+            for _ in range(10):
+                # rain
+                subgrid.dropinstantrain(x, y, clouddiam, rainfall)
+                # compute
+                subgrid.update(-1)
+
+    @printname
     def test_manhole(self):
         """use discharge points to simulate manholes"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:

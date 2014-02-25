@@ -85,6 +85,8 @@ def parse_args():
 def process_incoming(subgrid, poller, rep, pull, data):
     """
     process incoming messages
+
+    data is a dict with several arrays
     """
     # Check for new messages
     items = poller.poll(100)
@@ -113,6 +115,7 @@ def process_incoming(subgrid, poller, rep, pull, data):
                 logger.warn("got message from unknown socket {}".format(sock))
     else:
         logger.info("No incoming data")
+
 
 if __name__ == '__main__':
 
