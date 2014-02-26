@@ -218,3 +218,10 @@ class LibSubgridModelsTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             for _ in range(100):
                 subgrid.update(-1)
+
+    @printname
+    def test_testcase(self):
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
