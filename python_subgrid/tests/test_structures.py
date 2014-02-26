@@ -13,6 +13,8 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
+from python_subgrid.tests.utils import printinfo
+
 
 #import gc
 #gc.disable()
@@ -106,15 +108,6 @@ def float_equals(a, b):
 
 
 
-def printname(f):
-    """print the name of the test being called"""
-    # needed because it does not show up if the test segfaults
-    # this can probably be done easier
-    @wraps(f)
-    def wrapper(*args, **kwds):
-        print("### running test {f}".format(f=f))
-        return f(*args, **kwds)
-    return wrapper
 
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
@@ -132,13 +125,13 @@ class LibSubgridStructuresTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
-    @printname
+    @printinfo
     def test_compound_rank(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
-    @printname
+    @printinfo
     def test_compound_rank_2donly(self):
         """test compound rank for a model with only 2d"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -146,14 +139,14 @@ class LibSubgridStructuresTest(unittest.TestCase):
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
 
-    @printname
+    @printinfo
     def test_compound_type(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
             type_ = subgrid.get_var_type('pumps')
             self.assertEqual(type_, 'pump')
 
-    @printname
+    @printinfo
     def test_make_compound(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -164,7 +157,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
                 'COMPOUND_Array'))
             self.assertEqual(valtype._type_._type_.__name__, 'COMPOUND')
 
-    @printname
+    @printinfo
     def test_compound_getnd(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -172,7 +165,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
 
-    @printname
+    @printinfo
     def test_remove_pump(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -186,7 +179,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 0)
 
-    @printname
+    @printinfo
     def test_pump_it_up(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -200,7 +193,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             # There should be water movement now, check S1
             self.assertGreater(np.abs(s1after - s1before).sum(), 0)
 
-    @printname
+    @printinfo
     def test_pump_it_up2(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -220,7 +213,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             s1_default = subgrid.get_nd('s1').copy()
         self.assertGreater(np.abs(s1_increase - s1_default).sum(), 0)
 
-    @printname
+    @printinfo
     def test_pump_it_up3(self):
         """Check if finalize also resets pumps"""
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
@@ -230,7 +223,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)  # Fails ... we have 2 pumps now!
 
-    @printname
+    @printinfo
     def test_pump_it_up_manual(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -252,7 +245,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             oldcapacity = df.oldcapacity.item(0)
             self.assertEqual(oldcapacity, capacity0)
 
-    @printname
+    @printinfo
     def test_pump_it_up_1ddemocase(self):
 
         # run both models for a few minutes
@@ -283,14 +276,14 @@ class LibSubgridStructuresTest(unittest.TestCase):
 
         self.assertGreater(np.abs(s1pumps - s1nopumps).sum(), 0)
 
-    @printname
+    @printinfo
     def test_weir_it_out(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('weirs')
             self.assertGreater(len(df), 0)
 
-    @printname
+    @printinfo
     def test_weir_it_out_strip(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
@@ -298,7 +291,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             # we should have stripped the spaces
             self.assertFalse(df['id'].item(0).endswith(' '))
 
-    @printname
+    @printinfo
     def test_culvert_verpulverd(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
@@ -306,7 +299,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             logger.info('Culverts are NOT being verpulverd')
             self.assertEqual(True, False)
 
-    @printname
+    @printinfo
     def test_back_orifice(self):
         """can we get orifices back as a dataframe"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
@@ -314,7 +307,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             df = subgrid.get_nd('orifices')
             self.assertGreater(len(df), 0)
 
-    @printname
+    @printinfo
     def test_back_orifice_id(self):
         """can we change a crest level"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
@@ -322,7 +315,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             df = subgrid.get_nd('orifices')
             self.assertEqual(df['id'].item(0), '1')
 
-    @printname
+    @printinfo
     def test_orifice_write_read(self):
         """Write orifice, then read value"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
@@ -346,7 +339,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
                 print(orifice.to_dict())
 
 
-    @printname
+    @printinfo
     def test_set_back_orifice(self):
         """can we change a crest level"""
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
@@ -361,7 +354,7 @@ class LibSubgridStructuresTest(unittest.TestCase):
             df = subgrid.get_nd('orifices')
             self.assertEqual(df['crest_level'].item(0), crest_level + 10)
 
-    @printname
+    @printinfo
     def test_orifice_table(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             # get a data frame with all the orrifce information

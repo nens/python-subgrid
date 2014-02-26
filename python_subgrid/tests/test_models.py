@@ -13,6 +13,7 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
+from python_subgrid.tests.utils import printinfo
 
 #import gc
 #gc.disable()
@@ -105,16 +106,6 @@ def float_equals(a, b):
 
 
 
-def printname(f):
-    """print the name of the test being called"""
-    # needed because it does not show up if the test segfaults
-    # this can probably be done easier
-    @wraps(f)
-    def wrapper(*args, **kwds):
-        print("### running test {f}".format(f=f))
-        return f(*args, **kwds)
-    return wrapper
-
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
 class LibSubgridModelsTest(unittest.TestCase):
@@ -131,14 +122,14 @@ class LibSubgridModelsTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
-    @printname
+    @printinfo
     def test_load_1d(self):
         """test load a 1d model twice"""
         for i in range(2):
             with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
                 print('test load #%r' % i)
 
-    @printname
+    @printinfo
     def test_1ddemo_heerenveen(self):
         """load the heerenveen model after loading a 1d model"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
@@ -148,7 +139,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_heerenveen(self):
         """load the heereveent mode"""
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
@@ -156,7 +147,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             for _ in range(10):
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_load_1ddemo_1ddemo(self):
         """load the model twice"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
@@ -166,7 +157,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             subgrid.initmodel()
             subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_load_1ddemo_wijder(self):
         """load the 1d demo model, then the wijdewormer"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
@@ -179,7 +170,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             pumps.to_dict()
             self.assertEquals(pumps.to_dict()['id'].keys()[0], 0)
 
-    @printname
+    @printinfo
     def test_kaapstad_wkt(self):
         """load kaapstad and extract the well known text"""
         with SubgridWrapper(mdu=self._mdu_path('kaapstad_centrum')) as subgrid:
@@ -188,7 +179,7 @@ class LibSubgridModelsTest(unittest.TestCase):
         # we should have some coordinate system
         self.assertTrue("GEOGCS" in wkt)
     #@unittest.skip
-    @printname
+    @printinfo
     def test_manhole_mozambique(self):
         """load the mozambique model and add a discharge point"""
         mdu_filename = self._mdu_path('mozambique')
@@ -202,7 +193,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             for _ in range(10):
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_hhnk(self):
         """test if we can start 1d democase, followed by hhnk"""
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
@@ -214,7 +205,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             for _ in range(10):
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_manhole_hhnk(self):
         """add a manhole to hhnk model"""
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
