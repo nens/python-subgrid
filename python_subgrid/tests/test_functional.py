@@ -14,6 +14,7 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
+from python_subgrid.tests.utils import printinfo
 
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
@@ -102,15 +103,6 @@ msg = "Scenario models not available {}".format(default_scenario_path)
 
 
 
-def printname(f):
-    """print the name of the test being called"""
-    # needed because it does not show up if the test segfaults
-    # this can probably be done easier
-    @wraps(f)
-    def wrapper(*args, **kwds):
-        print("### running test {f}".format(f=f))
-        return f(*args, **kwds)
-    return wrapper
 
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
@@ -128,7 +120,7 @@ class LibSubgridTest(unittest.TestCase):
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
-    @printname
+    @printinfo
     def test_logging(self):
         subgrid = SubgridWrapper()
         foundmessage = False
@@ -151,7 +143,7 @@ class LibSubgridTest(unittest.TestCase):
         # we should have some messages
         self.assertTrue(foundmessage)
 
-    @printname
+    @printinfo
     def test_progress(self):
         """test progress handler"""
         subgrid = SubgridWrapper(mdu=self.default_mdu)
@@ -175,14 +167,14 @@ class LibSubgridTest(unittest.TestCase):
         # we should have some messages
         self.assertTrue(foundmessage)
 
-    @printname
+    @printinfo
     def test_info(self):
         """test if we can print info"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.subgrid_info()
 
     @attr('debug')
-    @printname
+    @printinfo
     def test_load(self):
         """test load model twice"""
         for i in range(2):
@@ -191,7 +183,7 @@ class LibSubgridTest(unittest.TestCase):
 
 
 
-    @printname
+    @printinfo
     def test_timesteps(self):
         """test the model for 10 timesteps"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -199,7 +191,7 @@ class LibSubgridTest(unittest.TestCase):
                 # -1 = use default model timestep.
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_dropinstantrain(self):
         """test if we can call dropinstantrain a few times"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -215,7 +207,7 @@ class LibSubgridTest(unittest.TestCase):
                 # compute
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_dropinstantrain2(self):
         """test if we can call dropinstantrain a few times"""
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
@@ -231,7 +223,7 @@ class LibSubgridTest(unittest.TestCase):
                 # compute
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_manhole(self):
         """use discharge points to simulate manholes"""
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -248,7 +240,7 @@ class LibSubgridTest(unittest.TestCase):
                     manhole_name, 1, discharge_value)
 
 
-    @printname
+    @printinfo
     def test_discard_manhole(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             manhole_name = 'test_manhole'
@@ -259,7 +251,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.discharge(x, y, manhole_name, itype, discharge_value)
             subgrid.discard_manhole(x, y)
 
-    @printname
+    @printinfo
     @unittest.skip("https://issuetracker.deltares.nl/browse/THREEDI-169")
     def test_manhole_workflow(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -285,28 +277,28 @@ class LibSubgridTest(unittest.TestCase):
                 # add it again
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             rank = subgrid.get_var_rank('s1')
             self.assertEqual(1, rank)
 
-    @printname
+    @printinfo
     def test_get_var_type(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             typename = subgrid.get_var_type('s1')
             self.assertEqual(typename, 'double')
 
-    @printname
+    @printinfo
     def test_get_var_shape(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             shape = subgrid.get_var_shape('s1')
             self.assertGreater(shape[0], 10)
 
-    @printname
+    @printinfo
     def test_get_nd(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -314,7 +306,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(len(arr.shape), 1)
             logging.debug(arr)
 
-    @printname
+    @printinfo
     def test_get_sharedmem(self):
         import multiprocessing
         import time
@@ -349,7 +341,7 @@ class LibSubgridTest(unittest.TestCase):
             # breaks if 1d is broken
             self.assertNotEqual(s1.sum(), s2.sum())
 
-    @printname
+    @printinfo
     def test_restart(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
             subgrid.initmodel()
@@ -364,7 +356,8 @@ class LibSubgridTest(unittest.TestCase):
             self.assertGreater(np.abs(s1_1 - s1_0).max(), 0.001)
             # but not after we restart
             npt.assert_equal(s1_0, s1_2)
-    @printname
+
+    @printinfo
     def test_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
@@ -377,14 +370,14 @@ class LibSubgridTest(unittest.TestCase):
             logging.debug(t1)
             npt.assert_almost_equal(t1, 300)
 
-    @printname
+    @printinfo
     def test_get_nd_unknown_variable(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             self.assertRaises(NotDocumentedError, subgrid.get_nd, 'reinout')
 
 
-    @printname
+    @printinfo
     def test_changebathy(self):
 
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
@@ -407,7 +400,7 @@ class LibSubgridTest(unittest.TestCase):
             for i in range(5):
                 subgrid.update(-1)  # -1 = use default model time
 
-    @printname
+    @printinfo
     def test_changebathy_heerenveen(self):
         with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
             for i in range(5):
@@ -428,7 +421,7 @@ class LibSubgridTest(unittest.TestCase):
                 print('doing %d...' % i)
                 print subgrid.update(-1)  # -1 = use default model time
 
-    @printname
+    @printinfo
     def test_link_table(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             data = dict(branch=subgrid.get_nd('link_branchid'),
@@ -441,7 +434,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(df.idx.item(0), 249)
             self.assertEqual(df.idx.item(-1), 248)
 
-    @printname
+    @printinfo
     def test_link_table_node(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             data = dict(branch=subgrid.get_nd('nod_branchid'),
@@ -457,13 +450,13 @@ class LibSubgridTest(unittest.TestCase):
             #self.assertEqual(df.idx.item(-1), 248)
         # TODO: look up real indices for this test case
 
-    @printname
+    @printinfo
     def test_flow_link(self):
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
             self.assertEqual(list(flow_link[249]), [140, 169])
 
-    @printname
+    @printinfo
     def test_floodfill(self):
         with SubgridWrapper(mdu=self._mdu_path('betondorp')) as subgrid:
 
@@ -504,19 +497,18 @@ class LibSubgridTest(unittest.TestCase):
 
     #
 
-    @printname
+    @printinfo
     def test_s1(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             s1 = subgrid.get_nd('s1').copy()
 
-    @printname
+    @printinfo
     def test_link_value(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             q = subgrid.get_nd('q').copy()
             print(q[1245])
 
-
-    @printname
+    @printinfo
     def test_testcase(self):
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
             pass
