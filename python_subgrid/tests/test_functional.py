@@ -9,19 +9,15 @@ from functools import wraps
 
 from nose.plugins.attrib import attr
 import numpy as np
+import  numpy.testing as npt
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
 
-#import gc
-#gc.disable()
-
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
-
-EPSILON = 0.00000001
 
 scenarios = {
     '1dpumps': {
@@ -103,9 +99,6 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
-
-def float_equals(a, b):
-    return abs(a-b) < EPSILON
 
 
 
@@ -357,6 +350,21 @@ class LibSubgridTest(unittest.TestCase):
             self.assertNotEqual(s1.sum(), s2.sum())
 
     @printname
+    def test_restart(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            s1_0 = subgrid.get_nd('s1').copy()
+            subgrid.write_restart("subgrid_restart.nc")
+            for i in range(5):
+                subgrid.update(-1)
+            s1_1 = subgrid.get_nd('s1').copy()
+            subgrid.read_restart("subgrid_restart.nc")
+            s1_2 = subgrid.get_nd('s1').copy()
+            # something should have happened to the water level
+            self.assertGreater(np.abs(s1_1 - s1_0).max(), 0.001)
+            # but not after we restart
+            npt.assert_equal(s1_0, s1_2)
+    @printname
     def test_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
@@ -367,7 +375,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.update(-1)
             t1 = subgrid.get_nd('t1')
             logging.debug(t1)
-            self.assertTrue(float_equals(t1, 300))
+            npt.assert_almost_equal(t1, 300)
 
     @printname
     def test_get_nd_unknown_variable(self):
@@ -506,6 +514,7 @@ class LibSubgridTest(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             q = subgrid.get_nd('q').copy()
             print(q[1245])
+
 
     @printname
     def test_testcase(self):
