@@ -33,8 +33,6 @@ INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
 OUTPUTVARS = ['s1']
 
 
-
-
 def parse_args():
     argparser = argparse.ArgumentParser()
     argparser.add_argument(
