@@ -29,7 +29,8 @@ from ctypes import (
     # Pointering
     POINTER, byref, CFUNCTYPE,
     # Loading
-    cdll)
+    cdll
+)
 
 
 # Custom version of create_string_buffer that also accepts py3 strings.
@@ -294,6 +295,16 @@ FUNCTIONS = [
         'name': 'subscribe_dataset',
         'argtypes': [c_char_p],
         'restype': c_int
+    },
+    {
+        'name': 'read_restart',
+        'argtypes': [c_char_p],
+        'restype': c_int,
+    },
+    {
+        'name': 'write_restart',
+        'argtypes': [c_char_p],
+        'restype': c_int,
     },
     {
         'name': 'save_tables',

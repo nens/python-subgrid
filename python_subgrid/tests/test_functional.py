@@ -9,13 +9,16 @@ from functools import wraps
 
 from nose.plugins.attrib import attr
 import numpy as np
+import  numpy.testing as npt
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
 from python_subgrid.tests.utils import printinfo
 
-EPSILON = 0.00000001
+# We don't want to know about ctypes here
+# only in the test_wrapper and the wrapper itself.
+
 
 scenarios = {
     '1dpumps': {
@@ -97,9 +100,6 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
-
-def float_equals(a, b):
-    return abs(a-b) < EPSILON
 
 
 
@@ -200,6 +200,22 @@ class LibSubgridTest(unittest.TestCase):
             y = 448605.8983910042
             clouddiam = 100.0
             rainfall = 100.0
+            # do ome timesteps
+            for _ in range(10):
+                # rain
+                subgrid.dropinstantrain(x, y, clouddiam, rainfall)
+                # compute
+                subgrid.update(-1)
+
+    @printinfo
+    def test_dropinstantrain2(self):
+        """test if we can call dropinstantrain a few times"""
+        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+            subgrid.initmodel()
+            x = 115677.87112031868
+            y = 517275.320798662
+            clouddiam = 1313.3254051208348
+            rainfall = 0.00016666666666666666
             # do ome timesteps
             for _ in range(10):
                 # rain
@@ -326,6 +342,22 @@ class LibSubgridTest(unittest.TestCase):
             self.assertNotEqual(s1.sum(), s2.sum())
 
     @printinfo
+    def test_restart(self):
+        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+            subgrid.initmodel()
+            s1_0 = subgrid.get_nd('s1').copy()
+            subgrid.write_restart("subgrid_restart.nc")
+            for i in range(5):
+                subgrid.update(-1)
+            s1_1 = subgrid.get_nd('s1').copy()
+            subgrid.read_restart("subgrid_restart.nc")
+            s1_2 = subgrid.get_nd('s1').copy()
+            # something should have happened to the water level
+            self.assertGreater(np.abs(s1_1 - s1_0).max(), 0.001)
+            # but not after we restart
+            npt.assert_equal(s1_0, s1_2)
+
+    @printinfo
     def test_nd_t1(self):
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
             subgrid.initmodel()
@@ -336,7 +368,7 @@ class LibSubgridTest(unittest.TestCase):
             subgrid.update(-1)
             t1 = subgrid.get_nd('t1')
             logging.debug(t1)
-            self.assertTrue(float_equals(t1, 300))
+            npt.assert_almost_equal(t1, 300)
 
     @printinfo
     def test_get_nd_unknown_variable(self):
