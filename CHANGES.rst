@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.13 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added restart option.
 
 
 0.12 (2014-02-26)
