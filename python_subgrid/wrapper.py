@@ -296,16 +296,16 @@ FUNCTIONS = [
         'argtypes': [c_char_p],
         'restype': c_int
     },
-    {
-        'name': 'read_restart',
-        'argtypes': [c_char_p],
-        'restype': c_int,
-    },
-    {
-        'name': 'write_restart',
-        'argtypes': [c_char_p],
-        'restype': c_int,
-    },
+    # {
+    #     'name': 'read_restart',
+    #     'argtypes': [c_char_p],
+    #     'restype': c_int,
+    # },
+    # {
+    #     'name': 'write_restart',
+    #     'argtypes': [c_char_p],
+    #     'restype': c_int,
+    # },
     {
         'name': 'save_tables',
         'argtypes': [c_char_p],
