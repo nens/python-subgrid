@@ -59,7 +59,9 @@ setup(
     entry_points={
         'console_scripts': [
             '{0} = python_subgrid.utils:{0}'.format(
-                'generate_functions_documentation')
+                'generate_functions_documentation'),
+            '{0} = python_subgrid.conversion:{0}'.format(
+                'convert_subgrid_mdu')
         ]
     }
 )
