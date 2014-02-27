@@ -10,14 +10,14 @@ import datetime
 import collections
 import ConfigParser
 import logging
-
+import re
 import numpy as np
 
 from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
 
 logging.basicConfig()
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 
 def parse_args():
@@ -26,7 +26,7 @@ def parse_args():
     """
     argumentparser = argparse.ArgumentParser(
         description='Convert an old MDU (version < 2) to the new structure.')
-    argumentparser.add_argument('mdu', help='mdu files to process')
+    argumentparser.add_argument('mdu', help='mdu files to process, will be overwritten!')
     arguments = argumentparser.parse_args()
 
     return arguments
@@ -36,6 +36,7 @@ def parse_args():
 def rename_section(config, section1, section2):
     """rename section1 to section2 in the config object"""
 
+    logger.debug("Rename: [{}] -> [{}].".format(section1, section2))
     # lookup all items in section1
     try:
         items = config.items(section1)
@@ -55,14 +56,23 @@ def rename_section(config, section1, section2):
 # TODO: move to utils?
 def opt_rename(config, section1, section2, option1, option2):
     """rename section1, option1  to section2, option2 """
+    if section1 == section2:
+        logger.debug("Rename under [{}]: {} -> {}.".format(section1, option1, option2))
+    elif option1 == option2:
+        logger.debug("Move {}: from [{}] -> [{}].".format(option1, section1, section2))
+    else:
+        logger.debug("Converting: [{}] {} -> [{}] {}.".format(section1, option1, section2, option2))
+
     try:
         config.set(section2, option2, config.get(section1, option1, 1))
     except ConfigParser.NoSectionError:
         # Create non-existent section
+        logger.debug("opt_rename: Adding section '{}'.".format(section2))
         config.add_section(section2)
         opt_rename(config, section1, section2, option1, option2)
     except ConfigParser.NoOptionError:
         # If section1, option1 does not exist, let it pass.
+        logger.info("opt_rename: Original option '{}' not present under [{}]. Passing.".format(option1, section1))
         pass
     else:
         config.remove_option(section1, option1)
@@ -79,11 +89,34 @@ def convert_subgrid_mdu():
 
     # Read mdu file
 
-
     commentedmdu = MduParserKeepComments()
     commentedmdu.readfp(open(arguments.mdu))
 
-    commentedmdu.set("model", "FileFormatVersion", "2.2")
+    # Check current version:
+    try:
+        inputversion = commentedmdu.get("model", "FileFormatVersion")
+    except ConfigParser.NoOptionError:
+        inputversion = "0.0"
+
+    match = re.match(r"""\d+""", inputversion)
+    if match is not None:
+        inputmajorv = int(match.group())
+    else:
+        inputmajorv = 0
+
+    outputversion = "2.2"
+    outputmajorv = int(float(outputversion))
+
+    if inputmajorv >= outputmajorv:
+        logger.info("Input file {} is already recent enough: major version {} >= {}. Exiting.".format(arguments.mdu, inputmajorv, outputmajorv))
+        return
+
+
+    # Input file is indeed old, now proceed with the actual conversion.
+    logger.info("Converting {} -> {}...".format(inputversion, outputversion))
+
+    commentedmdu.set("model", "FileFormatVersion", outputversion)
+
 
     # Define the renamings
     
@@ -132,7 +165,7 @@ def convert_subgrid_mdu():
 
     # Write the new MDU file
 
-    with open(arguments.mdu + "conv" , 'w') as mdufile:
+    with open(arguments.mdu , 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()
