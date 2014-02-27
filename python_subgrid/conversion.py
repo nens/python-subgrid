@@ -7,10 +7,17 @@ import os
 import argparse
 import sys
 import datetime
+import collections
+import ConfigParser
+import logging
 
 import numpy as np
 
 from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
+
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def parse_args():
@@ -30,7 +37,13 @@ def rename_section(config, section1, section2):
     """rename section1 to section2 in the config object"""
 
     # lookup all items in section1
-    items = config.items(section1)
+    try:
+        items = config.items(section1)
+    except ConfigParser.NoSectionError:
+        # If section1 does not exist, let it pass.
+        logger.info("rename_section: Section '{}' does not exist. Passing.".format(section1))
+        return
+
     # add section 2
     config.add_section(section2)
     # copy all items from section1 to section2
@@ -48,6 +61,9 @@ def opt_rename(config, section1, section2, option1, option2):
         # Create non-existent section
         config.add_section(section2)
         opt_rename(config, section1, section2, option1, option2)
+    except ConfigParser.NoOptionError:
+        # If section1, option1 does not exist, let it pass.
+        pass
     else:
         config.remove_option(section1, option1)
 
@@ -62,17 +78,14 @@ def convert_subgrid_mdu():
     arguments = parse_args()
 
     # Read mdu file
-    # mdudir = os.path.dirname(arguments.mdu)
-    # mduparser = MduParser(defaults=DEFAULTS)
-    # mduparser.readfp(open(arguments.mdu))
 
 
     commentedmdu = MduParserKeepComments()
     commentedmdu.readfp(open(arguments.mdu))
 
-    commentedmdu.set("model", "FileFormatVersion", "2.1")
+    commentedmdu.set("model", "FileFormatVersion", "2.2")
 
-    # http://docs.python.org/2/library/collections.html#ordereddict-objects    
+    # Define the renamings
     
     changes = collections.OrderedDict([
         (("geometry", "ManholeFile"), ("external forcing", "ManholeFile")),
@@ -106,18 +119,20 @@ def convert_subgrid_mdu():
         (("colors", "showChanMinY"), ("display", "showChanMinY")),
         (("colors", "showChanMaxY"), ("display", "showChanMaxY"))
     ])
-#
-#
-    # todo: for loop across dict/or list? To be processed in order!
-    # foreach
-    #    if key1 == "" and key2 == "":
-    #       rename_section(commentedmdu, sec1, sec2)
-    #    else
-    #       opt_rename(commentedmdu, sec1, sec2, key1, key2)
-            # TODO:  need to catch NoOptionError from config.get??
 
-    
-    with open(arguments.mdu , 'w') as mdufile:
+
+    # Perform the renamings
+
+    for (sec1,opt1),(sec2,opt2) in changes.items():
+       if opt1 == "" and opt2 == "":
+           rename_section(commentedmdu, sec1, sec2)
+       else:
+           opt_rename(commentedmdu, sec1, sec2, opt1, opt2)
+
+
+    # Write the new MDU file
+
+    with open(arguments.mdu + "conv" , 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()

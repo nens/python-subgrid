@@ -85,6 +85,14 @@ The virtualenv way (assumes mkvirtualenv and virtualenv are installed)::
   # or if you want to add your source directory to the path
   python setup.py develop
 
+Combination Windows and Anaconda::
+
+- Download + Install Anaconda
+- Download and install the :faulthandler: package, from http://www.lfd.uci.edu/~gohlke/pythonlibs/#faulthandler
+- Download and install the :NetCDF4: package, from http://www.lfd.uci.edu/~gohlke/pythonlibs/#netcdf4
+- Open an (Anaconda) Python-terminal (Press :[Ctrl]:+:[Alt]+:A:).
+- pip.bat install -e ``<path to your python-subgrid GIT working copy>``
+
 
 Usage
 -----
@@ -136,11 +144,14 @@ The python subgrid library contains some scripts that can be used to update inpu
 
   update-subgrid-network
   update-subgrid-tables
+  convert_subgrid_mdu
 
 The script ``update-subgrid-network`` updates input files from the old format (2x -1 in ``network.inp``)  to the new format.
 The script ``update-subgrid-tables`` generates the ``*.tbl`` and ``*.grd`` files to the current format. These files can be used to speed-up initialisation.
+The script ``convert_subgrid_mdu`` converts an old MDU file (version < 2) to a new MDU format version.
 
 For details on the usage of these scripts please see::
 
   update-subgrid-network --help
   update-subgrid-tables --help
+  convert_subgrid_mdu --help
