@@ -5,10 +5,10 @@
             "slice": "1:nodall", 
             "description": "waterlevel at previous timestep", 
             "standard_name": "sea_surface_height", 
-            "state": false, 
+            "state": true, 
             "fortrantype": "double precision", 
             "rank": 1, 
-            "json": "{\"state\":false,\"slice\":\"1:nodall\",\"standard_name\":\"sea_surface_height\"}", 
+            "json": "{\"state\":true,\"slice\":\"1:nodall\",\"standard_name\":\"sea_surface_height\"}", 
             "altname": null, 
             "type": "double", 
             "dimension": "(:)", 
@@ -102,7 +102,29 @@
             "name": "adi"
         }, 
         {
-            "description": "discharge on full grid on current timestep", 
+            "description": "velocity norm in cell centres", 
+            "fortrantype": "double precision", 
+            "rank": 1, 
+            "json": null, 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:)", 
+            "unit": "m/s", 
+            "name": "vnorm"
+        }, 
+        {
+            "description": "velocities in cell centres, uc(:,1) = x velocities for all nodes, uc(:,2) = y velocities for all nodes", 
+            "fortrantype": "double precision", 
+            "rank": 2, 
+            "json": null, 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:,:)", 
+            "unit": "m/s", 
+            "name": "uc"
+        }, 
+        {
+            "description": "discharge on flow link", 
             "fortrantype": "double precision", 
             "rank": 1, 
             "json": null, 
@@ -113,7 +135,7 @@
             "name": "q"
         }, 
         {
-            "description": "discharge on half grid on current timestep", 
+            "description": "discharge on first half of 2d flow link, this only contains values for 2d flow links", 
             "fortrantype": "double precision", 
             "rank": 1, 
             "json": null, 
@@ -124,7 +146,7 @@
             "name": "qh1"
         }, 
         {
-            "description": "discharge on half grid on next timestep", 
+            "description": "discharge on second half of 2d flow link, this only contains values for 2d flow links", 
             "fortrantype": "double precision", 
             "rank": 1, 
             "json": null, 
@@ -174,7 +196,7 @@
             "name": "vol2"
         }, 
         {
-            "description": "volume surface in coarse grid cell on current", 
+            "description": "wet surface area of coarse grid cell on current timestep", 
             "fortrantype": "double precision", 
             "rank": 1, 
             "json": null, 
@@ -185,7 +207,7 @@
             "name": "su"
         }, 
         {
-            "description": "volume surface in coarse grid cell in previous timestep", 
+            "description": "wet surface area of coarse grid cell on previous timestep", 
             "fortrantype": "double precision", 
             "rank": 1, 
             "json": null, 
@@ -669,7 +691,7 @@
             "name": "dlev"
         }, 
         {
-            "description": "find link given levee segment number", 
+            "description": "maps levee pieces to links", 
             "fortrantype": "integer", 
             "rank": 2, 
             "json": null, 
@@ -677,7 +699,7 @@
             "type": "int", 
             "dimension": "(:,:)", 
             "unit": "-", 
-            "name": "lev2lin"
+            "name": "pce2lin"
         }, 
         {
             "description": "Quadtree refinement level for each pixel (kmax=coarsest, 1=finest)", 
@@ -942,6 +964,17 @@
             "dimension": "(:,:)", 
             "unit": "-", 
             "name": "cropType"
+        }, 
+        {
+            "description": "Seepage from deeper aquifer into groundwater volume on quadtree grid, read in as mm/day.", 
+            "fortrantype": "double precision", 
+            "rank": 1, 
+            "json": null, 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:)", 
+            "unit": "m3/s", 
+            "name": "qseep"
         }, 
         {
             "description": "delta t", 
