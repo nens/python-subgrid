@@ -50,6 +50,7 @@ def rename_section(config, section1, section2):
     # copy all items from section1 to section2
     for option, value in items:
         config.set(section2, option, value)
+
     config.remove_section(section1)
 
 
@@ -133,8 +134,8 @@ def convert_subgrid_mdu():
         (("initialization", "RainfallCloudDiameter"), ("defaults", "RainfallCloudDiameter")),
         (("Ground Water", ""), ("hydrology", "")),
         (("hydrology", "GroundwaterLevelFile"), ("hydrology", "GroundWaterLevelIniFile")),
-        (("hydrology", "permability_x"), ("hydrology", "HydraulicConductivity_X")),
-        (("hydrology", "permability_y"), ("hydrology", "HydraulicConductivity_Y")),
+        (("hydrology", "permeability_x"), ("hydrology", "HydraulicConductivity_X")),
+        (("hydrology", "permeability_y"), ("hydrology", "HydraulicConductivity_Y")),
         (("hydrology", "GroundwaterLevelFile"), ("hydrology", "GroundWaterLevelIniFile")),
         (("output", "LogOut"), ("display", "RedrawEvery")),
         (("output", "SaveHardCopy"), ("display", "SaveHardCopy")),
@@ -165,7 +166,7 @@ def convert_subgrid_mdu():
 
     # Write the new MDU file
 
-    with open(arguments.mdu , 'w') as mdufile:
+    with open(arguments.mdu, 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()
