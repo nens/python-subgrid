@@ -91,7 +91,7 @@ class MduParserKeepComments(configparser.ConfigParser):
     """
 
     def optionxform(self, optionstr):
-        return str(optionstr)
+        return str(optionstr).lower()
 
     def write(self, fp):
         """Write an .ini-format representation of the configuration state."""
