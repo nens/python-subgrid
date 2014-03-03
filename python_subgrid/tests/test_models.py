@@ -219,7 +219,7 @@ class LibSubgridModelsTest(unittest.TestCase):
             for _ in range(100):
                 subgrid.update(-1)
 
-    @printname
+    @printinfo
     def test_testcase(self):
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
             pass
