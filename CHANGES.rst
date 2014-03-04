@@ -5,6 +5,7 @@ Changelog of python-subgrid
 0.13 (unreleased)
 -----------------
 
+- Cleanup tests
 - Added restart option.
 
 
