@@ -13,7 +13,7 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.utils import NotDocumentedError
-from python_subgrid.tests.utils import printinfo
+from python_subgrid.tests.utils import printinfo, scenarios
 
 #import gc
 #gc.disable()
@@ -22,62 +22,8 @@ from python_subgrid.tests.utils import printinfo
 # only in the test_wrapper and the wrapper itself.
 
 
-EPSILON = 0.00000001
 
-scenarios = {
-    '1dpumps': {
-        'path': '1dpumptest',
-        'mdu_filename': "1d2d_kunstw.mdu",
-    },
-    '1d-democase': {
-        'path': '1d-democase',
-        'mdu_filename': "1D-democase.mdu",
-    },
-    'wijdewormer': {
-        'path': 'wijdewormer_spatiallite',
-        'mdu_filename': "wijdewormer_spatiallite.mdu",
-    },
-    'DelflandiPad': {
-        'path': 'delfland-model-voor-3di',
-        'mdu_filename': "hhdlipad.mdu",
-    },
-    'hhnk': {
-        'path': 'hhnkipad',
-        'mdu_filename': "HHNKiPad.mdu",
-    },
-    'heerenveen': {
-        'path': 'heerenveen',
-        'mdu_filename': "heerenveen.mdu",
-    },
-    'betondorp': {
-        'path': 'betondorp',
-        'mdu_filename': "betondorp_waternet.mdu",
-    },
-    'Kaapstad': {
-        'path': 'Kaapstad',
-        'mdu_filename': "Kaapstad.mdu",
-    },
-    'kaapstad_centrum': {
-        'path': 'kaapstad_centrum',
-        'mdu_filename': "kaapstad_centrum.mdu",
-    },
-    'mozambique': {
-        'path': 'mozambique',
-        'mdu_filename': "mozambique.mdu",
-    },
-    'boezemstelsel-delfland': {
-        'path': 'boezemstelsel-delfland',
-        'mdu_filename': "Boezem_HHD.mdu",
-    },
-    'heerenveen': {
-        'path': 'heerenveen',
-        'mdu_filename': "heerenveen.mdu",
-    },
-    'brouwersdam': {
-        'path': 'brouwersdam',
-        'mdu_filename': "brouwersdam.mdu",
-    },
-}
+EPSILON = 0.00000001
 
 # Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'DelflandiPad'
@@ -121,6 +67,12 @@ class LibSubgridModelsTest(unittest.TestCase):
         abs_path = os.path.join(scenario_basedir,
                                 scenarios[scenario]['path'])
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
+
+    @printinfo
+    def test_001_load_duifpolder(self):
+        """test load a 1d model twice"""
+        with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')):
+            logger.info("loaded duifpolder")
 
     @printinfo
     def test_load_1d(self):
@@ -225,3 +177,5 @@ class LibSubgridModelsTest(unittest.TestCase):
             pass
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
             pass
+if __name__ == '__main__':
+    unittest.main()

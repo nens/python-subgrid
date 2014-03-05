@@ -60,3 +60,5 @@ class TestWrapper(unittest.TestCase):
         with wrapper.SubgridWrapper() as subgrid:
             self.assertEquals(subgrid.update.restype,
                               ctypes.c_int)
+if __name__ == '__main__':
+    unittest.main()

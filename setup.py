@@ -16,7 +16,8 @@ install_requires = [
     'webob',
     'netCDF4',
     'mmi',
-    'scipy'
+    'scipy',
+    'psutil'
     ]
 
 if sys.version_info[0] < 3:
