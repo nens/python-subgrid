@@ -51,9 +51,6 @@ class RainGrid(object):
         self.interp['x'] = np.linspace(pixels['x'].min(), pixels['x'].max(), num=self.size_x)
         self.interp['y'] = np.linspace(pixels['y'].min(), pixels['y'].max(), num=self.size_y)
         self.interp['X'], self.interp['Y'] = np.meshgrid(self.interp['x'], self.interp['y'])
-        # logger.info('interp init')
-        # logger.info(self.interp['X'])
-        # logger.info(self.interp['Y'])
 
         # TODO: replace precipitation.nc with a unique name
         # TODO: add diskless=True, requires netcdf version >= 4.2.x
@@ -126,68 +123,33 @@ class RainGrid(object):
 
         # Pick the index of the requested datetime.
         time_idx = np.where(rain['time'] == dt_request)[0]
-        #print 'time_idx: %r' % time_idx
-        #rain['p'] = rain['P'][:,:,rain['thalf_idx']] # x, y expected by some routines
         rain['p'] = rain['P'][:,:,time_idx] # x, y expected by some routines
 
         # Interpolate rain data rain -> interp
-        #print 'interpolating...'
         logger.info('Interpolating rain data...')
-        #interp = {}
         F = scipy.interpolate.RectBivariateSpline(
-                                                  rain['x'].ravel(), 
-                                                  rain['y'][::-1], 
-                                                  # reverse y axis and swap x,y
-                                                  np.swapaxes(rain['p'][::-1,:].filled(0), 0,1)
-                                                  )
-        # Create a new interpolated grid
-        # self.interp['x'] = np.linspace(pixels['x'].min(), pixels['x'].max(), num=self.size_x)
-        # self.interp['y'] = np.linspace(pixels['y'].min(), pixels['y'].max(), num=self.size_y)
-        # self.interp['X'], interp['Y'] = np.meshgrid(interp['x'], interp['y'])
-        # logger.info('interp opendap')
-        # logger.info(self.interp['X'])
-        # logger.info(self.interp['Y'])
+            rain['x'].ravel(), 
+            rain['y'][::-1], 
+            # reverse y axis and swap x,y
+            np.swapaxes(rain['p'][::-1,:].filled(0), 0,1)
+        )
 
         # Evaluate the interpolation function on the new grid
         self.interp['z'] = F.ev(self.interp['X'].ravel(), self.interp['Y'].ravel())
-        #fig, ax = plt.subplots()
 
         self.interp['Z'] = self.interp['z'].reshape(self.interp['X'].shape)
 
         logger.info('Updating memcdf...')
-        # Make netcdf with rain data interp -> memcdf
-        # memcdf = netCDF4.Dataset("precipitation.nc", mode="w")
-
-        # memcdf.createDimension("nx", interp['x'].shape[0])
-        # memcdf.createDimension("ny", interp['y'].shape[0])
-
-        # var = memcdf.createVariable("x", datatype="double", dimensions=("nx",))
-        # var[:] = interp['x']
-        # var.standard_name = 'projected_x_coordinate'
-        # var.units = 'm'
-
-        # var = memcdf.createVariable("y", datatype="double", dimensions=("ny", ))
-        # var[:] = interp['y']
-        # var.standard_name = 'projected_y_coordinate'
-        # var.units = 'm'
 
         ds.close()
 
-        #self.rainfall_var = memcdf.createVariable("rainfall", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
-        #var = memcdf.createVariable("rain", datatype="double", dimensions=("ny", "nx"), fill_value=-9999)
         memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=self.diskless)
-        #print(memcdf.variables.keys())
         rainfall_var = memcdf.variables["rainfall"]
-        #rainfall_var[:,:] = value #interp['Z']*(1/5.0)*(1/1000.0) #  mm/5min * 5min/min * m/mm -> m/min 
         rainfall_var[:,:] = self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier #  mm/5min * 5min/min * m/mm -> m/min 
         memcdf.sync()
         memcdf.close()
 
         logger.info('Rainfall sum: %f' % np.sum(self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier))
 
-        #self.memcdf.sync()
-        #self.rainfall_var.standard_name = 'precipitation'
-        #self.rainfall_var.coordinates = 'y x'
-        #self.rainfall_var.units = 'm/min'
 
         self.dt_current = dt_request

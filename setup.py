@@ -10,11 +10,14 @@ long_description = '\n\n'.join([
 
 install_requires = [
     'setuptools',
+    'matplotlib',
     'numpy',
     'pandas',
     'webob',
     'netCDF4',
-    'mmi'
+    'mmi',
+    'scipy',
+    'psutil'
     ]
 
 if sys.version_info[0] < 3:

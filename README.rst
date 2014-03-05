@@ -77,7 +77,7 @@ and can also run in a virtualenv. The buildout way::
   python ./bootstrap.py # optionally with -v 1.0.0
   bin/buildout
 
-The virtualenv way (assumes mkvirtualenv and virtualenv are installed)::
+The virtualenv way (assumes virtualenvwrapper and virtualenv are installed)::
 
   mkvirtualenv main
   workon main

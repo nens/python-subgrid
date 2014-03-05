@@ -8,11 +8,6 @@ def make_quad_grid(subgrid):
     Create a quad grid based on the grid information
     It is a masked array with fill value of -1.
     Append a transparent color at the end of a color vector.
-
-    >>> quad_grid = make_quad_grid(subgrid)
-    >>> colors = matplotlib.cm.Set2(waterlevel)
-    >>> colors = np.r_[colors, np.array([0,0,0,0])[np.newaxis,:]]
-    >>> plt.imshow(colors[quad_grid.filled()])
     """
     # Create lookup index
     grid = {}
