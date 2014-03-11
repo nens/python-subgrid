@@ -54,7 +54,7 @@ def float_equals(a, b):
 
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
-class LibSubgridModelsTest(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(scenario)
@@ -75,11 +75,16 @@ class LibSubgridModelsTest(unittest.TestCase):
             logger.info("loaded duifpolder")
 
     @printinfo
-    def test_load_1d(self):
-        """test load a 1d model twice"""
-        for i in range(2):
-            with SubgridWrapper(mdu=self._mdu_path('boezemstelsel-delfland')):
-                print('test load #%r' % i)
+    def test_000_testcase_culvert(self):
+        """test load and init testmodel with culvert"""
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            logger.info("loaded testcase")
+            subgrid.initmodel()
+            subgrid.update(-1)
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            logger.info("loaded testcase")
+            subgrid.initmodel()
+            subgrid.update(-1)
 
     @printinfo
     def test_1ddemo_heerenveen(self):
@@ -171,11 +176,5 @@ class LibSubgridModelsTest(unittest.TestCase):
             for _ in range(100):
                 subgrid.update(-1)
 
-    @printinfo
-    def test_testcase(self):
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
 if __name__ == '__main__':
     unittest.main()

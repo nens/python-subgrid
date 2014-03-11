@@ -878,14 +878,14 @@
             "name": "si0"
         }, 
         {
-            "description": "infiltration rate values on fine base grid", 
+            "description": "Maximum infiltration rate values on fine base grid", 
             "fortrantype": "real", 
             "rank": 2, 
             "json": null, 
             "altname": null, 
             "type": "float", 
             "dimension": "(:,:)", 
-            "unit": "m/s", 
+            "unit": "mm/d", 
             "name": "infiltrationrate"
         }, 
         {
@@ -911,10 +911,13 @@
             "name": "qrain"
         }, 
         {
-            "description": "ground water level measured from \"ground level\" upwards (time dependent)", 
+            "slice": "1:n2dtot", 
+            "description": "ground water level measured from \"ground level\" upwards (time dependent).", 
+            "standard_name": "ground_water_level", 
+            "state": "true", 
             "fortrantype": "double precision", 
             "rank": 1, 
-            "json": null, 
+            "json": "{\"state\":\"true\",\"slice\":\"1:n2dtot\",\"standard_name\":\"ground_water_level\"}", 
             "altname": null, 
             "type": "double", 
             "dimension": "(:)", 

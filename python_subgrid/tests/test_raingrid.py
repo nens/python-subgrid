@@ -23,7 +23,7 @@ else:
     scenario_basedir = os.path.abspath('.')
 
 
-class RainGridTest(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.mdu = os.path.join(scenario_basedir,

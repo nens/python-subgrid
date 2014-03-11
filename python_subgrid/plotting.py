@@ -1,7 +1,5 @@
 import numpy as np
-import matplotlib.colors
-import matplotlib.cm
-
+import logging
 
 def make_quad_grid(subgrid):
     """
@@ -37,6 +35,15 @@ def make_quad_grid(subgrid):
 
 def colors(var, cmap='Blues', vmin=None, vmax=None, **args):
     """return colors for variable var, with an appended transparent pixel"""
+
+    try:
+        import matplotlib.colors
+        import matplotlib.cm
+    except ImportError:
+        # just reraise
+        logging.exception("Can't find matplotlib. Needed for colors function.")
+        raise
+
     if vmin is None:
         vmin = var.min()
     if vmax is None:

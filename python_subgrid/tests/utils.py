@@ -29,6 +29,10 @@ scenarios = {
         'path': '1d-democase',
         'mdu_filename': "1D-democase.mdu",
     },
+    'testcase': {
+        'path': 'testcase',
+        'mdu_filename': "testcase_testcase.mdu",
+    },
     'wijdewormer': {
         'path': 'wijdewormer_spatiallite',
         'mdu_filename': "wijdewormer_spatiallite.mdu",

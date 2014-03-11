@@ -47,7 +47,7 @@ msg = "Scenario models not available {}".format(default_scenario_path)
 
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
-class LibSubgridTest(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(scenario)
@@ -281,7 +281,7 @@ class LibSubgridTest(unittest.TestCase):
             self.assertEqual(s0.sum(), s1.sum())
             # breaks if 1d is broken
             self.assertNotEqual(s1.sum(), s2.sum())
-
+    @unittest.skip("restart disabled temporary, by Jack")
     @printinfo
     def test_restart(self):
         with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
