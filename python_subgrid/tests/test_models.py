@@ -54,7 +54,7 @@ def float_equals(a, b):
 
 #TODO: get this to work
 #@unittest.skipIf(not models_available, msg)
-class LibSubgridModelsTest(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(scenario)

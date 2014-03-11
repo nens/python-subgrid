@@ -7,7 +7,7 @@ import mock
 from python_subgrid import wrapper
 
 
-class TestHelperFunctions(unittest.TestCase):
+class TestCase(unittest.TestCase):
 
     def setUp(self):
         self.wrapper = wrapper.SubgridWrapper()
@@ -48,8 +48,6 @@ class TestHelperFunctions(unittest.TestCase):
         self.wrapper.library.loadmodel = lambda self: exit_code
         self.assertRaises(RuntimeError, self.wrapper._load_model)
 
-
-class TestWrapper(unittest.TestCase):
 
     def test_annotate_functions1(self):
         with wrapper.SubgridWrapper() as subgrid:
