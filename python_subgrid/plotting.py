@@ -9,8 +9,15 @@ def make_quad_grid(subgrid):
     """
     # Create lookup index
     grid = {}
-    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx', 'nmax', 'mmax', 'imaxk', 'jmaxk', 'imax', 'jmax'}:
+    for var in {'nodn', 'nodm', 'nodk', 'dxp', 'dx', 'nmax',
+                'mmax', 'imaxk', 'jmaxk', 'imax', 'jmax',
+                'nod_type'}:
         grid[var] = subgrid.get_nd(var)
+
+
+    grid['nodm'] = grid['nodm'][grid['nod_type'][1:]==1]
+    grid['nodn'] = grid['nodn'][grid['nod_type'][1:]==1]
+    grid['nodk'] = grid['nodk'][grid['nod_type'][1:]==1]
 
     m = (grid['nodm']-1)*grid['imaxk'][grid['nodk']-1]
     n = (grid['nodn']-1)*grid['jmaxk'][grid['nodk']-1]

@@ -4,7 +4,7 @@ Changelog of python-subgrid
 
 0.13 (unreleased)
 -----------------
-
+- Add crop/soil/infiltration/interception
 - Cleanup tests
 - Added restart option.
 
