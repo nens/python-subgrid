@@ -853,7 +853,7 @@
             "type": "float", 
             "dimension": "(:,:)", 
             "unit": "m", 
-            "name": "MaxInterception"
+            "name": "maxinterception"
         }, 
         {
             "description": "current level in interception layer per node", 
@@ -878,15 +878,15 @@
             "name": "si0"
         }, 
         {
-            "description": "infiltration rate values on fine base grid", 
+            "description": "Maximum infiltration rate values on fine base grid", 
             "fortrantype": "real", 
             "rank": 2, 
             "json": null, 
             "altname": null, 
             "type": "float", 
             "dimension": "(:,:)", 
-            "unit": "TODO", 
-            "name": "infiltrationRate"
+            "unit": "mm/d", 
+            "name": "infiltrationrate"
         }, 
         {
             "description": "rainfall", 
@@ -911,10 +911,13 @@
             "name": "qrain"
         }, 
         {
-            "description": "ground water level measured from \"ground level\" upwards (time dependent)", 
+            "slice": "1:n2dtot", 
+            "description": "ground water level measured from \"ground level\" upwards (time dependent).", 
+            "standard_name": "ground_water_level", 
+            "state": "true", 
             "fortrantype": "double precision", 
             "rank": 1, 
-            "json": null, 
+            "json": "{\"state\":\"true\",\"slice\":\"1:n2dtot\",\"standard_name\":\"ground_water_level\"}", 
             "altname": null, 
             "type": "double", 
             "dimension": "(:)", 
@@ -941,7 +944,7 @@
             "type": "int", 
             "dimension": "(:,:)", 
             "unit": "-", 
-            "name": "soilType"
+            "name": "soiltype"
         }, 
         {
             "description": "root lengths on fine grid", 
@@ -952,7 +955,7 @@
             "type": "int", 
             "dimension": "(:,:)", 
             "unit": "m", 
-            "name": "rootLength"
+            "name": "rootlength"
         }, 
         {
             "description": "crop factors on fine grid", 
@@ -963,7 +966,7 @@
             "type": "int", 
             "dimension": "(:,:)", 
             "unit": "-", 
-            "name": "cropType"
+            "name": "croptype"
         }, 
         {
             "description": "Seepage from deeper aquifer into groundwater volume on quadtree grid, read in as mm/day.", 
