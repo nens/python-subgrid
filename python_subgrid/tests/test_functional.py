@@ -445,9 +445,15 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_vars(self):
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
-            vars = ["s1", "wvol"]
+            subgrid.initmodel()
+            # a list of variables that should be available
+            vars = ["FlowLink", "nodm", "nodn", "nodk",
+                    "link_type", "nod_type", "dmax", "dmin", "su",
+                    "vol2", "vol1", "vol0", "q", "uc", "vnorm",
+                    "u1", "u0", "s2", "s1", "s0"]
             # we don't want any null pointers for any of the variables
             values_none = [subgrid.get_nd(var) is None for var in vars]
+            print(np.array(vars)[np.array(values_none)])
             self.assertFalse(any(values_none))
 
     @printinfo
