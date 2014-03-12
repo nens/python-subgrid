@@ -11,6 +11,61 @@ cd delfland-model-voor-3di
 hg pull -u
 cd ..
 
+
+if [ ! -d duifpolder_slice ]
+then
+    echo "duifpolder_slice subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/duifpolder_slice
+fi
+cd duifpolder_slice
+hg pull -u
+cd ..
+
+if [ ! -d testcase ]
+then
+    echo "testcase subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/testcase
+fi
+cd testcase
+hg pull -u
+cd ..
+
+if [ ! -d brouwersdam ]
+then
+    echo "brouwersdam subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/brouwersdam
+fi
+cd brouwersdam
+hg pull -u
+cd ..
+
+if [ ! -d hhnkipad ]
+then
+    echo "hhnkipad subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/hhnkipad
+fi
+cd hhnkipad
+hg pull -u
+cd ..
+
+if [ ! -d 1d-democase ]
+then
+    echo "1d-democase subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/1d-democase
+fi
+cd 1d-democase
+hg pull -u
+cd ..
+
+if [ ! -d heerenveen ]
+then
+    echo "heerenveen subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/heerenveen
+fi
+cd heerenveen
+hg pull -u
+cd ..
+
 if [ ! -d mozambique ]
 then
     echo "mozambique subdir doesn't exist, cloning it"

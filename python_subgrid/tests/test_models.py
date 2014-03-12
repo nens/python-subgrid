@@ -163,6 +163,27 @@ class TestCase(unittest.TestCase):
                 subgrid.update(-1)
 
     @printinfo
+    def test_changebathy_heerenveen(self):
+        with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
+            for i in range(5):
+                print('doing %d...' % i)
+                print subgrid.update(-1)  # -1 = use default model time
+
+            xc = 188733.
+            yc = 553957.
+            sz = 70
+            bval = -0.5
+            bmode = 1  # 0 = relative, 1 = absolute
+
+            print('changing bathymetry...')
+            subgrid.changebathy(xc, yc, sz, bval, bmode)
+
+            print('continue simulation...')
+            for i in range(5):
+                print('doing %d...' % i)
+                print subgrid.update(-1)  # -1 = use default model time
+
+    @printinfo
     def test_manhole_hhnk(self):
         """add a manhole to hhnk model"""
         with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:

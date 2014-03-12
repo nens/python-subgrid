@@ -10,8 +10,7 @@ import numpy as np
 import  numpy.testing as npt
 import pandas
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.utils import NotDocumentedError
+from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios
 
 # We don't want to know about ctypes here
@@ -340,26 +339,6 @@ class TestCase(unittest.TestCase):
             for i in range(5):
                 subgrid.update(-1)  # -1 = use default model time
 
-    @printinfo
-    def test_changebathy_heerenveen(self):
-        with SubgridWrapper(mdu=self._mdu_path('heerenveen')) as subgrid:
-            for i in range(5):
-                print('doing %d...' % i)
-                print subgrid.update(-1)  # -1 = use default model time
-
-            xc = 188733.
-            yc = 553957.
-            sz = 70
-            bval = -0.5
-            bmode = 1  # 0 = relative, 1 = absolute
-
-            print('changing bathymetry...')
-            subgrid.changebathy(xc, yc, sz, bval, bmode)
-
-            print('continue simulation...')
-            for i in range(5):
-                print('doing %d...' % i)
-                print subgrid.update(-1)  # -1 = use default model time
 
     @printinfo
     def test_link_table(self):

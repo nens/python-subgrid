@@ -174,8 +174,6 @@ class MultiSectionConfigParser(configparser.ConfigParser):
             fp.write("\n")
 
 
-class NotDocumentedError(Exception):
-    pass
 
 
 # Utility functions for library unloading
