@@ -44,10 +44,10 @@
             "slice": "1:linall", 
             "description": "velocity at previous timestep", 
             "standard_name": "sea_water_speed", 
-            "state": false, 
+            "state": true, 
             "fortrantype": "double precision", 
             "rank": 1, 
-            "json": "{\"state\":false,\"slice\":\"1:linall\",\"standard_name\":\"sea_water_speed\"}", 
+            "json": "{\"state\":true,\"slice\":\"1:linall\",\"standard_name\":\"sea_water_speed\"}", 
             "altname": null, 
             "type": "double", 
             "dimension": "(:)", 
@@ -515,7 +515,7 @@
             "name": "kf"
         }, 
         {
-            "description": "administration of wet or dry quarter cells (wet=1, dry=0)", 
+            "description": "administration of wet or dry coarse grid cells (wet=1, dry=0)", 
             "fortrantype": "integer", 
             "rank": 1, 
             "json": null, 
@@ -969,6 +969,32 @@
             "name": "croptype"
         }, 
         {
+            "slice": "1,1:n2dtot", 
+            "description": "Relative volume of UZ moisture contained in a ground cell, first dimension relates to layers. Value between 0 and 1.", 
+            "standard_name": "soil_moisture_content", 
+            "fortrantype": "double precision", 
+            "rank": 2, 
+            "json": "{\"slice\":\"1,1:n2dtot\", \"standard_name\":\"soil_moisture_content\"}", 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:,:)", 
+            "unit": "-", 
+            "name": "wvol"
+        }, 
+        {
+            "slice": "1,1:n2dtot", 
+            "description": "Position of ground layer(s), measured from \"ground level\" upwards.", 
+            "standard_name": "bedrock_altitude", 
+            "fortrantype": "double precision", 
+            "rank": 2, 
+            "json": "{\"slice\":\"1,1:n2dtot\",\"standard_name\":\"bedrock_altitude\"}", 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:,:)", 
+            "unit": "m", 
+            "name": "zg"
+        }, 
+        {
             "description": "Seepage from deeper aquifer into groundwater volume on quadtree grid, read in as mm/day.", 
             "fortrantype": "double precision", 
             "rank": 1, 
@@ -978,6 +1004,72 @@
             "dimension": "(:)", 
             "unit": "m3/s", 
             "name": "qseep"
+        }, 
+        {
+            "description": "Constant (spatially uniform) seepage, read in as mm/day. If set, replaces spatially varying qseep.", 
+            "fortrantype": "double precision", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "", 
+            "unit": "m/s", 
+            "name": "qseep_const"
+        }, 
+        {
+            "description": "Auto-set if qseep_const is specified in input. If set, replaces spatially varying qseep.", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "seep_const"
+        }, 
+        {
+            "description": "number of the current timestep", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "nt"
+        }, 
+        {
+            "description": "maximum number of timesteps in the simulation", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "ntmax"
+        }, 
+        {
+            "description": "counter of iteration in non-linear continuity equation loop", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "jai"
+        }, 
+        {
+            "description": "number of times that dt has been halved in timestep control loop (1 = original dt, 2 = dt halved once, 3 = dt halved twice, 4 = dt halved thrice)", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "idthalf"
         }, 
         {
             "description": "delta t", 
