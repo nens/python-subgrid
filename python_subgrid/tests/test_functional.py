@@ -16,7 +16,18 @@ from python_subgrid.tests.utils import printinfo, scenarios
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
-
+import logging
+try:
+    from rainbow_logging_handler import RainbowLoggingHandler
+    import sys
+    # setup `RainbowLoggingHandler`
+    logger = logging.root
+    formatter = logging.Formatter("[%(asctime)s] %(name)s %(funcName)s():%(lineno)d\t%(message)s")  # same as default
+    handler = RainbowLoggingHandler(sys.stderr, color_funcName=('black', 'gray', True))
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+except ImportError:
+    pass
 # Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'DelflandiPad'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)

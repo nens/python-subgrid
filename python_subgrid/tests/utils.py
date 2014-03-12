@@ -1,6 +1,19 @@
 import psutil
 from functools import wraps
 
+def colorlogs():
+    try:
+        from rainbow_logging_handler import RainbowLoggingHandler
+        import sys
+        # setup `RainbowLoggingHandler`
+        logger = logging.root
+        formatter = logging.Formatter("[%(asctime)s] %(name)s %(funcName)s():%(lineno)d\t%(message)s")  # same as default
+        handler = RainbowLoggingHandler(sys.stderr, color_funcName=('black', 'gray', True))
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    except ImportError:
+        # rainbow logger not found, that's ok
+        pass
 
 
 def printinfo(f):

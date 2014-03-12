@@ -34,6 +34,8 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
+
+colorlogs()
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
