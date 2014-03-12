@@ -41,6 +41,14 @@ scenarios = {
         'path': 'delfland-model-voor-3di',
         'mdu_filename': "hhdlipad.mdu",
     },
+    'delfland_gebiedsbreed': {
+        'path': 'delfland_gebiedsbreed',
+        'mdu_filename': 'delfland_gebiedsbreed.mdu'
+    },
+    'hhnk_gebiedsbreed': {
+        'path': 'hhnk_gebiedsbreed',
+        'mdu_filename': 'hhnk_hhnk.mdu'
+    },
     'hhnk': {
         'path': 'hhnkipad',
         'mdu_filename': "HHNKiPad.mdu",

@@ -4,6 +4,7 @@ Test the library on desired behavior by running it on several models.
 import unittest
 import os
 import logging
+import numpy.testing as npt
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.tests.utils import printinfo, scenarios
 
@@ -70,6 +71,7 @@ class TestCase(unittest.TestCase):
             logger.info("loaded duifpolder 2d: 1 of 2")
             subgrid.initmodel()
             subgrid.update(-1)
+            npt.assert_allclose(subgrid.get_nd('sg'), -8)
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_2d')) as subgrid:
             logger.info("loaded duifpolder 2d: 2 of 2")
             subgrid.initmodel()
