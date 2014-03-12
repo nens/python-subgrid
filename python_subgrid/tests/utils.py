@@ -80,7 +80,10 @@ scenarios = {
     'duifpolder_slice':{
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice.mdu'
-    }
-
+    },
+    'duifpolder_2d':{
+        'path': 'duifpolder_slice',
+        'mdu_filename': 'duifpolder_slice_duif_slice_only2d.mdu'
+    },
 }
 
