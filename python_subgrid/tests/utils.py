@@ -1,5 +1,6 @@
 import psutil
 from functools import wraps
+import logging
 
 def colorlogs():
     try:
