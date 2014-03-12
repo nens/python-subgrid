@@ -11,12 +11,13 @@ import  numpy.testing as npt
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
-from python_subgrid.tests.utils import printinfo, scenarios
+from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 
+colorlogs()
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
-
+import logging
 # Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'DelflandiPad'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
