@@ -75,14 +75,15 @@ cd 1d-democase
 hg pull -u
 cd ..
 
-if [ ! -d heerenveen ]
-then
-    echo "heerenveen subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/heerenveen
-fi
-cd heerenveen
-hg pull -u
-cd ..
+# Disabled due to file issues
+# if [ ! -d heerenveen ]
+# then
+#     echo "heerenveen subdir doesn't exist, cloning it"
+#     hg clone http://hg-test.3di.lizard.net/heerenveen
+# fi
+# cd heerenveen
+# hg pull -u
+# cd ..
 
 if [ ! -d mozambique ]
 then

@@ -1,3 +1,33 @@
+
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Value8
+   fun:PyObject_GC_Del
+   ...
+}
+{
+   <name>
+   Memcheck:Addr4
+   fun:PyObject_GC_Del
+   ...
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Addr4
+   fun:PyGrammar_RemoveAccelerators
+   ...
+}
+{
+   <name>
+   Memcheck:Addr4
+   fun:PyObject_GC_Del
+}
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   fun:PyObject_GC_Del
+   ...
+}
 {
    <python_leak_malloc_alloc>
    Memcheck:Leak
