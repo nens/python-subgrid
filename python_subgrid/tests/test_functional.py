@@ -442,12 +442,13 @@ class TestCase(unittest.TestCase):
     def test_s1(self):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             s1 = subgrid.get_nd('s1').copy()
-
     @printinfo
-    def test_link_value(self):
-        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
-            q = subgrid.get_nd('q').copy()
-            print(q[1245])
+    def test_vars(self):
+        with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
+            vars = ["s1", "wvol"]
+            # we don't want any null pointers for any of the variables
+            values_none = [subgrid.get_nd(var) is None for var in vars]
+            self.assertFalse(any(values_none))
 
     @printinfo
     def test_testcase(self):
