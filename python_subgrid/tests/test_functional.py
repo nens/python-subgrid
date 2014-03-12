@@ -5,8 +5,6 @@ import unittest
 import os
 import logging
 import io
-from functools import wraps
-
 from nose.plugins.attrib import attr
 import numpy as np
 import  numpy.testing as npt

@@ -4,26 +4,13 @@ Test the library on desired behavior by running it on several models.
 import unittest
 import os
 import logging
-import io
-from functools import wraps
-
-from nose.plugins.attrib import attr
-import numpy as np
-import pandas
-
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.utils import NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios
 
-#import gc
-#gc.disable()
-
 # We don't want to know about ctypes here
+
 # only in the test_wrapper and the wrapper itself.
 
-
-
-EPSILON = 0.00000001
 
 # Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'DelflandiPad'
@@ -46,9 +33,11 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
+logging.basicConfig()
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
-def float_equals(a, b):
-    return abs(a-b) < EPSILON
+
 
 
 
