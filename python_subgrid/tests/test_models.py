@@ -201,5 +201,18 @@ class TestCase(unittest.TestCase):
             for _ in range(100):
                 subgrid.update(-1)
 
+    @printinfo
+    def test_grid_hhnk(self):
+        """generate grid in hhnk -> fails if old version grid file already exists"""
+        with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')) as subgrid:
+            subgrid.save_grid(os.path.join('admin', 'gridhhnk_hhnk.grd'))
+
+    @printinfo
+    def test_grid_delfland(self):
+        """generate grid in delfland"""
+        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
+            subgrid.save_grid(os.path.join('admin', 'griddelfland_gebiedsbreed.grd'))
+
+
 if __name__ == '__main__':
     unittest.main()
