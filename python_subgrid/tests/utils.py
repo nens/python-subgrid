@@ -63,6 +63,10 @@ scenarios = {
         'path': 'delfland-gebiedsbreed',
         'mdu_filename': 'delfland_gebiedsbreed.mdu'
     },
+    'duifpolder_slice': {
+        'path': 'duifpolder_slice',
+        'mdu_filename': 'duifpolder_slice_duif_slice.mdu'
+    },
     'hhnk_gebiedsbreed': {
         'path': 'hhnk_gebiedsbreed',
         'mdu_filename': 'hhnk_hhnk.mdu'
