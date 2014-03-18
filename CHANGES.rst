@@ -4,8 +4,13 @@ Changelog of python-subgrid
 
 0.13 (unreleased)
 -----------------
+
+- Fixed: visualization with 1d+2d models.
+
 - Add crop/soil/infiltration/interception
+
 - Cleanup tests
+
 - Added restart option.
 
 
