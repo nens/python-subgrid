@@ -215,9 +215,7 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_duifpolder_slice(self):
-        """generate grid in delfland"""
-        with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
-            subgrid.update(-1)
+        """generate grid in duifpolder slice"""
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
             subgrid.update(-1)
 
