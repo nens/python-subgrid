@@ -2,21 +2,21 @@
 mkdir -p testcases
 cd testcases
 
-if [ ! -d hhnk_gebiedsbreed ]
+if [ ! -d hhnk-gebiedsbreed ]
 then
-    echo "hhnk_gebiedsbreed subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/hhnk_gebiedsbreed
+    echo "hhnk-gebiedsbreed subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/hhnk-gebiedsbreed
 fi
-cd hhnk_gebiedsbreed
+cd hhnk-gebiedsbreed
 hg pull -u
 cd ..
 
-if [ ! -d delfland_gebiedsbreed ]
+if [ ! -d delfland-gebiedsbreed ]
 then
-    echo "delfland_gebiedsbreed subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/delfland_gebiedsbreed
+    echo "delfland-gebiedsbreed subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/delfland-gebiedsbreed
 fi
-cd delfland_gebiedsbreed
+cd delfland-gebiedsbreed
 hg pull -u
 cd ..
 
