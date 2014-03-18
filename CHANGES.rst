@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.13 (unreleased)
+0.13 (2014-03-18)
 -----------------
 
 - Fixed: visualization with 1d+2d models.
