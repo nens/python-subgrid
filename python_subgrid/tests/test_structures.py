@@ -11,8 +11,7 @@ from nose.plugins.attrib import attr
 import numpy as np
 import pandas
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.utils import NotDocumentedError
+from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios
 
 
@@ -190,6 +189,18 @@ class TestCase(unittest.TestCase):
             self.assertEqual(capacity1, capacity0 * 10)
             oldcapacity = df.oldcapacity.item(0)
             self.assertEqual(oldcapacity, capacity0)
+
+    @printinfo
+    def test_pump_it_up_is_active(self):
+
+        # run both models for a few minutes
+        tstop = 3000
+        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+            subgrid.initmodel()
+            df = subgrid.get_nd('pumps')
+            import ipdb
+            ipdb.set_trace()
+            self.assertTrue(df['is_active'].all())
 
     @printinfo
     def test_pump_it_up_1ddemocase(self):

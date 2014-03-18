@@ -1423,6 +1423,18 @@
                     "internal": "fortranpump%reduction_factor", 
                     "type": "double", 
                     "name": "reduction_factor"
+                }, 
+                {
+                    "shape": [], 
+                    "internal": "fortranpump%actual_stage", 
+                    "type": "int", 
+                    "name": "actual_stage"
+                }, 
+                {
+                    "shape": [], 
+                    "internal": "fortranpump%is_active", 
+                    "type": "bool", 
+                    "name": "is_active"
                 }
             ], 
             "description": "Pump", 
