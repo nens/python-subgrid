@@ -2,23 +2,23 @@
 mkdir -p testcases
 cd testcases
 
-if [ ! -d hhnk-gebiedsbreed ]
+if [ ! -d hhnk_gebiedsbreed ]
 then
-    echo "hhnk-gebiedsbreed subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/hhnk-gebiedsbreed
+    echo "hhnk_gebiedsbreed subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/hhnk_gebiedsbreed
 fi
-cd hhnk-gebiedsbreed
+pushd hhnk_gebiedsbreed
 hg pull -u
-cd ..
+popd
 
 if [ ! -d delfland-gebiedsbreed ]
 then
     echo "delfland-gebiedsbreed subdir doesn't exist, cloning it"
     hg clone http://hg-test.3di.lizard.net/delfland-gebiedsbreed
 fi
-cd delfland-gebiedsbreed
+pushd delfland-gebiedsbreed
 hg pull -u
-cd ..
+popd
 
 
 if [ ! -d duifpolder_slice ]
@@ -26,88 +26,62 @@ then
     echo "duifpolder_slice subdir doesn't exist, cloning it"
     hg clone http://hg-test.3di.lizard.net/duifpolder_slice
 fi
-cd duifpolder_slice
+pushd duifpolder_slice
 hg pull -u
-cd ..
+popd
 
-if [ ! -d testcase ]
+if [ ! -d duifp ]
 then
-    echo "testcase subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/testcase
+    echo "duifp subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/duifp
 fi
-cd testcase
+pushd duifp
 hg pull -u
-cd ..
-
-if [ ! -d delfland-model-voor-3di ]
-then
-    echo "delfland-model-voor-3di subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/delfland-model-voor-3di
-fi
-cd delfland-model-voor-3di
-hg pull -u
-cd ..
-
-if [ ! -d brouwersdam ]
-then
-    echo "brouwersdam subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/brouwersdam
-fi
-cd brouwersdam
-hg pull -u
-cd ..
+popd
 
 if [ ! -d hhnkipad ]
 then
     echo "hhnkipad subdir doesn't exist, cloning it"
     hg clone http://hg-test.3di.lizard.net/hhnkipad
 fi
-cd hhnkipad
+pushd hhnkipad
 hg pull -u
-cd ..
-
-if [ ! -d 1d-democase ]
-then
-    echo "1d-democase subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/1d-democase
-fi
-cd 1d-democase
-hg pull -u
-cd ..
-
-# Disabled due to file issues
-# if [ ! -d heerenveen ]
-# then
-#     echo "heerenveen subdir doesn't exist, cloning it"
-#     hg clone http://hg-test.3di.lizard.net/heerenveen
-# fi
-# cd heerenveen
-# hg pull -u
-# cd ..
-
-if [ ! -d mozambique ]
-then
-    echo "mozambique subdir doesn't exist, cloning it"
-    hg clone http://hg-test.3di.lizard.net/mozambique
-fi
-cd mozambique
-hg pull -u
-cd ..
+popd
 
 if [ ! -d 1dpumptest ]
 then
     echo "1dpumptest subdir doesn't exist, cloning it"
     hg clone http://hg-test.3di.lizard.net/1dpumptest
 fi
-cd 1dpumptest
+pushd 1dpumptest
 hg pull -u
-cd ..
+popd
+
+if [ ! -d 1d-democase ]
+then
+    echo "1d-democase subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/1d-democase
+fi
+pushd 1d-democase
+hg pull -u
+popd
+
 
 if [ ! -d betondorp ]
 then
     echo "betondorp subdir doesn't exist, cloning it"
     hg clone http://hg-test.3di.lizard.net/betondorp
 fi
-cd betondorp
+pushd betondorp
 hg pull -u
-cd ..
+popd
+
+if [ ! -d testcase ]
+then
+    echo "testcase subdir doesn't exist, cloning it"
+    hg clone http://hg-test.3di.lizard.net/testcase
+fi
+pushd testcase
+hg pull -u
+popd
+
