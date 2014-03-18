@@ -61,6 +61,17 @@ class TestCase(unittest.TestCase):
         return os.path.join(abs_path, scenarios[scenario]['mdu_filename'])
 
     @printinfo
+    def test_000_load_delfland_then_duifp(self):
+        """test load a 1d model twice"""
+        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
+            logger.info("loaded delfland")
+            subgrid.update(-1)
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
+            logger.info("loaded duifpolder")
+            subgrid.update(-1)
+
+
+    @printinfo
     def test_001_load_duifpolder(self):
         """test load a 1d model twice"""
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')):
