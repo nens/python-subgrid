@@ -1,30 +1,42 @@
+"""
+Particle system.
+
+This module can be used to compute particle updates.
+It supports the subgrid netCDF as input for the grid.
+"""
+
+# py3 compatible
+from __future__ import (
+    division,
+    absolute_import,
+    print_function,
+    unicode_literals
+)
+
+import logging
+
 import numpy as np
 import pandas
-from tvtk.api import tvtk
 import scipy.interpolate
-import enum
-import rtree
-import logging
+
 logger = logging.getLogger(__name__)
 
-class Reason(enum.Enum):
-    OUT_OF_DOMAIN = 1
-    NOT_INITIALIZED = 2
-    UNEXPECTED_VALUE = 3
-    OUT_OF_TIME = 4
-    OUT_OF_STEPS = 5
-    STAGNATION = 6
-
-
 import rtree
+
+# tvtk is part of mayavi
+from tvtk.api import tvtk
+
+# TODO: cleanup delta_t, work with timedelta/datetime
 
 
 class ParticleSystem(object):
     """A VTK based particle system"""
-    def __init__(self, ds):
-
+    def __init__(self, dataset, delta_t=900):
+        """Initalize the particle system with a netCDF dataset"""
         # store a reference to the dataset
-        self.ds = ds
+        self.dataset = dataset
+        # By default do an update for 15minutes
+        self.delta_t = delta_t
         # id administration of particles
         self.source_ids = np.array([], dtype='int64')
         self.current_id = 0
@@ -34,14 +46,14 @@ class ParticleSystem(object):
         self.particles = self.make_particles()
         self.tracer = self.make_tracer()
 
-    def make_particles(self):
+    @staticmethod
+    def make_particles():
         """just an empty polydata, with an empty set of indices"""
-        pd = tvtk.PolyData()
-        return pd
+        particles = tvtk.PolyData()
+        return particles
 
     def make_tracer(self):
         """create a data object to store particles"""
-
         grid = self.grid
         # Connect the grid
         cell2pointgrid = tvtk.CellDataToPointData()
@@ -49,43 +61,48 @@ class ParticleSystem(object):
         cell2pointgrid.update()
 
         # Create a stream tracer
-        st = tvtk.StreamTracer()
+        tracer = tvtk.StreamTracer()
         # Set the points in the streamer
-        st.source = self.particles
+        tracer.source = self.particles
         # Set the corner velocities
-        st.input = cell2pointgrid.output
+        tracer.input = cell2pointgrid.output
 
-        l = 5000 # max propagation
-        n = 200 # max number of steps
-        st.maximum_propagation = l # 1km max propagation
-        st.integration_step_unit = 1
-        st.minimum_integration_step = (l/n)
-        st.maximum_integration_step = 10*(l/n)
-        st.maximum_number_of_steps = n
-        st.maximum_error = 0.1
-        st.integrator_type = 'runge_kutta45'
-        return st
+        maximum_propagation = 5000 # max propagation
+        maximum_number_of_steps = 200 # max number of steps
+        tracer.maximum_propagation = maximum_propagation # 1km max propagation
+        tracer.integration_step_unit = 1
+        tracer.minimum_integration_step = maximum_propagation/maximum_number_of_steps
+        tracer.maximum_integration_step = 10*(maximum_propagation/maximum_number_of_steps)
+        tracer.maximum_number_of_steps = maximum_number_of_steps
+        tracer.maximum_error = 0.1
+        tracer.integrator_type = 'runge_kutta45'
+        return tracer
 
     def make_grid(self):
-        """return an unstructured grid, based on contours (xc, yc) with possible scalar and vector values"""
+        """return an unstructured grid, based on contours (x_contour, y_contour)
+        with possible scalar and vector values"""
 
         # Get the contours
-        xc = self.ds.variables['FlowElemContour_x']
-        yc = self.ds.variables['FlowElemContour_y']
+        x_contour = self.dataset.variables['FlowElemContour_x']
+        y_contour = self.dataset.variables['FlowElemContour_y']
 
-        ncells = xc.shape[0]
+        ncells = x_contour.shape[0]
         # We're using an unstructured grid
         grid = tvtk.UnstructuredGrid()
-        ncells = xc.shape[0]
-        X = xc[:]
-        Y = yc[:]
+        ncells = x_contour.shape[0]
+        X = x_contour[:]
+        Y = y_contour[:]
         Z = np.zeros_like(X)
         pts = np.c_[X.ravel(), Y.ravel(), Z.ravel() ]
 
         # quads all the way down
         cell_array = tvtk.CellArray()
         cell_types = np.array([tvtk.Quad().cell_type for i in range(ncells)])
-        cell_idx = np.array([[4] + [i*4 + j for j in range(4)] for i in range(ncells)]).ravel()
+        # generate a vector that consists of [number of nodes node# node# node #, etc]
+        cell_idx = np.array([
+            [4] + [i*4 + j for j in range(4) ]
+            for i in range(ncells)
+        ]).ravel()
         cell_offsets = np.array([i*5 for i in range(ncells)])
         cell_array.set_cells(ncells, cell_idx)
 
@@ -109,15 +126,13 @@ class ParticleSystem(object):
 
     def reseed(self, pts):
         """update the streamtracer with points from pts"""
-        st = self.tracer
-
         extra_ids = np.arange(self.current_id, self.current_id+pts.shape[0])
         self.current_id += pts.shape[0]
 
         # get current list of particles
         df = self.get_particles()
         # lookup position at t_stop
-        current_df = df[df['t'] == self.current_i * 900 + 900]
+        current_df = df[df['t'] == self.current_i * self.delta_t + self.delta_t]
         logger.info("got %s particles at t_stop", (len(current_df), ))
         current_df = current_df[np.in1d(current_df['reason'], (3,4,5))]
         logger.info("got %s particles still alive", (len(current_df), ))
@@ -142,13 +157,14 @@ class ParticleSystem(object):
 
         self.particles.modified()
     def update_grid(self, i=0):
+        """set the scalar and vector values to timestep i"""
         grid = self.grid
-        ds = self.ds
-        s1 = ds.variables['s1'][i]
+        dataset = self.dataset
+        s1 = dataset.variables['s1'][i]
         grid.cell_data.scalars = s1
         grid.cell_data.scalars.name = 's1'
-        ucx = ds.variables['ucx'][i]
-        ucy = ds.variables['ucy'][i]
+        ucx = dataset.variables['ucx'][i]
+        ucy = dataset.variables['ucy'][i]
         vectors = np.c_[ucx, ucy, np.zeros_like(ucx)]
         grid.cell_data.vectors = vectors
         grid.cell_data.vectors.name = 'vector'
@@ -157,8 +173,8 @@ class ParticleSystem(object):
 
     def get_points(self):
         """convert a streamtracer to a point dataframe"""
-        st = self.tracer
-        pd = st.output.point_data
+        tracer = self.tracer
+        pd = tracer.output.point_data
         data = {}
         for i in range(pd.number_of_arrays):
             name = pd.get_array_name(i)
@@ -174,18 +190,19 @@ class ParticleSystem(object):
 
 
     def get_lines(self):
+        """get the streamlines of the tracer"""
         line_ids = self.get_ids()
 
         start = 0
-        st = self.tracer
-        if st.output.lines.number_of_cells == 0:
+        tracer = self.tracer
+        if tracer.output.lines.number_of_cells == 0:
             df = pandas.DataFrame(columns=['p', 'line', 'point_idx', 'reason', 'line_idx', 'x', 'y', 'z', 'n'])
             return df
-        lines = st.output.lines.data.to_array()
-        points = st.output.points.to_array()
-        reason = st.output.cell_data.get_array(0).to_array()
+        lines = tracer.output.lines.data.to_array()
+        points = tracer.output.points.to_array()
+        reason = tracer.output.cell_data.get_array(0).to_array()
         rows = []
-        for i in range(st.output.lines.number_of_cells):
+        for i in range(tracer.output.lines.number_of_cells):
             """loop over al lines"""
             n = lines[start]
             idx = lines[(start+1):(start+n+1)]
@@ -199,6 +216,7 @@ class ParticleSystem(object):
 
 
     def df2particles(self, df_points, df_lines, t_stop):
+        """combine the points and lines to generate position as function of time"""
         columns = ['line', 'line_idx', 'n', 'point_idx', 'x', 'y', 'z', 'IntegrationTime', 'reason', 'p']
         if df_points.empty or df_lines.empty:
             df = pandas.DataFrame(columns=columns + ['t', 'particle'])
@@ -217,17 +235,20 @@ class ParticleSystem(object):
             if x[-1] < t_stop:
                 x = np.append(x, [t_stop])
                 arr = np.append(arr, arr[-1][np.newaxis,:], axis=0)
+            # create an interpolation function
             f = scipy.interpolate.interp1d(x, arr, axis=0, bounds_error=True)
             t = np.linspace(0, t_stop, num=16)
+            # apply interpolation function
             x, y, z = np.atleast_2d(f(t).T)
+            # Generate rows for the dataframe
             for t_i, x_i, y_i, z_i in zip(t, x, y, z):
                 # TODO hack in time properly
-                row = dict(t=t_i + self.current_i * 900, x=x_i, y=y_i, z=z_i, particle=particle_i, reason=reason)
+                row = dict(t=t_i + self.current_i * self.delta_t, x=x_i, y=y_i, z=z_i, particle=particle_i, reason=reason)
                 rows.append(row)
         df2 = pandas.DataFrame(rows)
         return df2
 
-    def get_particles(self, t_stop=900):
+    def get_particles(self, t_stop=self.delta_t):
         """extract the particles from a streamtracer"""
         df_points = self.get_points()
         df_lines = self.get_lines()
@@ -238,9 +259,9 @@ class ParticleSystem(object):
 
     def get_ids(self):
         """indices of particles in the line list"""
-        st = self.tracer
+        tracer = self.tracer
 
-        if self.tracer.output.lines.number_of_cells == 0:
+        if tracer.output.lines.number_of_cells == 0:
             # no lines, no indices
             logger.info('No output lines found')
             return np.array([], dtype='int64')
@@ -254,11 +275,11 @@ class ParticleSystem(object):
         for i, (x_i, y_i, _) in zip(self.source_ids, self.particles.points.to_array()):
             tree.add(i, (x_i, y_i))
 
-        lines = st.output.lines.data.to_array()
-        points = st.output.points.to_array()
+        lines = tracer.output.lines.data.to_array()
+        points = tracer.output.points.to_array()
         rows = []
         start = 0
-        for i in range(st.output.lines.number_of_cells):
+        for i in range(tracer.output.lines.number_of_cells):
             """loop over al lines"""
             n = lines[start]
             idx = lines[start+1]
@@ -275,7 +296,7 @@ class ParticleSystem(object):
             idxs.append(idx)
         return np.array(idxs)
 
-    def get_alive(self, t=900):
+    def get_alive(self, t=self.delta_t):
         """create an index that determines if particles are still alive at time t"""
         if self.tracer.output.cell_data.number_of_arrays == 0:
             return np.array([], dtype='bool')
