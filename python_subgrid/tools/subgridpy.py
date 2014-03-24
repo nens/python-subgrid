@@ -3,6 +3,7 @@
 """
 Run subgrid as a python script with colored output
 """
+import os
 import argparse
 import sys
 
@@ -13,7 +14,7 @@ colorlogs()
 
 try:
     # redirect stdout to /dev/null under osx so we get only 1 output stream
-    f = open('/dev/null', 'w')
+    f = open(os.devnull, 'w')
     sys.stdout = f
 except:
     pass
