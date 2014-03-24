@@ -418,10 +418,6 @@ class TestCase(unittest.TestCase):
     #
 
     @printinfo
-    def test_s1(self):
-        with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
-            s1 = subgrid.get_nd('s1').copy()
-    @printinfo
     def test_vars(self):
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
             subgrid.initmodel()

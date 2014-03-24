@@ -2,7 +2,13 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.14 (unreleased)
+0.15 (unreleased)
+-----------------
+
+- Nothing changed yet.
+
+
+0.14 (2014-03-18)
 -----------------
 
 - get_nd now returns strings (wkt) as is (as an array). You have to convert it
