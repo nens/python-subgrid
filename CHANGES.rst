@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.16 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added particle module + example (dependencies disabled for now)
 
 
 0.15 (2014-03-24)
