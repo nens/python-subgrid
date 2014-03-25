@@ -48,11 +48,6 @@ setup(
     url='https://github.com/nens/python-subgrid',
     license='GPLv3+',
     packages=['python_subgrid'],
-    # TODO replace with console_scripts.
-    scripts=[
-        "scripts/update-subgrid-tables",
-        "scripts/update-subgrid-network"
-    ],
     include_package_data=True,
     zip_safe=False,
     install_requires=install_requires,
@@ -62,8 +57,16 @@ setup(
         'console_scripts': [
             '{0} = python_subgrid.utils:{0}'.format(
                 'generate_functions_documentation'),
-            '{0} = python_subgrid.conversion:{0}'.format(
-                'convert_subgrid_mdu')
+            '{0} = python_subgrid.tools.convert_mdu:main'.format(
+                'convert-subgrid-mdu'),
+            '{0} = python_subgrid.tools.update_mdu:main'.format(
+                'update-subgrid-mdu'),
+            '{0} = python_subgrid.tools.update_network:main'.format(
+                'update-subgrid-network'),
+            '{0} = python_subgrid.tools.update_tables:main'.format(
+                'update-subgrid-tables'),
+            '{0} = python_subgrid.tools.subgridpy:main'.format(
+                'subgridpy')
         ]
     }
 )
