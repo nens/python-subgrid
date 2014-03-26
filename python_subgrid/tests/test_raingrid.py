@@ -51,6 +51,7 @@ class TestCase(unittest.TestCase):
                 subgrid,
                 initial_value=1.)
             subgrid.subscribe_dataset(rain_grid2.memcdf_name)
+            subgrid.update(-1)
 
     def test_opendap_grid(self):
         url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
