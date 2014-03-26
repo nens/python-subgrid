@@ -14,7 +14,7 @@ from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 
 
 # Use DelflandiPad by default for now
-DEFAULT_SCENARIO = 'DelflandiPad'
+DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them.
@@ -229,6 +229,50 @@ class TestCase(unittest.TestCase):
         """generate grid in duifpolder slice"""
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
             subgrid.update(-1)
+
+    @printinfo
+    def test_back_orifice_rain(self):
+        """Orifice with rain"""
+        with SubgridWrapper(mdu=self._mdu('brouwersdam')) as subgrid:
+            rain_grid = RainGrid(
+                subgrid,
+                initial_value=9.)
+            subgrid.subscribe_dataset(rain_grid.memcdf_name)
+            for _ in range(5):
+                subgrid.update(-1)
+
+    @printinfo
+    @unittest.skip("https://issuetracker.deltares.nl/browse/THREEDI-169")
+    def test_manhole_workflow(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            manhole_name = 'test_manhole'
+            x = 85830.97071920538
+            y = 448605.8983910042
+            discharge_value = 100.0
+            itype = 1
+            # add it
+            for _ in range(5):
+                deltas = np.linspace(0, 100000, num=5)
+                for i, delta in enumerate(deltas):
+                    subgrid.discharge(x + delta, y + delta,
+                                      "%s_%s" % (manhole_name, i),
+                                      itype, discharge_value)
+                subgrid.update(-1)
+                # reinitialize
+                subgrid.initmodel()
+                subgrid.update(-1)
+                # remove it
+                for delta in deltas:
+                    subgrid.discard_manhole(x + delta, y + delta)
+                # add it again
+                subgrid.update(-1)
+    @printinfo
+    def test_testcase(self):
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
+        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
+            pass
+
 
 
 if __name__ == '__main__':
