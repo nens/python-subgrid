@@ -102,10 +102,10 @@ class TestCase(unittest.TestCase):
 
         # cleanup
         progresslogger.removeHandler(handler)
+        subgrid.stop()
 
         # we should have some messages
         self.assertTrue(foundmessage)
-
     @printinfo
     def test_info(self):
         """test if we can print info"""

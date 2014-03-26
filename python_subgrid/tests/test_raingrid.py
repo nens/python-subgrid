@@ -60,8 +60,6 @@ class TestCase(unittest.TestCase):
         python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
         subgrid.start()
 
-        #subgrid.initmodel()
-
         rain_grid = RainGrid(
             subgrid, url_template,
             memcdf_name=memcdf_name, initial_value=9.)
