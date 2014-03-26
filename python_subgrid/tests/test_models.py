@@ -14,7 +14,7 @@ from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 
 
 # Use DelflandiPad by default for now
-DEFAULT_SCENARIO = 'DelflandiPad'
+DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them.
@@ -239,7 +239,8 @@ class TestCase(unittest.TestCase):
                 initial_value=9.)
             subgrid.subscribe_dataset(rain_grid.memcdf_name)
             for _ in range(5):
-                subgrid.update(-1
+                subgrid.update(-1)
+
     @printinfo
     @unittest.skip("https://issuetracker.deltares.nl/browse/THREEDI-169")
     def test_manhole_workflow(self):
