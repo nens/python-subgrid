@@ -84,7 +84,7 @@ def opt_rename(config, section1, section2, option1, option2):
 # Allow to use mdu file from any directory
 # Script will be run like this:
 # find . -name *.mdu -exec update-subgrid-mdu {} \;
-def convert_subgrid_mdu():
+def main():
     """Change mdu file to new version >=2.0 MDU File Format"""
     arguments = parse_args()
 

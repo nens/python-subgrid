@@ -2,7 +2,13 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.15 (unreleased)
+0.16 (unreleased)
+-----------------
+
+- Added particle module + example (dependencies disabled for now)
+
+
+0.15 (2014-03-24)
 -----------------
 
 - Nothing changed yet.
@@ -11,7 +17,8 @@ Changelog of python-subgrid
 0.14 (2014-03-18)
 -----------------
 
-- Nothing changed yet.
+- get_nd now returns strings (wkt) as is (as an array). You have to convert it
+  yourself.
 
 
 0.13 (2014-03-18)

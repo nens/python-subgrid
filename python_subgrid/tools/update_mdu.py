@@ -12,14 +12,10 @@ Convert scriptlet, translate an old formatted MDU file (version < 2) to the new 
 # find . -name *.mdu -exec update-subgrid-mdu {} \;
 
 
-# TODO: use setup.py entry_points
-
-import os
 import argparse
 import sys
 import datetime
-
-import numpy as np
+import collections
 
 from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
 
@@ -35,7 +31,6 @@ def parse_args():
 
     return arguments
 
-# TODO: move to utils?
 def rename_section(config, section1, section2):
     """rename section1 to section2 in the config object"""
 
@@ -49,7 +44,6 @@ def rename_section(config, section1, section2):
     config.remove_section(section1)
 
 
-# TODO: move to utils?
 def opt_rename(config, section1, section2, option1, option2):
     """rename section1, option1  to section2, option2 """
     try:

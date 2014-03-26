@@ -755,9 +755,6 @@ class SubgridWrapper(object):
         else:
             array = structs2pandas(data.contents)
 
-        if rank == 1 and type_ == 'char':
-            # convert to string and strip for convenience
-            array = "".join(array).rstrip()
         if name in SLICES and sliced:
             # return slice if needed
             array = array[SLICES[name]]
