@@ -19,7 +19,7 @@ colorlogs()
 
 import logging
 # Use DelflandiPad by default for now
-DEFAULT_SCENARIO = 'DelflandiPad'
+DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them.
@@ -150,7 +150,7 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_dropinstantrain2(self):
         """test if we can call dropinstantrain a few times"""
-        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             x = 115677.87112031868
             y = 517275.320798662
@@ -192,32 +192,6 @@ class TestCase(unittest.TestCase):
             subgrid.discard_manhole(x, y)
 
     @printinfo
-    @unittest.skip("https://issuetracker.deltares.nl/browse/THREEDI-169")
-    def test_manhole_workflow(self):
-        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
-            manhole_name = 'test_manhole'
-            x = 85830.97071920538
-            y = 448605.8983910042
-            discharge_value = 100.0
-            itype = 1
-            # add it
-            for _ in range(5):
-                deltas = np.linspace(0, 100000, num=5)
-                for i, delta in enumerate(deltas):
-                    subgrid.discharge(x + delta, y + delta,
-                                      "%s_%s" % (manhole_name, i),
-                                      itype, discharge_value)
-                subgrid.update(-1)
-                # reinitialize
-                subgrid.initmodel()
-                subgrid.update(-1)
-                # remove it
-                for delta in deltas:
-                    subgrid.discard_manhole(x + delta, y + delta)
-                # add it again
-                subgrid.update(-1)
-
-    @printinfo
     def test_get_var_rank(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
@@ -252,7 +226,7 @@ class TestCase(unittest.TestCase):
         import time
 
         with SubgridWrapper(
-                mdu=self._mdu_path('1dpumps'), sharedmem=True) as subgrid:
+                mdu=self._mdu_path('duifp'), sharedmem=True) as subgrid:
             subgrid.initmodel()
 
             q = multiprocessing.Queue()
@@ -280,10 +254,11 @@ class TestCase(unittest.TestCase):
             self.assertEqual(s0.sum(), s1.sum())
             # breaks if 1d is broken
             self.assertNotEqual(s1.sum(), s2.sum())
+
     @unittest.skip("restart disabled temporary, by Jack")
     @printinfo
     def test_restart(self):
-        with SubgridWrapper(mdu=self._mdu_path('1dpumps')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.initmodel()
             s1_0 = subgrid.get_nd('s1').copy()
             subgrid.write_restart("subgrid_restart.nc")
@@ -299,7 +274,7 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_nd_t1(self):
-        with SubgridWrapper(mdu=self._mdu_path('hhnk')) as subgrid:
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.initmodel()
             subgrid.update(-1)
             subgrid.update(-1)
@@ -343,7 +318,7 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_link_table(self):
-        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             data = dict(branch=subgrid.get_nd('link_branchid'),
                         chainage=subgrid.get_nd('link_chainage'),
                         idx=subgrid.get_nd('link_idx'))
@@ -356,7 +331,7 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_link_table_node(self):
-        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             data = dict(branch=subgrid.get_nd('nod_branchid'),
                         # ^^^ node number in inp file
                         chainage=subgrid.get_nd('nod_chainage'),
@@ -372,13 +347,13 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_flow_link(self):
-        with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
             self.assertEqual(list(flow_link[249]), [140, 169])
 
     @printinfo
     def test_floodfill(self):
-        with SubgridWrapper(mdu=self._mdu_path('betondorp')) as subgrid:
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
 
             x = 125176.875732
             y = 483812.708018
@@ -419,7 +394,7 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_vars(self):
-        with SubgridWrapper(mdu=self._mdu_path('duifpolder_slice')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.initmodel()
             # a list of variables that should be available
             vars = ["FlowLink", "nodm", "nodn", "nodk",
@@ -430,13 +405,6 @@ class TestCase(unittest.TestCase):
             values_none = [subgrid.get_nd(var) is None for var in vars]
             print(np.array(vars)[np.array(values_none)])
             self.assertFalse(any(values_none))
-
-    @printinfo
-    def test_testcase(self):
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
-        with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
 
 
 # For Martijn
