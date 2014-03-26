@@ -46,8 +46,7 @@ class ParticleSystem(object):
         self.particles = self.make_particles()
         self.tracer = self.make_tracer()
 
-    @staticmethod
-    def make_particles():
+    def make_particles(self):
         """just an empty polydata, with an empty set of indices"""
         particles = tvtk.PolyData()
         return particles
@@ -109,6 +108,7 @@ class ParticleSystem(object):
         # fill in the properties
         grid.points = pts
         grid.set_cells(cell_types, cell_offsets, cell_array)
+        grid.build_links()
         return grid
 
     def update_particles(self, pts):
@@ -132,7 +132,8 @@ class ParticleSystem(object):
         # get current list of particles
         df = self.get_particles()
         # lookup position at t_stop
-        current_df = df[df['t'] == self.current_i * self.delta_t + self.delta_t]
+        t_next = self.dataset.variables['time'][self.current_i + 1]
+        current_df = df[df['t'] == t_next]
         logger.info("got %s particles at t_stop", (len(current_df), ))
         current_df = current_df[np.in1d(current_df['reason'], (3,4,5))]
         logger.info("got %s particles still alive", (len(current_df), ))
@@ -215,11 +216,14 @@ class ParticleSystem(object):
         return df
 
 
-    def df2particles(self, df_points, df_lines, t_stop):
+    def df2particles(self, df_points, df_lines):
         """combine the points and lines to generate position as function of time"""
+        times = self.dataset.variables['time'][:]
+        # Lookup the  relative stop time
+        t_stop = times[self.current_i + 1] - times[self.current_i]
         columns = ['line', 'line_idx', 'n', 'point_idx', 'x', 'y', 'z', 'IntegrationTime', 'reason', 'p']
         if df_points.empty or df_lines.empty:
-            df = pandas.DataFrame(columns=columns + ['t', 'particle'])
+            df = pandas.DataFrame(columns=['t', 'x', 'y', 'z', 'particle', 'reason'])
             return df
         df = df_lines.merge(df_points, right_on='point_idx', left_on='point_idx')
         df = df[columns]
@@ -243,16 +247,16 @@ class ParticleSystem(object):
             # Generate rows for the dataframe
             for t_i, x_i, y_i, z_i in zip(t, x, y, z):
                 # TODO hack in time properly
-                row = dict(t=t_i + self.current_i * self.delta_t, x=x_i, y=y_i, z=z_i, particle=particle_i, reason=reason)
+                row = dict(t=t_i + times[self.current_i], x=x_i, y=y_i, z=z_i, particle=particle_i, reason=reason)
                 rows.append(row)
         df2 = pandas.DataFrame(rows)
         return df2
 
-    def get_particles(self, t_stop=self.delta_t):
+    def get_particles(self):
         """extract the particles from a streamtracer"""
         df_points = self.get_points()
         df_lines = self.get_lines()
-        df = self.df2particles(df_points, df_lines, t_stop=t_stop)
+        df = self.df2particles(df_points, df_lines)
         return df
 
 
@@ -296,10 +300,13 @@ class ParticleSystem(object):
             idxs.append(idx)
         return np.array(idxs)
 
-    def get_alive(self, t=self.delta_t):
+    def get_alive(self, t=None):
         """create an index that determines if particles are still alive at time t"""
+        if t is None:
+            t = self.delta_t
         if self.tracer.output.cell_data.number_of_arrays == 0:
             return np.array([], dtype='bool')
+
         arr = self.tracer.output.cell_data.get_array(0).to_array()
         alive = np.in1d(arr, np.array([3,4,5]))
         return alive
