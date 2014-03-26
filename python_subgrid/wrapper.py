@@ -347,7 +347,8 @@ SLICES = {
     b'nod_type': np.s_[1:],
     b's1': np.s_[1:],
     b'vol1': np.s_[1:],
-    b'dps': np.s_[1:-1,1:-1]
+    b'dps': np.s_[1:-1,1:-1],
+    b'uc': np.s_[:,1:],
 }
 
 class SubgridWrapper(object):
