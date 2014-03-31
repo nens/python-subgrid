@@ -1,6 +1,6 @@
 import numpy as np
 import pandas
-from tvtk.api import tvtk
+from tvtk.api import tvtk, write_data
 import scipy.interpolate
 import enum
 import rtree
@@ -43,9 +43,14 @@ class ParticleSystem(object):
         """create a data object to store particles"""
 
         grid = self.grid
+
+        # Clean the polydata
+        clean = tvtk.CleanPolyData()
+        clean.input = grid
+        clean.update()
         # Connect the grid
         cell2pointgrid = tvtk.CellDataToPointData()
-        cell2pointgrid.input = grid
+        cell2pointgrid.input = clean.output
         cell2pointgrid.update()
 
         # Create a stream tracer
@@ -55,14 +60,14 @@ class ParticleSystem(object):
         # Set the corner velocities
         st.input = cell2pointgrid.output
 
-        l = 5000 # max propagation
+        l = 2000 # max propagation
         n = 200 # max number of steps
         st.maximum_propagation = l # 1km max propagation
         st.integration_step_unit = 1
         st.minimum_integration_step = (l/n)
         st.maximum_integration_step = 10*(l/n)
         st.maximum_number_of_steps = n
-        st.maximum_error = 0.1
+        st.maximum_error = 1e-2
         st.integrator_type = 'runge_kutta45'
         return st
 
@@ -75,7 +80,7 @@ class ParticleSystem(object):
 
         ncells = xc.shape[0]
         # We're using an unstructured grid
-        grid = tvtk.UnstructuredGrid()
+        grid = tvtk.PolyData()
         ncells = xc.shape[0]
         X = xc[:]
         Y = yc[:]
@@ -91,7 +96,7 @@ class ParticleSystem(object):
 
         # fill in the properties
         grid.points = pts
-        grid.set_cells(cell_types, cell_offsets, cell_array)
+        grid.polys = cell_array
         return grid
 
     def update_particles(self, pts):
@@ -155,6 +160,9 @@ class ParticleSystem(object):
         self.current_i = i
         grid.modified()
 
+    def save_grid(self):
+        write_data(self.grid, 'grid.vtk')
+
     def get_points(self):
         """convert a streamtracer to a point dataframe"""
         st = self.tracer
@@ -201,7 +209,8 @@ class ParticleSystem(object):
     def df2particles(self, df_points, df_lines, t_stop):
         columns = ['line', 'line_idx', 'n', 'point_idx', 'x', 'y', 'z', 'IntegrationTime', 'reason', 'p']
         if df_points.empty or df_lines.empty:
-            df = pandas.DataFrame(columns=columns + ['t', 'particle'])
+            columns = ['t', 'x', 'y', 'z', 'particle', 'reason']
+            df = pandas.DataFrame(columns=columns)
             return df
         df = df_lines.merge(df_points, right_on='point_idx', left_on='point_idx')
         df = df[columns]
