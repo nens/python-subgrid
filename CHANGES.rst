@@ -2,10 +2,16 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.16 (unreleased)
+0.17 (unreleased)
 -----------------
 
-- Added uc to SLICES.
+- Nothing changed yet.
+
+
+0.16 (2014-03-31)
+-----------------
+
+- Added uc, zg to SLICES.
 
 - Added particle module + example (dependencies disabled for now)
 
