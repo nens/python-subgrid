@@ -878,6 +878,17 @@
             "name": "si0"
         }, 
         {
+            "description": "keep/discard pixel based infiltration file", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "keep_infiltration"
+        }, 
+        {
             "description": "Maximum infiltration rate values on fine base grid", 
             "fortrantype": "real", 
             "rank": 2, 
@@ -1147,6 +1158,17 @@
             "dimension": "", 
             "unit": "s", 
             "name": "tend"
+        }, 
+        {
+            "description": "print log to stdout silent or verbose", 
+            "fortrantype": "logical", 
+            "rank": 0, 
+            "json": null, 
+            "altname": null, 
+            "type": "bool", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "printToStdout"
         }, 
         {
             "fields": [
