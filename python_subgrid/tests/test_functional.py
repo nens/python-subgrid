@@ -283,7 +283,7 @@ class TestCase(unittest.TestCase):
             subgrid.update(-1)
             t1 = subgrid.get_nd('t1')
             logging.debug(t1)
-            npt.assert_almost_equal(t1, 300)
+            npt.assert_almost_equal(t1, 5*30)
 
     @printinfo
     def test_get_nd_unknown_variable(self):
@@ -323,33 +323,14 @@ class TestCase(unittest.TestCase):
                         chainage=subgrid.get_nd('link_chainage'),
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
-            for counter, branch_id in enumerate(data['branch']):
-                print('branch id %d -> flowlink %d' %
-                    branch_id, data['idx'][counter])
-            self.assertEqual(df.idx.item(0), 249)
-            self.assertEqual(df.idx.item(-1), 248)
-
-    @printinfo
-    def test_link_table_node(self):
-        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
-            data = dict(branch=subgrid.get_nd('nod_branchid'),
-                        # ^^^ node number in inp file
-                        chainage=subgrid.get_nd('nod_chainage'),
-                        # ^^^ node number in nflowlink dimension (?)
-                        idx=subgrid.get_nd('nod_idx'))
-            # df = pandas.DataFrame(data)
-            for counter, branch_id in enumerate(data['branch']):
-                print('branch id %d -> flowelem %d' %
-                    branch_id, data['idx'][counter])
-            #self.assertEqual(df.idx.item(0), 249)
-            #self.assertEqual(df.idx.item(-1), 248)
-        # TODO: look up real indices for this test case
+            self.assertEqual(df['idx'].iloc[0], 249)
+            self.assertEqual(df['idx'].iloc[-1], 248)
 
     @printinfo
     def test_flow_link(self):
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
-            self.assertEqual(list(flow_link[249]), [140, 169])
+            npt.assert_equal(flow_link[:,-1], [981, 1])
 
     @printinfo
     def test_floodfill(self):
