@@ -315,6 +315,12 @@ class TestCase(unittest.TestCase):
             for i in range(5):
                 subgrid.update(-1)  # -1 = use default model time
 
+    @printinfo
+    def test_update_rect(self):
+        with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+            subgrid.update(-1)  # -1 = use default model time
+            x0, x1, y0, y1 = 80200., 80900., 439600., 440120.
+            subgrid.update_rect('interception', x0, x1, y0, y1)
 
     @printinfo
     def test_link_table(self):
