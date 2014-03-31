@@ -349,6 +349,7 @@ SLICES = {
     b'vol1': np.s_[1:],
     b'dps': np.s_[1:-1,1:-1],
     b'uc': np.s_[:,1:],
+    b'zg': np.s_[:, 0],  # First ground water layer
 }
 
 class SubgridWrapper(object):
