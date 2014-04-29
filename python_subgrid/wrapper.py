@@ -249,6 +249,17 @@ FUNCTIONS = [
         'restype': c_int,
     },
     {
+        'name': 'update_rect',
+        'argtypes': [
+            c_char_p,           # varname
+            POINTER(c_double),  # x0
+            POINTER(c_double),  # x1
+            POINTER(c_double),  # y0
+            POINTER(c_double)   # y1
+        ],
+        'restype': c_int,
+    },
+    {
         'name': 'floodfilling',
         'argtypes': [POINTER(c_double),
                      POINTER(c_double),
