@@ -67,6 +67,14 @@ scenarios = {
         'path': 'duifp',
         'mdu_filename': 'Duifp_duifpolder.mdu'
     },
+    'duifp_default': {
+        'path': 'duifp',
+        'mdu_filename': 'Duifp_default.mdu'
+    },
+    'foppenpolder': {
+        'path': 'foppenpolder',
+        'mdu_filename': 'Fopp_default.mdu'
+    },
     'hhnk_gebiedsbreed': {
         'path': 'hhnk_gebiedsbreed',
         'mdu_filename': 'hhnk_hhnk.mdu'

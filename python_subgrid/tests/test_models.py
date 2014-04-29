@@ -78,6 +78,12 @@ class TestCase(unittest.TestCase):
             logger.info("loaded duifpolder")
 
     @printinfo
+    def test_001_load_duifpolder_default(self):
+        """test load"""
+        with SubgridWrapper(mdu=self._mdu_path('duifp_default')):
+            logger.info("loaded duifpolder default")
+
+    @printinfo
     def test_001_load_duifpolder_2d(self):
         """test load a model with groundwater twice"""
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_2d')) as subgrid:

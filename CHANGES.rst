@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.17 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added test for duifp_default.
 
 
 0.16 (2014-03-31)
