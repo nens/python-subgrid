@@ -149,7 +149,7 @@ class RainGrid(object):
         memcdf.sync()
         memcdf.close()
 
-        logger.info('Rainfall sum: %f' % np.sum(self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier))
+        logger.info('Rainfall sum (testing): %f' % np.sum(self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier))
 
 
         self.dt_current = dt_request

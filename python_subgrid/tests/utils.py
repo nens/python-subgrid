@@ -83,10 +83,6 @@ scenarios = {
         'path': 'hhnkipad',
         'mdu_filename': "HHNKiPad.mdu",
     },
-    'hhnk_gebiedsbreed': {
-        'path': 'hhnk_gebiedsbreed',
-        'mdu_filename': "hhnk_hhnk.mdu",
-    },
     'heerenveen': {
         'path': 'heerenveen',
         'mdu_filename': "heerenveen.mdu",

@@ -7,6 +7,7 @@ import logging
 import numpy.testing as npt
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+from python_subgrid.raingrid import RainGrid
 
 # We don't want to know about ctypes here
 
@@ -82,6 +83,22 @@ class TestCase(unittest.TestCase):
         """test load"""
         with SubgridWrapper(mdu=self._mdu_path('duifp_default')):
             logger.info("loaded duifpolder default")
+
+    @printinfo
+    def test_001_load_duifpolder_default_raingrid(self):
+        """test load"""
+        with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
+            logger.info("loaded duifpolder default")
+            rain_grid = RainGrid(subgrid, '', initial_value=0.)
+            subgrid.subscribe_dataset(rain_grid.memcdf_name)
+            logger.info('apply raingrid')
+            subgrid.update(-1)
+
+    @printinfo
+    def test_001_load_hhnk(self):
+        """test load"""
+        with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')):
+            logger.info("loaded hhnk gebiedsbreed")
 
     @printinfo
     def test_001_load_duifpolder_2d(self):

@@ -5,6 +5,8 @@ Changelog of python-subgrid
 0.17 (unreleased)
 -----------------
 
+- Added test test_001_load_duifpolder_default_raingrid.
+
 - Added test for duifp_default.
 
 
