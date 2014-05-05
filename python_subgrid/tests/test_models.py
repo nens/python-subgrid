@@ -85,6 +85,13 @@ class TestCase(unittest.TestCase):
             logger.info("loaded duifpolder default")
 
     @printinfo
+    def test_001_load_duifpolder_default_run(self):
+        """test load"""
+        with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
+            logger.info("loaded duifpolder default")
+            subgrid.update(-1)
+
+    @printinfo
     def test_001_load_duifpolder_default_raingrid(self):
         """test load"""
         with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
