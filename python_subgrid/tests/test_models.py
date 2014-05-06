@@ -115,6 +115,14 @@ class TestCase(unittest.TestCase):
             logger.info("loaded hhnk gebiedsbreed")
 
     @printinfo
+    def test_001_run_hhnk(self):
+        """test load"""
+        with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')) as subgrid:
+            logger.info("loaded hhnk gebiedsbreed")
+            for i in xrange(60):
+                subgrid.update(-1)
+
+    @printinfo
     def test_001_load_duifpolder_2d(self):
         """test load a model with groundwater twice"""
         with SubgridWrapper(mdu=self._mdu_path('duifpolder_2d')) as subgrid:
