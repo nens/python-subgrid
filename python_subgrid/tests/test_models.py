@@ -119,7 +119,7 @@ class TestCase(unittest.TestCase):
         """test load"""
         with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')) as subgrid:
             logger.info("loaded hhnk gebiedsbreed")
-            for i in xrange(60):
+            for i in xrange(600):
                 subgrid.update(-1)
 
     @printinfo
