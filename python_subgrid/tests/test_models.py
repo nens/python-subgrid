@@ -5,6 +5,7 @@ import unittest
 import os
 import logging
 import numpy.testing as npt
+import numpy as np
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 from python_subgrid.raingrid import RainGrid
@@ -96,7 +97,8 @@ class TestCase(unittest.TestCase):
         """test load"""
         with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
             logger.info("loaded duifpolder default")
-            subgrid.update(-1)
+            for i in xrange(60):
+                subgrid.update(-1)
 
     @printinfo
     def test_001_load_duifpolder_default_raingrid(self):
@@ -121,6 +123,14 @@ class TestCase(unittest.TestCase):
             logger.info("loaded hhnk gebiedsbreed")
             for i in xrange(600):
                 subgrid.update(-1)
+
+    @printinfo
+    def test_001_run_beemster(self):
+        with SubgridWrapper(mdu=self._mdu_path('beemster')) as subgrid:
+            logger.info("loaded beemster")
+            for i in xrange(20):
+                subgrid.update(-1)
+            logger.info("vol1 %r" % np.sum(subgrid.get_nd('vol1')))
 
     @printinfo
     def test_001_load_duifpolder_2d(self):

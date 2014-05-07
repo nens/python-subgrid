@@ -43,6 +43,10 @@ scenarios = {
         'path': '1d-democase',
         'mdu_filename': "1D-democase.mdu",
     },
+    'beemster': {
+        'path': 'beemster',
+        'mdu_filename': 'Beemster_default.mdu'
+    },
     'testcase': {
         'path': 'testcase',
         'mdu_filename': "testcase_testcase.mdu",
