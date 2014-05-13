@@ -123,11 +123,11 @@ logger.setLevel(logging.DEBUG)
 
 def fortran_log(level_p, message):
     """python logger to be called from fortran"""
-    f_level = level_p.contents.value
+    f_level = level_p
     level = LEVELS_F2PY[f_level]
     logger.log(level, message)
 # define the type of the fortran function
-fortran_log_functype = CFUNCTYPE(None, POINTER(c_int), c_char_p)
+fortran_log_functype = CFUNCTYPE(None, c_int, c_char_p)
 fortran_log_func = fortran_log_functype(fortran_log)
 
 
@@ -416,11 +416,12 @@ class SubgridWrapper(object):
     def _setlogger(self):
         """subscribe to fortran log messages"""
         # we don't expect anything back
-        self.library.set_mh_c_callback.restype = None
+        self.library.set_logger.restype = None
         # as an argument we need a pointer to a fortran log func...
-        self.library.set_mh_c_callback.argtypes = [
-            POINTER(fortran_log_functype)]
-        self.library.set_mh_c_callback(byref(fortran_log_func))
+        self.library.set_logger.argtypes = [
+            fortran_log_functype
+        ]
+        self.library.set_logger(fortran_log_func )
 
     def _setprogress(self):
         """subscribe to progress updates"""
