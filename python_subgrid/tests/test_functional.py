@@ -333,6 +333,7 @@ class TestCase(unittest.TestCase):
             self.assertEqual(df['idx'].iloc[-1], 248)
 
     @printinfo
+    @unittest.skip("Model out of date")
     def test_flow_link(self):
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
