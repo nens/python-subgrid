@@ -278,6 +278,13 @@ class TestCase(unittest.TestCase):
         """generate grid in delfland"""
         with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
             subgrid.save_grid(os.path.join('admin', 'griddelfland_gebiedsbreed.grd'))
+    @printinfo
+    def test_delfland_before_duip(self):
+        """generate grid in delfland"""
+        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
+            subgrid.update(-1)
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
+            subgrid.update(-1)
 
     @printinfo
     def test_duifpolder_slice(self):
