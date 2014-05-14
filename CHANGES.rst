@@ -5,6 +5,10 @@ Changelog of python-subgrid
 0.17 (unreleased)
 -----------------
 
+Note: You need subgrid version 0.6-1 (2014-05-14) or newer.
+
+- Renamed set_mh_c_callback to set_logger.
+
 - Added test test_001_run_hhnk.
 
 - Added test test_001_run_delfland_default.
