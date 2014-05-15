@@ -221,6 +221,7 @@ class TestCase(unittest.TestCase):
             logging.debug(arr)
 
     @printinfo
+    @unittest.skip("Model out of date/not used")
     def test_get_sharedmem(self):
         import multiprocessing
         import time
