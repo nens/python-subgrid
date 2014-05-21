@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.17 (unreleased)
 -----------------
 
-Note: You need subgrid version 0.6-1 (2014-05-14) or newer.
+Note: You need subgrid version 0.6-1 (2014-05-14) or newer for the logging to work.
 
 - Renamed set_mh_c_callback to set_logger.
 
@@ -16,6 +16,10 @@ Note: You need subgrid version 0.6-1 (2014-05-14) or newer.
 - Added test test_001_load_duifpolder_default_raingrid.
 
 - Added test for duifp_default.
+
+- More subgridpy options.
+
+- set_logger is now optional in wrapper.
 
 
 0.16 (2014-03-31)
