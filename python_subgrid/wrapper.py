@@ -396,7 +396,7 @@ class SubgridWrapper(object):
     MAXSTRLEN = 1024
     MAXDIMS = 6
 
-    def __init__(self, mdu=None, sharedmem=False):
+    def __init__(self, mdu=None, sharedmem=False, set_logger=True):
         """Initialize the class.
 
         The ``mdu`` argument should be the path to a model's ``*.mdu``
@@ -412,6 +412,7 @@ class SubgridWrapper(object):
         self.mdu = mdu
         self.original_dir = os.getcwd()
         self.sharedmem = sharedmem
+        self.set_logger = set_logger
 
     def _setlogger(self):
         """subscribe to fortran log messages"""
@@ -561,7 +562,8 @@ class SubgridWrapper(object):
 
         """
         self.library = self._load_library()
-        self._setlogger()
+        if self.set_logger:
+            self._setlogger()
         self._setprogress()
         self._annotate_functions()
         self.library.startup()  # Fortran init function.

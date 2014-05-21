@@ -26,6 +26,7 @@ def parse_args():
     argumentparser = argparse.ArgumentParser(
         description='Run subgrid')
     argumentparser.add_argument('mdu', help='mdu files to process')
+    argumentparser.add_argument("--tend", help="timestamp of end of simulation", type=int)
     arguments = argumentparser.parse_args()
     return arguments
 
@@ -34,8 +35,12 @@ def main():
     arguments = parse_args()
 
     # Read mdu file
-    with SubgridWrapper(mdu=arguments.mdu) as subgrid:
-        t_end = subgrid.get_nd('tend')
+    with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+        if arguments.tend:
+            t_end = arguments.tend
+        else:
+            # default
+            t_end = subgrid.get_nd('tend')
         t = subgrid.get_nd('t1')
         while t < t_end:
             subgrid.update(-1)
