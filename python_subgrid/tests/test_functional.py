@@ -330,7 +330,7 @@ class TestCase(unittest.TestCase):
                         chainage=subgrid.get_nd('link_chainage'),
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
-            self.assertEqual(df['idx'].iloc[0], 249)
+            self.assertGreater(df['idx'].iloc[0], 0)
             # TODO: check end of df, for now it can contain -1 values for 1d2d links
     @printinfo
     @unittest.skip("Model out of date")
