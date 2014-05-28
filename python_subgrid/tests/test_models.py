@@ -82,7 +82,7 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_001_load_duifpolder_default(self):
         """test load"""
-        with SubgridWrapper(mdu=self._mdu_path('duifp_default')):
+        with SubgridWrapper(mdu=self._mdu_path('duifp')):
             logger.info("loaded duifpolder default")
 
     @printinfo
@@ -95,7 +95,7 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_001_load_duifpolder_default_run(self):
         """test load"""
-        with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             logger.info("loaded duifpolder default")
             for i in xrange(60):
                 subgrid.update(-1)
@@ -103,7 +103,7 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_001_load_duifpolder_default_raingrid(self):
         """test load"""
-        with SubgridWrapper(mdu=self._mdu_path('duifp_default')) as subgrid:
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             logger.info("loaded duifpolder default")
             rain_grid = RainGrid(subgrid, '', initial_value=0.)
             subgrid.subscribe_dataset(rain_grid.memcdf_name)

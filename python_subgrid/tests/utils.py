@@ -73,10 +73,6 @@ scenarios = {
     },
     'duifp': {
         'path': 'duifp',
-        'mdu_filename': 'Duifp_duifpolder.mdu'
-    },
-    'duifp_default': {
-        'path': 'duifp',
         'mdu_filename': 'Duifp_default.mdu'
     },
     'foppenpolder': {
