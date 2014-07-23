@@ -16,6 +16,8 @@ install_requires = [
     'netCDF4',
     'mmi',
     'scipy',
+    'scikit-image',
+    'Shapely',
     'psutil'
     ]
 

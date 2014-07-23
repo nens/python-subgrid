@@ -5,6 +5,7 @@ import unittest
 import os
 import logging
 import io
+
 from nose.plugins.attrib import attr
 import numpy as np
 import  numpy.testing as npt
@@ -12,6 +13,7 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+from python_subgrid.plotting import draw_shape_on_raster
 
 colorlogs()
 # We don't want to know about ctypes here
@@ -379,6 +381,28 @@ class TestCase(unittest.TestCase):
             subgrid.floodfilling(x, y, level, mode)
 
     #
+    @printinfo
+    def test_draw_raster(self):
+        """test the drawing function"""
+        geom_json = """
+        {
+            "type": "Polygon",
+            "coordinates": [[
+                [1, 1],
+                [3, 1],
+                [3, 3],
+                [1, 3],
+                [1, 1]
+            ]]
+        }
+        """
+        # Create a minimal grid
+        raster = np.zeros((4, 4), dtype='int')
+        # Draw a small rectangle (using the coordinates in geom_json)
+        draw_shape_on_raster(geom_json, raster, 1)
+        # this is the flattened square
+        expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0])
+        npt.assert_array_equal(raster.flatten(), expected)
 
     @printinfo
     def test_vars(self):
