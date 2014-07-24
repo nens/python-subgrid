@@ -17,6 +17,7 @@ install_requires = [
     'mmi',
     'scipy',
     'scikit-image',
+    #'six',   # not needed because you have it system wide
     'Shapely',
     'psutil'
     ]
