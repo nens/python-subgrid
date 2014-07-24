@@ -5,7 +5,9 @@ Changelog of python-subgrid
 0.18 (unreleased)
 -----------------
 
-- Nothing changed yet.
+Note: this upgrade needs subgrid version 0.7-0 or higher.
+
+- Added draw_shape_on_raster in plotting.
 
 
 0.17 (2014-05-21)
