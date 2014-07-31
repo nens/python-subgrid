@@ -55,17 +55,16 @@ class Event(object):
                 if (e['sim_time_start'] <= sim_time and 
                     (e['sim_time_end'] is None or 
                      e['sim_time_end'] > sim_time)):
-                result.append(e)
+
+                    result.append(e)
             return result
         else:
             return self._events
 
-    def from_file(cls, filename):
-        grid = cls()
+    def from_file(self, filename):
         with open(filename, 'r') as json_data:
             data = json.load(json_data)
             logger.info(data)
-        return grid
 
     def add(self, *args, **kwargs):
         # self._events.append({
@@ -88,12 +87,17 @@ class Scenario(object):
     """
     Holder for all scenario events
     """
+    area_wide_rain_grids_filename = 'area_wide_rain_grids.json'
+    radar_grids_filename = 'radar_grids.json'
+
     def __init__(self, path=None):
+        self.radar_grids = RadarGrids()
         if path is not None:
             # self.area_wide_rain_grids = AreaWideRainGrids.from_file(
             #     os.path.join(path, 'area_wide_rain_grids.json'))
 
-            self.radar_grids = RadarGrids.from_file(
-                os.path.join(path, 'radar_grids.json'))
-        else:
-            self.radar_grids = RadarGrids()
+            fn = os.path.join(path, self.radar_grids_filename)
+            if os.path.exists(fn):
+                logger.info('Reading %s...' % fn)
+                self.radar_grids.from_file(fn)
+        
