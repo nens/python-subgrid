@@ -5,7 +5,8 @@ Changelog of python-subgrid
 0.18 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Point repos in update_testcases.sh to production model databank 
+  (hg.lizard.net).
 
 
 0.17 (2014-05-21)
