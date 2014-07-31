@@ -64,13 +64,11 @@ class Event(object):
     def from_file(self, filename):
         with open(filename, 'r') as json_data:
             data = json.load(json_data)
-            logger.info(data)
+            for event in data:
+                self.add(**event)
 
-    def add(self, *args, **kwargs):
-        # self._events.append({
-        #     })
-        logger.info(args)
-        logger.info(kwargs)
+    def add(self, **kwargs):
+        self._events.append(kwargs)
 
 
 class RadarGrids(Event):

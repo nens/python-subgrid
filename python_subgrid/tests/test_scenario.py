@@ -4,9 +4,10 @@ Test the library on desired behavior by running it on several models.
 import unittest
 import logging
 
-from python_subgrid.tests.utils import printinfo, colorlogs
+from python_subgrid.tests.utils import colorlogs
 from python_subgrid.tools.scenario import Scenario
 from python_subgrid.tools.scenario import RadarGrids
+from python_subgrid.tools.scenario import Event
 
 colorlogs()
 # We don't want to know about ctypes here
@@ -28,17 +29,18 @@ class TestCase(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @printinfo
     def test_smoke(self):
         scenario = Scenario()
 
-    @printinfo
     def test_smoke2(self):
         scenario = Scenario(self.scenario_path)
 
+    def test_event(self):
+        event = Event()
+        event.from_file(self.radar_grid_path)
+        self.assertEquals(len(event.events()), 1)
 
-    @printinfo
     def test_radar_grid(self):
         radar_grid = RadarGrids()
         radar_grid.from_file(self.radar_grid_path)
-        asdf
+        # TODO: some special radar grid action
