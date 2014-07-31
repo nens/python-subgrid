@@ -43,4 +43,15 @@ class TestCase(unittest.TestCase):
     def test_radar_grid(self):
         radar_grid = RadarGrids()
         radar_grid.from_file(self.radar_grid_path)
+        self.assertEquals(len(radar_grid.events()), 1)
         # TODO: some special radar grid action
+
+        # # From player.py
+        # logger.info('Preparing radar rain grid...')
+        # size_x, size_y = 500, 500
+        # self.rain_grid = RainGrid(
+        #     self, self.radar_url_template,
+        #     initial_value=0.,
+        #     size_x=size_x, size_y=size_y)
+
+        # self.subscribe_dataset(self.container_rain_grid.memcdf_name)

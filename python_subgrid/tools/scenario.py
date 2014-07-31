@@ -42,6 +42,8 @@ logger = logging.getLogger(__name__)
 
 
 class Event(object):
+    expected_fields = set()
+
     def __init__(self):
         self._events = []
 
@@ -68,17 +70,22 @@ class Event(object):
                 self.add(**event)
 
     def add(self, **kwargs):
+        if self.expected_fields:
+            # every key in kwargs must be present in expected fields
+            for k in kwargs.keys():
+                assert(k in self.expected_fields)
         self._events.append(kwargs)
 
 
 class RadarGrids(Event):
-    # def add(self, sim_time_start, radar_dt, sim_time_end=None):
-    #     self._events.append({
-    #         'sim_time_start': sim_time_start,
-    #         'sim_time_end': sim_time_end,
-    #         'radar_dt': radar_dt  # datetime of radar at sim_time_start
-    #         })
-    pass
+    expected_fields = set([
+        'sim_time_start',  # time start in seconds
+        'sim_time_end',  # can be None
+        'radar_dt',  # radar datetime at sim_time_start
+        'sync',   # not used
+        'multiplier',  # not used
+        'type',  # not used
+        ])
 
 
 class Scenario(object):
