@@ -12,6 +12,9 @@ will not build. `sudo easy_install -U six`
 
 - Added draw_shape_on_raster in plotting.
 
+- Point repos in update_testcases.sh to production model databank 
+  (hg.lizard.net).
+
 
 0.17 (2014-05-21)
 -----------------
