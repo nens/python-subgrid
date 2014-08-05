@@ -59,10 +59,14 @@ def main():
             t_end = subgrid.get_nd('tend')
 
         t = subgrid.get_nd('t1')  # by reference
+        previous_t = float(t)
         while t < t_end:
             logger.info('Doing time %f' % t)
             # see if there are scenario items
-            radar_grid_events = scenario.radar_grids.events(float(t))
+            radar_grid_events = scenario.radar_grids.events(
+                sim_time=float(t), start_within=float(t)-previous_t)
             if radar_grid_events:
                 logger.info('Radar grid event: %r' % radar_grid_events)
+
+            previous_t = float(t)
             subgrid.update(-1)

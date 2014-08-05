@@ -47,9 +47,12 @@ class Event(object):
     def __init__(self):
         self._events = []
 
-    def events(self, sim_time=None):
+    def events(self, sim_time=None, start_within=None):
         """
         return event(s) for given sim_time, or return all events
+
+        option: start_within: typically the timestep size or delta time, 
+          sim_time_start should be with within this time from sim_sime
         """
         if sim_time is not None:
             result = []
@@ -58,7 +61,12 @@ class Event(object):
                     (e['sim_time_end'] is None or 
                      e['sim_time_end'] > sim_time)):
 
-                    result.append(e)
+                    if start_within is None:
+                        # normal
+                        result.append(e)
+                    else:
+                        if e['sim_time_start'] > sim_time - start_within:
+                            result.append(e)
             return result
         else:
             return self._events
