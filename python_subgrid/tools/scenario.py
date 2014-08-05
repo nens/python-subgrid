@@ -12,6 +12,8 @@ import iso8601
 import datetime
 
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.raingrid import AreaWideRainGrid
+
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +79,37 @@ class RadarGrid(Event):
         return 'rain grid %s' % self.memcdf_name
 
 
+class AreaWideGrid(Event):
+    expected_fields = set([
+        'sim_time_start', # time start in seconds
+        'sim_time_end',  # can be None
+        'rain_definition',  # which "ontwerpbui"?
+        'type',  # not used
+        ])
+
+    def __init__(self, *args, **kwargs):
+        super(AreaWideGrid, self).__init__(*args, **kwargs)
+        self.rain_definition = kwargs['rain_definition']
+        self.memcdf_name = 'area_wide_%s.nc' % random_string(8)
+
+    def init(self, subgrid):
+        self.subgrid = subgrid
+        self.rain_grid = AreaWideRainGrid(
+            subgrid,
+            memcdf_name=self.memcdf_name)
+
+    def update(self, sim_time):
+        """Update grid and apply. Return whether the grid has changed"""
+        lookup_time = int(sim_time - self.sim_time_start)
+        changed = self.rain_grid.update(
+            rain_definition=self.rain_definition, 
+            time_seconds=lookup_time)
+        return changed
+
+    def __str__(self):
+        return 'area wide rain grid %s' % self.memcdf_name
+
+
 class EventContainer(object):
     """
     Container for events aka scenario
@@ -114,7 +147,7 @@ class EventContainer(object):
                     if ends_within is not None:
                         if (e.sim_time_end is not None and 
                             e.sim_time_end <= sim_time + ends_within):
-                        
+
                             result.append(e)
                         continue
 
@@ -137,6 +170,11 @@ class EventContainer(object):
         if os.path.exists(fn):
             logger.info('Reading radar grids [%s]...' % fn)
             self.from_file(RadarGrid, fn)
+
+        fn = os.path.join(path, self.area_wide_rain_grids_filename)
+        if os.path.exists(fn):
+            logger.info('Reading area wide rain grids [%s]...' % fn)
+            self.from_file(AreaWideGrid, fn)
 
     def add(self, event_object, **kwargs):
         self._events.append(event_object(**kwargs))

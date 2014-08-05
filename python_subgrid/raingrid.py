@@ -170,30 +170,40 @@ class RainGrid(object):
 
 
 class AreaWideRainGrid(RainGrid):
-    def __init__(self, *args, **kwargs):
+    def __init__(
+        self, subgrid, url_template='dummy', 
+        memcdf_name='area_wide.nc', *args, **kwargs):
+
         self.current_value = None
-        super(AreaWideRainGrid, self).__init__(*args, **kwargs)
+        self.current_rain_definition = None
+        self.memcdf_name = memcdf_name
+        super(AreaWideRainGrid, self).__init__(
+            subgrid,
+            url_template=url_template, 
+            memcdf_name=self.memcdf_name, *args, **kwargs)
 
     # It has the handy fill method, init with subgrid only
     def update(self, rain_definition, time_seconds):
-        idx = time_seconds // 300
+        idx = int(time_seconds) // 300
         if idx < len(AREA_WIDE_RAIN[rain_definition]) and idx >= 0:
             new_value = AREA_WIDE_RAIN[rain_definition][idx]
-            cumulative = sum(AREA_WIDE_RAIN[rain_definition][:idx])
+            self.cumulative = sum(AREA_WIDE_RAIN[rain_definition][:idx])
         else:
             new_value = 0.0
             if idx > 0:
-                cumulative = sum(AREA_WIDE_RAIN[rain_definition]) 
+                self.cumulative = sum(AREA_WIDE_RAIN[rain_definition]) 
             else:
-                cumulative = 0
+                self.cumulative = 0
 
-        if new_value != self.current_value:  
+        if new_value != self.current_value or rain_definition != self.current_rain_definition:  
             logger.debug('New intensity area wide rain: time %ds new value %f' % (
                 time_seconds, new_value))
             # convert mm/300s to mm/min????
             self.fill(new_value / 300 * 60)
             self.current_value = new_value
-        return cumulative #new_value / 300 * 3600  # Intensity in mm/h
+            self.current_rain_definition = rain_definition
+            return True
+        return False
 
 
 class RainGridContainer(RainGrid):

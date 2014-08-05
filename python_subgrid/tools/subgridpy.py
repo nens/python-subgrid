@@ -13,6 +13,7 @@ from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDo
 from python_subgrid.tests.utils import colorlogs
 from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
+from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.raingrid import RainGridContainer
 #colorlogs()
 
@@ -53,9 +54,11 @@ def main():
 
     radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
 
+    subgrid = SubgridWrapper(mdu=arguments.mdu, set_logger=False)
+    subgrid.start()
+    if 1:  # if you wanna see python errors...
 
-    # Read mdu file
-    with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+    #with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
         subgrid.library.initmodel()
         rain_grid_container = RainGridContainer(subgrid)
         subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
@@ -88,6 +91,9 @@ def main():
                 if isinstance(event, RadarGrid):
                     event.init(subgrid, radar_url_template)
                     rain_grid_container.register(event.memcdf_name)
+                elif isinstance(event, AreaWideGrid):
+                    event.init(subgrid)
+                    rain_grid_container.register(event.memcdf_name)
 
             # finished scenario events
             events_finish = scenario.events(
@@ -97,12 +103,20 @@ def main():
                 if isinstance(event, RadarGrid):
                     rain_grid_container.unregister(event.memcdf_name)
                     radar_grid_changed = True
+                elif isinstance(event, AreaWideGrid):
+                    rain_grid_container.unregister(event.memcdf_name)
+                    radar_grid_changed = True
+
 
             # active scenario events
             events = scenario.events(sim_time=sim_time)
             for event in events:
-                #logger.info('Update event: %s' % str(event))
+                # logger.info('Update event: %s' % str(event))
                 if isinstance(event, RadarGrid):
+                    changed = event.update(sim_time)
+                    if changed:
+                        radar_grid_changed = True
+                if isinstance(event, AreaWideGrid):
                     changed = event.update(sim_time)
                     if changed:
                         radar_grid_changed = True

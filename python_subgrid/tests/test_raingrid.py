@@ -137,14 +137,19 @@ class TestCase(unittest.TestCase):
         subgrid.start()
 
         rain_grid = AreaWideRainGrid(subgrid, memcdf_name='area_rain.nc')
-        cumulative = rain_grid.update('10', 600)
+        rain_grid.update('10', 600)
         self.assertEquals(memcdf_value(rain_grid.memcdf_name), 6.3 / 300 * 60)
-        self.assertEquals(cumulative, 1.8 + 3.6)
+        self.assertEquals(rain_grid.cumulative, 1.8 + 3.6)
+        self.assertEquals(rain_grid.current_value, 6.3)
 
-        cumulative = rain_grid.update('5', 900)
+        changed = rain_grid.update('5', 900)
         self.assertEquals(memcdf_value(rain_grid.memcdf_name), 2.70 / 300 * 60)
-        self.assertEquals(cumulative, 0.30 + 0.60 + 1.50)
-        
+        self.assertEquals(rain_grid.cumulative, 0.30 + 0.60 + 1.50)
+        self.assertEquals(rain_grid.current_value, 2.7)
+        self.assertEquals(changed, True)
+
+        changed = rain_grid.update('5', 900)
+        self.assertEquals(changed, False)
 
 if __name__ == '__main__':
     unittest.main()
