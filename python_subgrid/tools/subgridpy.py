@@ -40,7 +40,8 @@ def parse_args():
     argumentparser.add_argument('mdu', help='mdu files to process')
     argumentparser.add_argument("--tend", help="timestamp of end of simulation", type=int)
     argumentparser.add_argument("--scenariodir", help="scenario directory")
-    argumentparser.add_argument("--bui", help="scenario directory", type=int)
+    argumentparser.add_argument("--bui", help="ontwerpbui vanaf t=0", type=int)
+    argumentparser.add_argument("--radar", help="radar vanaf t=0, dt in iso8601")
     arguments = argumentparser.parse_args()
     return arguments
 
@@ -61,6 +62,10 @@ def main():
             scenario.add(
                 AreaWideGrid, sim_time_start=0, sim_time_end=None, 
                 rain_definition=str(arguments.bui), type=None)
+    if arguments.radar:
+        scenario.add(
+            RadarGrid, sim_time_start=0, sim_time_end=None, 
+            radar_dt=arguments.radar, sync=1, multiplier=1, type=None)
 
     logger.info('---- Scenario summary ----')
     for line in scenario.summary():
