@@ -25,6 +25,9 @@ class TestCase(unittest.TestCase):
             self.scenario_path, EventContainer.radar_grids_filename)
         self.area_wide_rain_grid_path = os.path.join(
             self.scenario_path, EventContainer.area_wide_rain_grids_filename)
+        self.radar_url_template = ('http://opendap.nationaleregenradar.nl/'
+            'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
+            'RAD_TF0005_A_{year}{month}01000000.h5')
 
     def tearDown(self):
         pass
@@ -49,7 +52,15 @@ class TestCase(unittest.TestCase):
             event_object=RadarGrid, sim_time=130, start_within=30)), 1)
         self.assertEquals(len(event_container.events(
             event_object=RadarGrid, sim_time=150, start_within=20)), 0)
-        # TODO: some special radar grid action
+
+    # to test_functional?
+    # def test_radar_grid_init(self):
+    #     event_container = EventContainer(self.scenario_path)
+    #     events = event_container.events(
+    #         event_object=RadarGrid, sim_time=130, start_within=30)
+    #     with SubgridWrapper(mdu=self.default_mdu) as subgrid:
+    #         for e in events:
+    #             e.init(subgrid, self.radar_url_template)
 
         # # From player.py
         # logger.info('Preparing radar rain grid...')

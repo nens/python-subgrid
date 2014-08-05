@@ -50,19 +50,22 @@ class RadarGrid(Event):
     def __init__(self, *args, **kwargs):
         super(RadarGrid, self).__init__(*args, **kwargs)
         self.radar_dt = kwargs['radar_dt']
+        self.memcdf_name = 'precipitation_%s.nc' % random_string(8)
 
     def init(self, subgrid, radar_url_template):
         self.subgrid = subgrid
         self.radar_url_template = radar_url_template
-        self.memcdf_name = 'precipitation_%s.nc' % random_string(8)
         self.rain_grid = RainGrid(
             subgrid, url_template=radar_url_template, 
-            memcdf_name=memcdf_name,  
+            memcdf_name=self.memcdf_name,  
             size_x=500, size_y=500, initial_value=0.0)
 
     def update(self, sim_time):
         """Update grid and apply. Return whether the grid has changed"""
         return True
+
+    def __str__(self):
+        return 'rain grid %s' % self.memcdf_name
 
 
 class EventContainer(object):
