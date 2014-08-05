@@ -74,12 +74,21 @@ class Event(object):
             # every key in kwargs must be present in expected fields
             for k in kwargs.keys():
                 assert(k in self.expected_fields)
+
+        # parse floats
+        if 'sim_time_start' in kwargs:
+            kwargs['sim_time_start'] = float(kwargs['sim_time_start'])
+        if 'sim_time_end' in kwargs:
+            if kwargs['sim_time_end'] == 'None':
+                kwargs['sim_time_end'] = None
+            else:
+                kwargs['sim_time_end'] = float(kwargs['sim_time_end'])
         self._events.append(kwargs)
 
 
 class RadarGrids(Event):
     expected_fields = set([
-        'sim_time_start',  # time start in seconds
+        'sim_time_start', # time start in seconds
         'sim_time_end',  # can be None
         'radar_dt',  # radar datetime at sim_time_start
         'sync',   # not used

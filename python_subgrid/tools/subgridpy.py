@@ -61,8 +61,8 @@ def main():
         t = subgrid.get_nd('t1')  # by reference
         while t < t_end:
             logger.info('Doing time %f' % t)
-            subgrid.update(-1)
             # see if there are scenario items
             radar_grid_events = scenario.radar_grids.events(float(t))
             if radar_grid_events:
                 logger.info('Radar grid event: %r' % radar_grid_events)
+            subgrid.update(-1)

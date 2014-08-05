@@ -44,6 +44,11 @@ class TestCase(unittest.TestCase):
         radar_grid = RadarGrids()
         radar_grid.from_file(self.radar_grid_path)
         self.assertEquals(len(radar_grid.events()), 1)
+
+    def test_radar_grid_time(self):
+        radar_grid = RadarGrids()
+        radar_grid.from_file(self.radar_grid_path)
+        self.assertEquals(len(radar_grid.events(120)), 1)
         # TODO: some special radar grid action
 
         # # From player.py
