@@ -55,8 +55,10 @@ def main():
 
     # Read mdu file
     with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+        subgrid.library.initmodel()
         rain_grid_container = RainGridContainer(subgrid)
         subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
+
         dt = subgrid.get_nd('dt')
         logger.info('Step size dt (seconds): %r' % dt)
         if arguments.tend:
@@ -67,7 +69,6 @@ def main():
 
         t = subgrid.get_nd('t1')  # by reference
         previous_t = float(t)
-
 
         while t < t_end:
             sim_time = float(t)
