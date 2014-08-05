@@ -7,6 +7,7 @@ import os
 import argparse
 import sys
 import logging
+import numpy as np
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import colorlogs
@@ -70,6 +71,11 @@ def main():
         t = subgrid.get_nd('t1')  # by reference
         previous_t = float(t)
 
+        # statistics
+        stats = {}
+
+        first_timestep = True
+
         while t < t_end:
             sim_time = float(t)
             logger.info('Doing time %f' % sim_time)
@@ -100,3 +106,17 @@ def main():
 
             previous_t = float(t)
             subgrid.update(-1)
+
+            if first_timestep:
+                stats['v0'] = subgrid.get_nd('vol1').copy()
+                first_timestep = False
+
+        # testing / stats
+        logger.info('Statistics')
+        stats['v1'] = subgrid.get_nd('vol1').copy()
+        stats['v0_sum'] = np.sum(stats['v0'])
+        stats['v1_sum'] = np.sum(stats['v1'])
+
+        logger.info('v0: %0.1f' % stats['v0_sum'])
+        logger.info('v1: %0.1f' % stats['v1_sum'])
+        logger.info('v1-v0: %0.1f' % (stats['v1_sum'] - stats['v0_sum']))
