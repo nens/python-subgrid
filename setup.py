@@ -16,7 +16,8 @@ install_requires = [
     'netCDF4',
     'mmi',
     'scipy',
-    'psutil'
+    'psutil',
+    'iso8601',
     ]
 
 if sys.version_info[0] < 3:

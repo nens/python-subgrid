@@ -98,7 +98,9 @@ class RainGrid(object):
         memcdf.close()
 
     def update(self, dt, multiplier=1.0):
-        """Update the (interpolated) grid with given datetime"""
+        """Update the (interpolated) grid with given datetime
+
+        Return True if grid has changed"""
         if not self.url_template:
             logger.error('No url_template given, cannot use opendap server.')
             return
@@ -108,7 +110,7 @@ class RainGrid(object):
         dt_request = datetime.datetime(dt.year, dt.month, dt.day, dt.hour, minutes, 0)
         if dt_request == self.dt_current:
             # Nothing to do
-            return
+            return False
 
         url = self.url_template.format(year=dt.year, month='%02d' % dt.month)
         logger.info('Reading rain data from %s...' % url)
@@ -151,15 +153,18 @@ class RainGrid(object):
 
         logger.info('Rainfall sum (testing): %f' % np.sum(self.interp['Z']*(1/5.0)*(1/1000.0)*multiplier))
 
-
         self.dt_current = dt_request
+        return True
 
 
-class RainGridContainer(object):
+class RainGridContainer(RainGrid):
     """Container for rain grids"""
-    def __init__(self):
+    def __init__(self, subgrid, url_template='', *args, **kwargs):
         self.grid_names = set([])
         self.memcdf_name = 'container_grid.nc'
+        super(RainGridContainer, self).__init__(
+            subgrid, url_template, 
+            memcdf_name=self.memcdf_name, *args, **kwargs)
 
     def register(self, name):
         self.grid_names.add(name)

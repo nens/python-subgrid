@@ -52,10 +52,10 @@ def main():
 
     radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
 
-    rain_grid_container = RainGridContainer()
 
     # Read mdu file
     with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+        rain_grid_container = RainGridContainer(subgrid)
         subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
         dt = subgrid.get_nd('dt')
         logger.info('Step size dt (seconds): %r' % dt)
@@ -70,10 +70,11 @@ def main():
 
 
         while t < t_end:
-            logger.info('Doing time %f' % t)
+            sim_time = float(t)
+            logger.info('Doing time %f' % sim_time)
             # starting scenario events
             events_init = scenario.events(
-                sim_time=float(t), start_within=float(t)-previous_t)
+                sim_time=sim_time, start_within=sim_time-previous_t)
             for event in events_init:
                 logger.info('Init event: %s' % str(event))
                 if isinstance(event, RadarGrid):
@@ -84,12 +85,12 @@ def main():
             # TODO unregister
 
             # active scenario events
-            events = scenario.events(sim_time=float(t))
+            events = scenario.events(sim_time=sim_time)
             radar_grid_changed = False
             for event in events:
                 logger.info('Update event: %s' % str(event))
                 if isinstance(event, RadarGrid):
-                    changed = event.update()
+                    changed = event.update(sim_time)
                     if changed:
                         radar_grid_changed = True
             if radar_grid_changed:
