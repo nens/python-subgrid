@@ -15,7 +15,9 @@ from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
 from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.raingrid import RainGridContainer
+from python_subgrid.raingrid import AREA_WIDE_RAIN
 #colorlogs()
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +40,7 @@ def parse_args():
     argumentparser.add_argument('mdu', help='mdu files to process')
     argumentparser.add_argument("--tend", help="timestamp of end of simulation", type=int)
     argumentparser.add_argument("--scenariodir", help="scenario directory")
+    argumentparser.add_argument("--bui", help="scenario directory", type=int)
     arguments = argumentparser.parse_args()
     return arguments
 
@@ -51,6 +54,14 @@ def main():
     if arguments.scenariodir:
         logger.info('Using scenario dir: %s' % arguments.scenariodir)
     scenario = EventContainer(arguments.scenariodir)
+
+    # scenario events from arguments
+    if arguments.bui:
+        if str(arguments.bui) in AREA_WIDE_RAIN.keys():
+            scenario.add(
+                AreaWideGrid, sim_time_start=0, sim_time_end=None, 
+                rain_definition=str(arguments.bui), type=None)
+
     logger.info('---- Scenario summary ----')
     for line in scenario.summary():
         logger.info(line)
@@ -75,7 +86,7 @@ def main():
             t_end = subgrid.get_nd('tend')
 
         t = subgrid.get_nd('t1')  # by reference
-        previous_t = float(t)
+        previous_t = -1  # t1 starts at 0
 
         # statistics
         stats = {}

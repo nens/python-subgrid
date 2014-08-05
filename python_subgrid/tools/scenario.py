@@ -35,7 +35,7 @@ class Event(object):
             assert(k in self.expected_fields)
 
         self.sim_time_start = float(kwargs['sim_time_start'])
-        if kwargs['sim_time_end'] == 'None':
+        if kwargs['sim_time_end'] == 'None' or kwargs['sim_time_end'] is None:
             self.sim_time_end = None
         else:
             self.sim_time_end = float(kwargs['sim_time_end'])
@@ -144,27 +144,30 @@ class EventContainer(object):
         if sim_time is not None:
             result = []
             for e in self._events:
-                if (e.sim_time_start <= sim_time):
 
-                    if event_object is not None:
-                        if not isinstance(e, event_object):
-                            continue
-                    if start_within is not None:
-                        if e.sim_time_start > sim_time - start_within:
-                            result.append(e)
+                if event_object is not None:
+                    if not isinstance(e, event_object):
                         continue
-                    if ends_within is not None:
-                        if (e.sim_time_end is not None and 
-                            e.sim_time_end <= sim_time and
-                            e.sim_time_end > sim_time - ends_within):
+                if start_within is not None:
+                    if (e.sim_time_start >= sim_time and 
+                        e.sim_time_start < sim_time + start_within):
 
-                            result.append(e)
-                        continue
-
-                    # normal
-                    if (e.sim_time_end is None or 
-                        e.sim_time_end > sim_time):
                         result.append(e)
+                    continue
+                if ends_within is not None:
+                    if (e.sim_time_end is not None and 
+                        e.sim_time_end <= sim_time and
+                        e.sim_time_end > sim_time - ends_within):
+
+                        result.append(e)
+                    continue
+
+                # normal
+                if ((e.sim_time_start <= sim_time) and
+                    (e.sim_time_end is None or 
+                     e.sim_time_end > sim_time)):
+
+                    result.append(e)
                     
             return result
         else:
