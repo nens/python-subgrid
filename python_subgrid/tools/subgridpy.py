@@ -11,6 +11,7 @@ import logging
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import colorlogs
 from python_subgrid.tools.scenario import Scenario
+from python_subgrid.raingrid import RainGridContainer
 #colorlogs()
 
 logger = logging.getLogger(__name__)
@@ -48,8 +49,13 @@ def main():
         logger.info('Using scenario dir: %s' % arguments.scenariodir)
     scenario = Scenario(arguments.scenariodir)
 
+    radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+
+    rain_grid_container = RainGridContainer()
+
     # Read mdu file
     with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+        subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
         dt = subgrid.get_nd('dt')
         logger.info('Step size dt (seconds): %r' % dt)
         if arguments.tend:
@@ -60,13 +66,32 @@ def main():
 
         t = subgrid.get_nd('t1')  # by reference
         previous_t = float(t)
+
+
         while t < t_end:
             logger.info('Doing time %f' % t)
-            # see if there are scenario items
-            radar_grid_events = scenario.radar_grids.events(
+            # starting scenario events
+            radar_grid_events_init = scenario.radar_grids.events(
                 sim_time=float(t), start_within=float(t)-previous_t)
+            for radar_grid_event in radar_grid_events_init:
+                radar_grid_event.init(subgrid, radar_url_template)
+                rain_grid_container.register(radar_grid_event.memcdf_name)
+
+            # finished scenario events
+            # TODO
+
+            # active scenario events
+            radar_grid_events = scenario.radar_grids.events(sim_time=float(t))
             if radar_grid_events:
                 logger.info('Radar grid event: %r' % radar_grid_events)
+                radar_grid_changed = False
+                for radar_grid_event in radar_grid_events:
+                    changed = radar_grid_event.update()
+                    if changed:
+                        radar_grid_changed = True
+                if radar_grid_changed:
+                    # update container
+                    rain_grid_container.update()
 
             previous_t = float(t)
             subgrid.update(-1)

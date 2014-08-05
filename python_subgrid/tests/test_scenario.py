@@ -5,9 +5,9 @@ import unittest
 import logging
 
 from python_subgrid.tests.utils import colorlogs
-from python_subgrid.tools.scenario import Scenario
-from python_subgrid.tools.scenario import RadarGrids
+from python_subgrid.tools.scenario import RadarGrid
 from python_subgrid.tools.scenario import Event
+from python_subgrid.tools.scenario import EventContainer
 
 colorlogs()
 # We don't want to know about ctypes here
@@ -22,39 +22,33 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         self.scenario_path = 'python_subgrid/tests/scenario'
         self.radar_grid_path = os.path.join(
-            self.scenario_path, Scenario.radar_grids_filename)
+            self.scenario_path, EventContainer.radar_grids_filename)
         self.area_wide_rain_grid_path = os.path.join(
-            self.scenario_path, Scenario.area_wide_rain_grids_filename)
+            self.scenario_path, EventContainer.area_wide_rain_grids_filename)
 
     def tearDown(self):
         pass
 
     def test_smoke(self):
-        scenario = Scenario()
+        event_container = EventContainer()
 
-    def test_smoke2(self):
-        scenario = Scenario(self.scenario_path)
-
-    def test_event(self):
-        event = Event()
-        event.from_file(self.radar_grid_path)
-        self.assertEquals(len(event.events()), 1)
-
-    def test_radar_grid(self):
-        radar_grid = RadarGrids()
-        radar_grid.from_file(self.radar_grid_path)
-        self.assertEquals(len(radar_grid.events()), 1)
+    def test_events(self):
+        event_container = EventContainer(self.scenario_path)
+        self.assertEquals(len(
+            event_container.events(event_object=RadarGrid)), 1)
 
     def test_radar_grid_time(self):
-        radar_grid = RadarGrids()
-        radar_grid.from_file(self.radar_grid_path)
-        self.assertEquals(len(radar_grid.events(120)), 1)
+        event_container = EventContainer(self.scenario_path)
+        self.assertEquals(
+            len(event_container.events(
+                event_object=RadarGrid, sim_time=120.)), 1)
 
     def test_radar_grid_start_within(self):
-        radar_grid = RadarGrids()
-        radar_grid.from_file(self.radar_grid_path)
-        self.assertEquals(len(radar_grid.events(130, start_within=30)), 1)
-        self.assertEquals(len(radar_grid.events(150, start_within=20)), 0)
+        event_container = EventContainer(self.scenario_path)
+        self.assertEquals(len(event_container.events(
+            event_object=RadarGrid, sim_time=130, start_within=30)), 1)
+        self.assertEquals(len(event_container.events(
+            event_object=RadarGrid, sim_time=150, start_within=20)), 0)
         # TODO: some special radar grid action
 
         # # From player.py

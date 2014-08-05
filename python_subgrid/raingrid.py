@@ -153,3 +153,32 @@ class RainGrid(object):
 
 
         self.dt_current = dt_request
+
+
+class RainGridContainer(object):
+    """Container for rain grids"""
+    def __init__(self):
+        self.grid_names = set([])
+        self.memcdf_name = 'container_grid.nc'
+
+    def register(self, name):
+        self.grid_names.add(name)
+
+    def unregister(self, name):
+        self.grid_names.delete(name)
+
+    def update(self):
+        """Recalculate sum of grids"""
+        memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=False)
+        rainfall_var = memcdf.variables["rainfall"]
+
+        first = True
+        for grid_name in self.grid_names:
+            memcdf = netCDF4.Dataset(grid_name, mode="r+", diskless=False)
+            if first:
+                rainfall_var[:,:] = memcdf.variables["rainfall"][:,:] 
+                first = False
+            else:
+                rainfall_var += memcdf.variables["rainfall"][:,:] 
+        memcdf.sync()
+        memcdf.close()
