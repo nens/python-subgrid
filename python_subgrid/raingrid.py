@@ -8,6 +8,18 @@ import scipy.interpolate
 logger = logging.getLogger(__name__)
 
 
+AREA_WIDE_RAIN = {
+    '0': [0.0],
+    '3': [0.30, 0.60, 0.90, 1.50, 2.10, 2.10, 1.50, 1.20, 1.05, 0.90, 0.75, 0.60, 0.45, 0.30, 0.15],
+    '4': [0.15, 0.30, 0.45, 0.60, 0.75, 0.90, 1.05, 1.20, 1.50, 2.10, 2.10, 1.50, 0.90, 0.60, 0.30],
+    '5': [0.30, 0.60, 1.50, 2.70, 2.70, 2.10, 1.50, 1.20, 1.05, 0.90, 0.75, 0.60, 0.45, 0.30, 0.15],
+    '6': [0.15, 0.30, 0.45, 0.60, 0.75, 0.90, 1.05, 1.20, 1.50, 2.10, 2.70, 2.70, 1.50, 0.60, 0.30],
+    '7': [0.6, 1.2, 2.1, 3.3, 3.3, 2.7, 2.1, 1.5, 1.2, 0.9, 0.6, 0.3],
+    '8': [0.3, 0.6, 0.9, 1.2, 1.5, 2.1, 2.7, 3.3, 3.3, 2.1, 1.2, 0.6],
+    '10': [1.8, 3.6, 6.3, 6.3, 5.7, 4.8, 3.6, 2.4, 1.2],
+    }
+
+
 class RainGrid(object):
     """
     Manage a rain grid.
@@ -155,6 +167,33 @@ class RainGrid(object):
 
         self.dt_current = dt_request
         return True
+
+
+class AreaWideRainGrid(RainGrid):
+    def __init__(self, *args, **kwargs):
+        self.current_value = None
+        super(AreaWideRainGrid, self).__init__(*args, **kwargs)
+
+    # It has the handy fill method, init with subgrid only
+    def update(self, rain_definition, time_seconds):
+        idx = time_seconds // 300
+        if idx < len(AREA_WIDE_RAIN[rain_definition]) and idx >= 0:
+            new_value = AREA_WIDE_RAIN[rain_definition][idx]
+            cumulative = sum(AREA_WIDE_RAIN[rain_definition][:idx])
+        else:
+            new_value = 0.0
+            if idx > 0:
+                cumulative = sum(AREA_WIDE_RAIN[rain_definition]) 
+            else:
+                cumulative = 0
+
+        if new_value != self.current_value:  
+            logger.debug('New intensity area wide rain: time %ds new value %f' % (
+                time_seconds, new_value))
+            # convert mm/300s to mm/min????
+            self.fill(new_value / 300 * 60)
+            self.current_value = new_value
+        return cumulative #new_value / 300 * 3600  # Intensity in mm/h
 
 
 class RainGridContainer(RainGrid):

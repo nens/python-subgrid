@@ -14,6 +14,7 @@ import python_subgrid.wrapper
 
 from python_subgrid.wrapper import SubgridWrapper
 
+from python_subgrid.raingrid import AreaWideRainGrid
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.test_functional import scenarios
@@ -129,6 +130,20 @@ class TestCase(unittest.TestCase):
         self.assertEquals(memcdf_value(container.memcdf_name), 0)
 
         self.assertRaises(KeyError, container.unregister, ('2.nc', ))
+
+    def test_area_wide_rain_grid(self):
+        subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
+        python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
+        subgrid.start()
+
+        rain_grid = AreaWideRainGrid(subgrid, memcdf_name='area_rain.nc')
+        cumulative = rain_grid.update('10', 600)
+        self.assertEquals(memcdf_value(rain_grid.memcdf_name), 6.3 / 300 * 60)
+        self.assertEquals(cumulative, 1.8 + 3.6)
+
+        cumulative = rain_grid.update('5', 900)
+        self.assertEquals(memcdf_value(rain_grid.memcdf_name), 2.70 / 300 * 60)
+        self.assertEquals(cumulative, 0.30 + 0.60 + 1.50)
         
 
 if __name__ == '__main__':
