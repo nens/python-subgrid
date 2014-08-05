@@ -45,10 +45,10 @@ def parse_args():
         "--scenariodir", help="scenario directory")
     argumentparser.add_argument(
         "--bui", 
-        help="ontwerpbui vanaf t=0", type=int)
+        help="ontwerpbui from t=0", type=int)
     argumentparser.add_argument(
         "--radar", 
-        help="radar vanaf t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
+        help="radar rain from t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
     arguments = argumentparser.parse_args()
     return arguments
 
