@@ -38,7 +38,7 @@ class TestCase(unittest.TestCase):
     def test_events(self):
         event_container = EventContainer(self.scenario_path)
         self.assertEquals(len(
-            event_container.events(event_object=RadarGrid)), 1)
+            event_container.events(event_object=RadarGrid)), 2)
 
     def test_radar_grid_time(self):
         event_container = EventContainer(self.scenario_path)
@@ -52,6 +52,15 @@ class TestCase(unittest.TestCase):
             event_object=RadarGrid, sim_time=130, start_within=30)), 1)
         self.assertEquals(len(event_container.events(
             event_object=RadarGrid, sim_time=150, start_within=20)), 0)
+
+    def test_radar_grid_ends_within(self):
+        event_container = EventContainer(self.scenario_path)
+        # no ending
+        self.assertEquals(len(event_container.events(
+            event_object=RadarGrid, sim_time=10000, ends_within=20)), 0)
+        # end at 1000
+        self.assertEquals(len(event_container.events(
+            event_object=RadarGrid, sim_time=999, ends_within=20)), 1)
 
     # to test_functional?
     # def test_radar_grid_init(self):

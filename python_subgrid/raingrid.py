@@ -170,13 +170,15 @@ class RainGridContainer(RainGrid):
         self.grid_names.add(name)
 
     def unregister(self, name):
-        self.grid_names.delete(name)
+        self.grid_names.remove(name)
 
     def update(self):
         """Recalculate sum of grids"""
         memcdf = netCDF4.Dataset(self.memcdf_name, mode="a", diskless=False)
         rainfall_var = memcdf.variables["rainfall"]
 
+        if not self.grid_names:
+            rainfall_var[:,:] = 0
         first = True
         for grid_name in self.grid_names:
             _memcdf = netCDF4.Dataset(grid_name, mode="r+", diskless=False)

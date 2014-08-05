@@ -78,6 +78,7 @@ def main():
 
         while t < t_end:
             sim_time = float(t)
+            radar_grid_changed = False
             logger.info('Doing time %f' % sim_time)
             # starting scenario events
             events_init = scenario.events(
@@ -89,13 +90,18 @@ def main():
                     rain_grid_container.register(event.memcdf_name)
 
             # finished scenario events
-            # TODO unregister
+            events_finish = scenario.events(
+                sim_time=sim_time, ends_within=dt)
+            for event in events_finish:
+                logger.info('Finish event: %s' % str(event))
+                if isinstance(event, RadarGrid):
+                    rain_grid_container.unregister(event.memcdf_name)
+                    radar_grid_changed = True
 
             # active scenario events
             events = scenario.events(sim_time=sim_time)
-            radar_grid_changed = False
             for event in events:
-                logger.info('Update event: %s' % str(event))
+                #logger.info('Update event: %s' % str(event))
                 if isinstance(event, RadarGrid):
                     changed = event.update(sim_time)
                     if changed:

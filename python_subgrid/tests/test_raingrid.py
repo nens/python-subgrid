@@ -27,6 +27,14 @@ else:
     scenario_basedir = os.path.abspath('.')
 
 
+def memcdf_value(filename):
+    """For testing"""
+    memcdf = netCDF4.Dataset(filename, mode="r+", diskless=False)
+    rainfall_var = memcdf.variables["rainfall"]
+    value = rainfall_var[10,10]
+    memcdf.close()
+    return value
+
 
 class TestCase(unittest.TestCase):
 
@@ -100,18 +108,27 @@ class TestCase(unittest.TestCase):
             subgrid, url_template, memcdf_name='1.nc', initial_value=1.)
         rain_grid2 = RainGrid(
             subgrid, url_template, memcdf_name='2.nc', initial_value=2.)
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 0)
+
         container.register('1.nc')
         container.register('2.nc')
         container.update()
 
-        memcdf = netCDF4.Dataset(container.memcdf_name, mode="r+", diskless=False)
-        #print(memcdf.variables.keys())
-        rainfall_var = memcdf.variables["rainfall"]
-        value = rainfall_var[10,10]
-        print(rainfall_var[:,:])
-        memcdf.close()
+        self.assertEquals(memcdf_value(container.memcdf_name), 3)
 
-        self.assertEquals(value, 3)
+        container.unregister('1.nc')
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 2)
+
+        container.unregister('2.nc')
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 0)
+
+        self.assertRaises(KeyError, container.unregister, ('2.nc', ))
         
 
 if __name__ == '__main__':

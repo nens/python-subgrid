@@ -89,7 +89,8 @@ class EventContainer(object):
         if path is not None:
             self.from_path(path)
 
-    def events(self, event_object=None, sim_time=None, start_within=None):
+    def events(self, event_object=None, sim_time=None, 
+            start_within=None, ends_within=None):
         """
         return event(s) for given sim_time, or return all events
 
@@ -106,12 +107,20 @@ class EventContainer(object):
                     if event_object is not None:
                         if not isinstance(e, event_object):
                             continue
-                    if start_within is None:
-                        # normal
-                        result.append(e)
-                    else:
+                    if start_within is not None:
                         if e.sim_time_start > sim_time - start_within:
                             result.append(e)
+                        continue
+                    if ends_within is not None:
+                        if (e.sim_time_end is not None and 
+                            e.sim_time_end <= sim_time + ends_within):
+                        
+                            result.append(e)
+                        continue
+
+                    # normal
+                    result.append(e)
+                    
             return result
         else:
             return self._events
