@@ -51,6 +51,9 @@ def main():
     if arguments.scenariodir:
         logger.info('Using scenario dir: %s' % arguments.scenariodir)
     scenario = EventContainer(arguments.scenariodir)
+    logger.info('---- Scenario summary ----')
+    for line in scenario.summary():
+        logger.info(line)
 
     radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
 
@@ -76,8 +79,9 @@ def main():
 
         # statistics
         stats = {}
-
         first_timestep = True
+
+        logger.info('---- starting ----')
 
         while t < t_end:
             sim_time = float(t)
@@ -107,7 +111,6 @@ def main():
                     rain_grid_container.unregister(event.memcdf_name)
                     radar_grid_changed = True
 
-
             # active scenario events
             events = scenario.events(sim_time=sim_time)
             for event in events:
@@ -131,6 +134,17 @@ def main():
                 stats['v0'] = subgrid.get_nd('vol1').copy()
                 first_timestep = False
 
+        logger.info('Cleaning up...')
+        for event in scenario.events():
+            if isinstance(event, RadarGrid):
+                logger.info('deleting temp file %s...' % event.memcdf_name)
+                event.delete_memcdf()
+            elif isinstance(event, AreaWideGrid):
+                logger.info('deleting temp file %s...' % event.memcdf_name)
+                event.delete_memcdf()
+        logger.info('deleting temp file %s...' % rain_grid_container.memcdf_name)
+        rain_grid_container.delete_memcdf()
+
         # testing / stats
         logger.info('Statistics')
         stats['v1'] = subgrid.get_nd('vol1').copy()
@@ -140,3 +154,4 @@ def main():
         logger.info('v0: %0.1f' % stats['v0_sum'])
         logger.info('v1: %0.1f' % stats['v1_sum'])
         logger.info('v1-v0: %0.1f' % (stats['v1_sum'] - stats['v0_sum']))
+

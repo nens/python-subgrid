@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import netCDF4
 import datetime
@@ -239,3 +240,7 @@ class RainGridContainer(RainGrid):
             _memcdf.close()
         memcdf.sync()
         memcdf.close()
+
+    def delete_memcdf(self):
+        if os.path.exists(self.memcdf_name):
+            os.remove(self.memcdf_name)

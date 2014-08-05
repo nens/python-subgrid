@@ -75,8 +75,14 @@ class RadarGrid(Event):
         changed = self.rain_grid.update(dt=self.rain_grid_dt, multiplier=1000)
         return changed
 
+    def delete_memcdf(self):
+        if os.path.exists(self.memcdf_name):
+            os.remove(self.memcdf_name)
+
     def __str__(self):
-        return 'rain grid %s' % self.radar_dt
+        return 'rain grid %s (%r-%r)' % (
+            self.radar_dt.strftime('%Y-%m-%d'), 
+            self.sim_time_start, self.sim_time_end)
 
 
 class AreaWideGrid(Event):
@@ -106,8 +112,13 @@ class AreaWideGrid(Event):
             time_seconds=lookup_time)
         return changed
 
+    def delete_memcdf(self):
+        if os.path.exists(self.memcdf_name):
+            os.remove(self.memcdf_name)
+
     def __str__(self):
-        return 'area wide rain grid %s' % self.rain_definition
+        return 'area wide rain grid %s (%r-%r)' % (
+            self.rain_definition, self.sim_time_start, self.sim_time_end)
 
 
 class EventContainer(object):
@@ -133,9 +144,7 @@ class EventContainer(object):
         if sim_time is not None:
             result = []
             for e in self._events:
-                if (e.sim_time_start <= sim_time and 
-                    (e.sim_time_end is None or 
-                     e.sim_time_end > sim_time)):
+                if (e.sim_time_start <= sim_time):
 
                     if event_object is not None:
                         if not isinstance(e, event_object):
@@ -146,13 +155,16 @@ class EventContainer(object):
                         continue
                     if ends_within is not None:
                         if (e.sim_time_end is not None and 
-                            e.sim_time_end <= sim_time + ends_within):
+                            e.sim_time_end <= sim_time and
+                            e.sim_time_end > sim_time - ends_within):
 
                             result.append(e)
                         continue
 
                     # normal
-                    result.append(e)
+                    if (e.sim_time_end is None or 
+                        e.sim_time_end > sim_time):
+                        result.append(e)
                     
             return result
         else:
@@ -178,6 +190,20 @@ class EventContainer(object):
 
     def add(self, event_object, **kwargs):
         self._events.append(event_object(**kwargs))
+
+    def summary(self):
+        result = []
+        count = {'area_wide_grid': 0, 'radar_grid': 0}
+        for e in self._events:
+            if isinstance(e, AreaWideGrid):
+                count['area_wide_grid'] += 1
+            elif isinstance(e, RadarGrid):
+                count['radar_grid'] += 1
+        result.append('Area Wide Grids : %d' % count['area_wide_grid'])
+        result.append('Radar Grids     : %d' % count['radar_grid'])
+        for e in self._events:
+            result.append('  event         : %s' % str(e))
+        return result
 
 
 # class Scenario(object):
