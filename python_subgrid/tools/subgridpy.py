@@ -37,11 +37,18 @@ def parse_args():
     """
     argumentparser = argparse.ArgumentParser(
         description='Run subgrid')
-    argumentparser.add_argument('mdu', help='mdu files to process')
-    argumentparser.add_argument("--tend", help="timestamp of end of simulation", type=int)
-    argumentparser.add_argument("--scenariodir", help="scenario directory")
-    argumentparser.add_argument("--bui", help="ontwerpbui vanaf t=0", type=int)
-    argumentparser.add_argument("--radar", help="radar vanaf t=0, dt in iso8601")
+    argumentparser.add_argument(
+        'mdu', help='mdu files to process')
+    argumentparser.add_argument(
+        "--tend", help="timestamp of end of simulation", type=int)
+    argumentparser.add_argument(
+        "--scenariodir", help="scenario directory")
+    argumentparser.add_argument(
+        "--bui", 
+        help="ontwerpbui vanaf t=0", type=int)
+    argumentparser.add_argument(
+        "--radar", 
+        help="radar vanaf t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
     arguments = argumentparser.parse_args()
     return arguments
 
