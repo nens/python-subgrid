@@ -76,7 +76,7 @@ class RadarGrid(Event):
         return changed
 
     def __str__(self):
-        return 'rain grid %s' % self.memcdf_name
+        return 'rain grid %s' % self.radar_dt
 
 
 class AreaWideGrid(Event):
@@ -107,7 +107,7 @@ class AreaWideGrid(Event):
         return changed
 
     def __str__(self):
-        return 'area wide rain grid %s' % self.memcdf_name
+        return 'area wide rain grid %s' % self.rain_definition
 
 
 class EventContainer(object):
