@@ -159,7 +159,7 @@ class RainGrid(object):
 
 class RainGridContainer(RainGrid):
     """Container for rain grids"""
-    def __init__(self, subgrid, url_template='', *args, **kwargs):
+    def __init__(self, subgrid, url_template='dummy', *args, **kwargs):
         self.grid_names = set([])
         self.memcdf_name = 'container_grid.nc'
         super(RainGridContainer, self).__init__(
@@ -179,11 +179,12 @@ class RainGridContainer(RainGrid):
 
         first = True
         for grid_name in self.grid_names:
-            memcdf = netCDF4.Dataset(grid_name, mode="r+", diskless=False)
+            _memcdf = netCDF4.Dataset(grid_name, mode="r+", diskless=False)
             if first:
-                rainfall_var[:,:] = memcdf.variables["rainfall"][:,:] 
+                rainfall_var[:,:] = _memcdf.variables["rainfall"][:,:]
                 first = False
             else:
-                rainfall_var += memcdf.variables["rainfall"][:,:] 
+                rainfall_var[:,:] += _memcdf.variables["rainfall"][:,:]
+            _memcdf.close()
         memcdf.sync()
         memcdf.close()

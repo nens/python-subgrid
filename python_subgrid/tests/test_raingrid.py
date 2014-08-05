@@ -6,6 +6,7 @@ import os
 import sys
 import numpy as np
 import datetime
+import netCDF4
 
 
 #from python_subgrid.wrapper import SubgridWrapper
@@ -14,6 +15,7 @@ import python_subgrid.wrapper
 from python_subgrid.wrapper import SubgridWrapper
 
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.test_functional import scenarios
 
 
@@ -23,6 +25,7 @@ elif 'testcases' in os.listdir('.'):
     scenario_basedir = os.path.abspath('testcases')
 else:
     scenario_basedir = os.path.abspath('.')
+
 
 
 class TestCase(unittest.TestCase):
@@ -86,8 +89,30 @@ class TestCase(unittest.TestCase):
         print(np.sum(v1))
         print(np.sum(v1-v0))
 
+    def test_container(self):
+        subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
+        python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
+        subgrid.start()
 
+        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        container = RainGridContainer(subgrid)
+        rain_grid1 = RainGrid(
+            subgrid, url_template, memcdf_name='1.nc', initial_value=1.)
+        rain_grid2 = RainGrid(
+            subgrid, url_template, memcdf_name='2.nc', initial_value=2.)
+        container.register('1.nc')
+        container.register('2.nc')
+        container.update()
 
+        memcdf = netCDF4.Dataset(container.memcdf_name, mode="r+", diskless=False)
+        #print(memcdf.variables.keys())
+        rainfall_var = memcdf.variables["rainfall"]
+        value = rainfall_var[10,10]
+        print(rainfall_var[:,:])
+        memcdf.close()
+
+        self.assertEquals(value, 3)
+        
 
 if __name__ == '__main__':
     unittest.main()
