@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.18 (unreleased)
+0.18 (2014-08-06)
 -----------------
 
 Note: this upgrade needs subgrid version 0.7-0 or higher.
