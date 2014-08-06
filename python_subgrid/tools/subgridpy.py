@@ -9,26 +9,28 @@ import sys
 import logging
 import numpy as np
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import colorlogs
+colorlogs()
+
+# redirect stdout to /dev/null under osx so we get only 1 output stream
+f = open(os.devnull, 'w')
+#sys.stdout = f
+sys.stderr = f
+
+from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
 from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.raingrid import AREA_WIDE_RAIN
-#colorlogs()
+
 
 
 logger = logging.getLogger(__name__)
 
-
-try:
-    # redirect stdout to /dev/null under osx so we get only 1 output stream
-    #f = open(os.devnull, 'w')
-    #sys.stdout = f
-    pass
-except:
-    pass
+# f = open(os.devnull, 'w')
+# sys.stdout = f
+# sys.stderr = f
 
 
 def parse_args():
