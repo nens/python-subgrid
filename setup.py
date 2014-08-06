@@ -18,6 +18,10 @@ install_requires = [
     'scipy',
     'psutil',
     'iso8601',
+    'scikit-image',
+    #'six',   # not needed because you must have it system wide
+    'Shapely',
+    'psutil'
     ]
 
 if sys.version_info[0] < 3:

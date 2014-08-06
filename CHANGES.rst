@@ -5,6 +5,13 @@ Changelog of python-subgrid
 0.18 (unreleased)
 -----------------
 
+Note: this upgrade needs subgrid version 0.7-0 or higher.
+
+Note: you need to install Six system-wide when running buildout or scikit-image
+will not build. `sudo easy_install -U six`
+
+- Added draw_shape_on_raster in plotting.
+
 - Point repos in update_testcases.sh to production model databank 
   (hg.lizard.net).
 

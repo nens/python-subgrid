@@ -1,5 +1,11 @@
-import numpy as np
 import logging
+import json
+
+import numpy as np
+import skimage.draw
+import shapely
+from shapely.geometry import mapping, shape
+
 
 def make_quad_grid(subgrid):
     """
@@ -58,5 +64,16 @@ def colors(var, cmap='Blues', vmin=None, vmax=None, **args):
     colors = np.r_[colors, np.array([0,0,0,0])[np.newaxis,:]]
     return colors
 
-
-
+def draw_shape_on_raster(geojson, raster, value):
+    """
+    draw the polygon geojson on the raster with value=value, inline
+    """
+    geom = shape(json.loads(geojson))
+    # and back to numpy vectors
+    if geom.type == 'Polygon':
+        coords = np.array(geom.exterior.coords)
+        x, y = coords.T
+        rr, cc = skimage.draw.polygon(x=x, y=y, shape=raster.shape)
+    else:
+        raise ValueError("Can only draw polygon exteriors")
+    raster[rr, cc] = value
