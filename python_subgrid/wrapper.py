@@ -116,8 +116,8 @@ LEVELS_PY2F = {
 LEVELS_F2PY = dict(zip(LEVELS_PY2F.values(), LEVELS_PY2F.keys()))
 
 
-logging.basicConfig()
 logger = logging.getLogger(__name__)
+logging.basicConfig()
 logger.setLevel(logging.DEBUG)
 
 

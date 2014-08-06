@@ -9,12 +9,13 @@ import sys
 import logging
 import numpy as np
 
+from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
+
 from python_subgrid.tests.utils import colorlogs
 colorlogs()
 
 # redirect stdout to /dev/null under osx so we get only 1 output stream
 f = open(os.devnull, 'w')
-#sys.stdout = f
 sys.stderr = f
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
@@ -28,9 +29,6 @@ from python_subgrid.raingrid import AREA_WIDE_RAIN
 
 logger = logging.getLogger(__name__)
 
-# f = open(os.devnull, 'w')
-# sys.stdout = f
-# sys.stderr = f
 
 
 def parse_args():
@@ -46,10 +44,10 @@ def parse_args():
     argumentparser.add_argument(
         "--scenariodir", help="scenario directory")
     argumentparser.add_argument(
-        "--bui", 
+        "--bui",
         help="ontwerpbui from t=0", type=int)
     argumentparser.add_argument(
-        "--radar", 
+        "--radar",
         help="radar rain from t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
     arguments = argumentparser.parse_args()
     return arguments
@@ -69,11 +67,11 @@ def main():
     if arguments.bui:
         if str(arguments.bui) in AREA_WIDE_RAIN.keys():
             scenario.add(
-                AreaWideGrid, sim_time_start=0, sim_time_end=None, 
+                AreaWideGrid, sim_time_start=0, sim_time_end=None,
                 rain_definition=str(arguments.bui), type=None)
     if arguments.radar:
         scenario.add(
-            RadarGrid, sim_time_start=0, sim_time_end=None, 
+            RadarGrid, sim_time_start=0, sim_time_end=None,
             radar_dt=arguments.radar, sync=1, multiplier=1, type=None)
 
     logger.info('---- Scenario summary ----')

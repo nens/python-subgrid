@@ -71,6 +71,10 @@ scenarios = {
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice.mdu'
     },
+    'duifpolder': {
+        'path': 'duifpolder',
+        'mdu_filename': 'Duifp_default.mdu'
+    },
     'duifp': {
         'path': 'duifp',
         'mdu_filename': 'Duifp_default.mdu'

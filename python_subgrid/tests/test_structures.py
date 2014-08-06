@@ -9,6 +9,7 @@ from functools import wraps
 
 from nose.plugins.attrib import attr
 import numpy as np
+import numpy.testing as npt
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
@@ -109,6 +110,30 @@ class TestCase(unittest.TestCase):
             df = subgrid.get_nd('pumps')
             self.assertEqual(len(df), 1)
             logger.info(df.to_string())
+
+    @printinfo
+    def test_pump_and_manhole(self):
+        with SubgridWrapper(mdu=self._mdu_path('duifpolder')) as subgrid:
+            subgrid.initmodel()
+
+            # add manhole with capacity of 50m3/s
+            subgrid.discharge(80968.2596081587, 443068.9399839948, "flush", 1, 50)
+            # after 10 timesteps, pump should have a discharge of 0.2
+            for i in range(22):
+                q = subgrid.get_nd('q', sliced=True)
+                logger.warn("q: %s", q[22008])
+
+                subgrid.update(-1)
+
+            df = subgrid.get_nd('pumps')
+            logger.info("pumps: %s", df)
+            pump = df[df['id'] == 'pumpstation-11']
+            self.assertEqual(1, len(pump))
+            npt.assert_equal(22008, pump.link_number.item()-1)
+            npt.assert_almost_equal(0.2, pump.capacity.item())
+
+            q = subgrid.get_nd('q', sliced=True)
+            npt.assert_almost_equal(0.2, q[22008])
 
     @printinfo
     def test_remove_pump(self):
