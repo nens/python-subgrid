@@ -6,6 +6,7 @@ import os
 import sys
 import numpy as np
 import datetime
+import netCDF4
 
 
 #from python_subgrid.wrapper import SubgridWrapper
@@ -13,7 +14,9 @@ import python_subgrid.wrapper
 
 from python_subgrid.wrapper import SubgridWrapper
 
+from python_subgrid.raingrid import AreaWideRainGrid
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.test_functional import scenarios
 
 
@@ -23,6 +26,15 @@ elif 'testcases' in os.listdir('.'):
     scenario_basedir = os.path.abspath('testcases')
 else:
     scenario_basedir = os.path.abspath('.')
+
+
+def memcdf_value(filename):
+    """For testing"""
+    memcdf = netCDF4.Dataset(filename, mode="r+", diskless=False)
+    rainfall_var = memcdf.variables["rainfall"]
+    value = rainfall_var[10,10]
+    memcdf.close()
+    return value
 
 
 class TestCase(unittest.TestCase):
@@ -86,8 +98,58 @@ class TestCase(unittest.TestCase):
         print(np.sum(v1))
         print(np.sum(v1-v0))
 
+    def test_container(self):
+        subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
+        python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
+        subgrid.start()
 
+        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        container = RainGridContainer(subgrid)
+        rain_grid1 = RainGrid(
+            subgrid, url_template, memcdf_name='1.nc', initial_value=1.)
+        rain_grid2 = RainGrid(
+            subgrid, url_template, memcdf_name='2.nc', initial_value=2.)
+        container.update()
 
+        self.assertEquals(memcdf_value(container.memcdf_name), 0)
+
+        container.register('1.nc')
+        container.register('2.nc')
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 3)
+
+        container.unregister('1.nc')
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 2)
+
+        container.unregister('2.nc')
+        container.update()
+
+        self.assertEquals(memcdf_value(container.memcdf_name), 0)
+
+        self.assertRaises(KeyError, container.unregister, ('2.nc', ))
+
+    def test_area_wide_rain_grid(self):
+        subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
+        python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
+        subgrid.start()
+
+        rain_grid = AreaWideRainGrid(subgrid, memcdf_name='area_rain.nc')
+        rain_grid.update('10', 600)
+        self.assertEquals(memcdf_value(rain_grid.memcdf_name), 6.3 / 300 * 60)
+        self.assertEquals(rain_grid.cumulative, 1.8 + 3.6)
+        self.assertEquals(rain_grid.current_value, 6.3)
+
+        changed = rain_grid.update('5', 900)
+        self.assertEquals(memcdf_value(rain_grid.memcdf_name), 2.70 / 300 * 60)
+        self.assertEquals(rain_grid.cumulative, 0.30 + 0.60 + 1.50)
+        self.assertEquals(rain_grid.current_value, 2.7)
+        self.assertEquals(changed, True)
+
+        changed = rain_grid.update('5', 900)
+        self.assertEquals(changed, False)
 
 if __name__ == '__main__':
     unittest.main()

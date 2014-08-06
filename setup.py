@@ -15,7 +15,9 @@ install_requires = [
     'webob',
     'netCDF4',
     'mmi',
-    #'scipy', 
+    'scipy',
+    'psutil',
+    'iso8601',
     'scikit-image',
     #'six',   # not needed because you must have it system wide
     'Shapely',

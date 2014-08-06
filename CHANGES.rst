@@ -15,6 +15,21 @@ will not build. `sudo easy_install -U six`
 - Point repos in update_testcases.sh to production model databank 
   (hg.lizard.net).
 
+- Added features to subgridpy, the offline python subgrid runner:
+
+  - Specify a scenario dir and it tries to read area_wide_rain_grids.json and
+    radar_grids.json
+
+  - Area wide rain implements the "ontwerpbuien" from 3Di Live.
+
+  - Radar rain implements the historic rain from 3Di Live.
+
+  - Specify a radar rain using the command line.
+
+  - Specify a area wide rain using the command line.
+
+  - All (important parts) unit tested!
+
 
 0.17 (2014-05-21)
 -----------------
