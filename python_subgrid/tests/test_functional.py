@@ -412,7 +412,7 @@ class TestCase(unittest.TestCase):
             vars = ["FlowLink", "nodm", "nodn", "nodk",
                     "link_type", "nod_type", "dmax", "dmin", "su",
                     "vol2", "vol1", "vol0", "q", "uc", "vnorm",
-                    "u1", "u0", "s2", "s1", "s0"]
+                    "u1", "u0", "s2", "s1", "s0", "nFlowElem1d", "nFlowElem1dBounds"]
             # we don't want any null pointers for any of the variables
             values_none = [subgrid.get_nd(var) is None for var in vars]
             print(np.array(vars)[np.array(values_none)])
