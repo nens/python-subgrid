@@ -319,6 +319,33 @@ class TestCase(unittest.TestCase):
                 subgrid.update(-1)  # -1 = use default model time
 
     @printinfo
+    def test_changebathy_omon(self):
+
+        with SubgridWrapper(mdu=self._mdu_path('omon')) as subgrid:
+            for i in range(2):
+                subgrid.update(-1)  # -1 = use default model time
+
+            xc = 559600.3435414602
+            yc = 1090799.514818533
+            sz = 1137.2106417150658
+            bval = 15
+            bmode = 1  # 0 = relative, 1 = absolute
+
+            subgrid.changebathy(xc, yc, sz, bval, bmode)
+
+            for i in range(2):
+                subgrid.update(-1)  # -1 = use default model time
+
+            dxp, dyp = subgrid.get_nd('dxp'), subgrid.get_nd('dyp')
+            x0p, y0p = subgrid.get_nd('x0p'), subgrid.get_nd('y0p')
+            ix = (xc - x0p) / dxp
+            iy = (yc - y0p) / dyp
+
+            dps = subgrid.get_nd('dps')
+            np.testing.assert_almost_equal(dps[iy, ix], 15)
+
+
+    @printinfo
     def test_update_rect(self):
         with SubgridWrapper(mdu=self.default_mdu) as subgrid:
             subgrid.update(-1)  # -1 = use default model time
