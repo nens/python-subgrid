@@ -127,9 +127,5 @@ scenarios = {
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice_only2d.mdu'
     },
-    'omon':{
-        'path': 'omon_xano',
-        'mdu_filename': 'omon_xano_Initial.mdu'
-    },
 }
 
