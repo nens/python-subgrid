@@ -432,6 +432,41 @@ class TestCase(unittest.TestCase):
         npt.assert_array_equal(raster.flatten(), expected)
 
     @printinfo
+    def test_draw_soiltype(self):
+        geom_json = """
+        { "type": "Polygon", "coordinates": [ [
+            [ 81015.066359097298118, 440929.453467557614204 ],
+            [ 81117.980358958055149, 440700.214556140999775 ],
+            [ 81166.972951597010251, 440713.396766208577901 ],
+            [ 81133.564320785750169, 440811.235749009530991 ],
+            [ 81090.294539064285345, 440949.198693339480087 ],
+            [ 81015.066359097298118, 440929.453467557614204 ]
+        ] ] }
+        """
+
+
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
+            subgrid.update(-1)
+            x0 = subgrid.get_nd('x0p')
+            x1 = subgrid.get_nd('x1p')
+            y0 = subgrid.get_nd('y0p')
+            y1 = subgrid.get_nd('y1p')
+            raster = subgrid.get_nd('soiltype')
+            if raster is None:
+                raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
+            # Set value to 1
+            raster0 = raster.copy()
+
+            draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
+            #
+            # assume there are values changed
+            n = (raster != raster0).sum()
+            logger.debug("%d values changed", n)
+            self.assertTrue(n > 0)
+            # assume all new values are 1
+            npt.assert_equal(21, raster[raster != raster0])
+
+    @printinfo
     def test_vars(self):
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.initmodel()
