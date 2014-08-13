@@ -342,7 +342,8 @@ class TestCase(unittest.TestCase):
             iy = (yc - y0p) / dyp
 
             dps = subgrid.get_nd('dps')
-            np.testing.assert_almost_equal(dps[iy, ix], 15)
+            np.testing.assert_almost_equal(dps[iy, ix], -bval)
+
 
 
     @printinfo
