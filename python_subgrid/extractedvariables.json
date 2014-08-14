@@ -1160,6 +1160,50 @@
             "name": "verbose"
         }, 
         {
+            "description": "gridsize in 1d channels", 
+            "fortrantype": "double precision", 
+            "rank": 2, 
+            "json": null, 
+            "altname": null, 
+            "type": "double", 
+            "dimension": "(:,:)", 
+            "unit": "m", 
+            "name": "ds1d"
+        }, 
+        {
+            "description": "number of u points per channel (for embedded: nr of 2D cell interfaces crossed by 1D channel)", 
+            "fortrantype": "integer", 
+            "rank": 1, 
+            "json": null, 
+            "altname": null, 
+            "type": "int", 
+            "dimension": "(:)", 
+            "unit": "-", 
+            "name": "lu1dmx"
+        }, 
+        {
+            "description": "number of  1d boundary points", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": "nFlowElem1dBounds", 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "n1dobc"
+        }, 
+        {
+            "description": "total number of nodal points in 1d without boundary points", 
+            "fortrantype": "integer", 
+            "rank": 0, 
+            "json": null, 
+            "altname": "nFlowElem1d", 
+            "type": "int", 
+            "dimension": "", 
+            "unit": "-", 
+            "name": "n1dtot"
+        }, 
+        {
             "fields": [
                 {
                     "shape": [
