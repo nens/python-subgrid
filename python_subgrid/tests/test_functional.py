@@ -451,7 +451,7 @@ class TestCase(unittest.TestCase):
 
 
     @printinfo
-    def test_draw_soiltype(self):
+    def test_draw_and_update_tables(self):
         geom_json = """
         { "type": "Polygon", "coordinates": [ [
             [ 81015.066359097298118, 440929.453467557614204 ],
@@ -476,7 +476,8 @@ class TestCase(unittest.TestCase):
             rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
             quad_grid = make_quad_grid(subgrid)
             nods = set(quad_grid[row, col]for row, col in zip(rr, cc))
-            self.assertGreater(5, len(nods))
+            print(nods)
+            self.assertGreater(len(nods), 5)
 
 
     @printinfo
