@@ -511,7 +511,6 @@ class SubgridWrapper(object):
 
                 typed_args = []
                 for (arg, argtype) in zip(args, func.argtypes):
-                    print(arg, argtype)
                     if isinstance(argtype._type_, str):
                         # create a string buffer for strings
                         typed_arg = create_string_buffer(arg)

@@ -443,11 +443,11 @@ class TestCase(unittest.TestCase):
     def test_update_tables(self):
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.update(-1)
-            nodes = np.array([1, 2, 3])
-            subgrid.update_tables("soiltype", nodes)
-            subgrid.update_tables("croptype", nodes)
-            subgrid.update_tables("maxinterception", nodes)
-            subgrid.update_tables("infiltrationrate", nodes)
+            quad_cells = np.array([1, 2, 3])
+            subgrid.update_tables("soiltype", quad_cells)
+            subgrid.update_tables("croptype", quad_cells)
+            subgrid.update_tables("maxinterception", quad_cells)
+            subgrid.update_tables("infiltrationrate", quad_cells)
 
 
     @printinfo
@@ -475,10 +475,9 @@ class TestCase(unittest.TestCase):
                 raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
             rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
             quad_grid = make_quad_grid(subgrid)
-            nods = set(quad_grid[row, col]for row, col in zip(rr, cc))
-            print(nods)
+            quad_cells = set(quad_grid[row, col]for row, col in zip(rr, cc))
+            subgrid.update_tables('soiltype', quad_cells)
             self.assertGreater(len(nods), 5)
-
 
     @printinfo
     def test_vars(self):
@@ -491,7 +490,6 @@ class TestCase(unittest.TestCase):
                     "u1", "u0", "s2", "s1", "s0", "nFlowElem1d", "nFlowElem1dBounds"]
             # we don't want any null pointers for any of the variables
             values_none = [subgrid.get_nd(var) is None for var in vars]
-            print(np.array(vars)[np.array(values_none)])
             self.assertFalse(any(values_none))
 
 
