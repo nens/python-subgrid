@@ -511,6 +511,7 @@ class SubgridWrapper(object):
 
                 typed_args = []
                 for (arg, argtype) in zip(args, func.argtypes):
+                    print(arg, argtype)
                     if isinstance(argtype._type_, str):
                         # create a string buffer for strings
                         typed_arg = create_string_buffer(arg)
@@ -820,6 +821,20 @@ class SubgridWrapper(object):
         # Pass the void_p by reference...
         set_structure_field(c_name, c_id, c_field, byref(c_value))
 
+    def update_tables(self, name, nodelist):
+        """update the tables corresponding
+        with variable name for nodes in nodelist"""
+        name = create_string_buffer(name)
+        arraytype = ndpointer(dtype='int32',
+                              ndim=1,
+                              shape=(len(nodelist),),
+                              flags='F')
+        n = c_int(len(nodelist))
+        nodelist = np.array(nodelist, dtype='int32', order='fortran')
+        argtypes = [c_char_p, arraytype, POINTER(c_int)]
+        self.library.update_tables.argtypes = argtypes
+        self.library.update_tables.restype = c_int
+        return self.library.update_tables(name, nodelist, byref(n))
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
 

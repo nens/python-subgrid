@@ -86,3 +86,4 @@ def draw_shape_on_raster(geojson, raster, value, extent=None):
     else:
         raise ValueError("Can only draw polygon exteriors")
     raster[rr, cc] = value
+    return rr, cc
