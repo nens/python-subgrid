@@ -403,7 +403,7 @@ class TestCase(unittest.TestCase):
         self.assertTrue(rr.max() < 4)
         self.assertTrue(cc.max() < 4)
         # this is the flattened square
-        expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0])
+        expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1])
         npt.assert_array_equal(raster.flatten(), expected)
 
     @printinfo
