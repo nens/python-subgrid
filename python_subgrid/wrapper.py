@@ -359,6 +359,10 @@ SLICES = {
     b's1': np.s_[1:],
     b'vol1': np.s_[1:],
     b'dps': np.s_[1:-1,1:-1],
+    b'soiltype': np.s_[1:-1,1:-1],
+    b'croptype': np.s_[1:-1,1:-1],
+    b'infiltrationrate': np.s_[1:-1,1:-1],
+    b'maxinterception': np.s_[1:-1,1:-1],
     b'uc': np.s_[:,1:],
     b'zg': np.s_[:, 0],  # First ground water layer
 }
