@@ -390,7 +390,7 @@ class TestCase(unittest.TestCase):
             "coordinates": [[
                 [1, 1],
                 [3, 1],
-                [3, 3],
+                [1000, 1000],
                 [1, 3],
                 [1, 1]
             ]]
@@ -399,7 +399,9 @@ class TestCase(unittest.TestCase):
         # Create a minimal grid
         raster = np.zeros((4, 4), dtype='int')
         # Draw a small rectangle (using the coordinates in geom_json)
-        draw_shape_on_raster(geom_json, raster, 1)
+        rr, cc = draw_shape_on_raster(geom_json, raster, 1)
+        self.assertTrue(rr.max() < 4)
+        self.assertTrue(cc.max() < 4)
         # this is the flattened square
         expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0])
         npt.assert_array_equal(raster.flatten(), expected)
