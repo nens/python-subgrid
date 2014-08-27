@@ -5,7 +5,8 @@ Changelog of python-subgrid
 0.19 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Added wrapper.update_tables function. You need to call this function
+  after each grid edit action.
 
 
 0.18 (2014-08-06)
