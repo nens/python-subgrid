@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.19 (unreleased)
+0.19 (2014-08-27)
 -----------------
 
 - Added wrapper.update_tables function. You need to call this function
