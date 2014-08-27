@@ -359,6 +359,10 @@ SLICES = {
     b's1': np.s_[1:],
     b'vol1': np.s_[1:],
     b'dps': np.s_[1:-1,1:-1],
+    b'soiltype': np.s_[1:-1,1:-1],
+    b'croptype': np.s_[1:-1,1:-1],
+    b'infiltrationrate': np.s_[1:-1,1:-1],
+    b'maxinterception': np.s_[1:-1,1:-1],
     b'uc': np.s_[:,1:],
     b'zg': np.s_[:, 0],  # First ground water layer
 }
@@ -820,6 +824,20 @@ class SubgridWrapper(object):
         # Pass the void_p by reference...
         set_structure_field(c_name, c_id, c_field, byref(c_value))
 
+    def update_tables(self, name, nodelist):
+        """update the tables corresponding
+        with variable name for nodes in nodelist"""
+        name = create_string_buffer(name)
+        arraytype = ndpointer(dtype='int32',
+                              ndim=1,
+                              shape=(len(nodelist),),
+                              flags='F')
+        n = c_int(len(nodelist))
+        nodelist = np.array(nodelist, dtype='int32', order='fortran')
+        argtypes = [c_char_p, arraytype, POINTER(c_int)]
+        self.library.update_tables.argtypes = argtypes
+        self.library.update_tables.restype = c_int
+        return self.library.update_tables(name, nodelist, byref(n))
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
 

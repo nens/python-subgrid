@@ -13,7 +13,7 @@ import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
-from python_subgrid.plotting import draw_shape_on_raster
+from python_subgrid.plotting import draw_shape_on_raster, make_quad_grid
 
 colorlogs()
 # We don't want to know about ctypes here
@@ -390,7 +390,7 @@ class TestCase(unittest.TestCase):
             "coordinates": [[
                 [1, 1],
                 [3, 1],
-                [3, 3],
+                [1000, 1000],
                 [1, 3],
                 [1, 1]
             ]]
@@ -399,9 +399,11 @@ class TestCase(unittest.TestCase):
         # Create a minimal grid
         raster = np.zeros((4, 4), dtype='int')
         # Draw a small rectangle (using the coordinates in geom_json)
-        draw_shape_on_raster(geom_json, raster, 1)
+        rr, cc = draw_shape_on_raster(geom_json, raster, 1)
+        self.assertTrue(rr.max() < 4)
+        self.assertTrue(cc.max() < 4)
         # this is the flattened square
-        expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0, 0, 0])
+        expected = np.array([0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 0, 1, 1, 1])
         npt.assert_array_equal(raster.flatten(), expected)
 
     @printinfo
@@ -430,7 +432,7 @@ class TestCase(unittest.TestCase):
             # Set value to 1
             raster0 = raster.copy()
 
-            draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
+            rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
             #
             # assume there are values changed
             n = (raster != raster0).sum()
@@ -438,6 +440,46 @@ class TestCase(unittest.TestCase):
             self.assertTrue(n > 0)
             # assume all new values are 1
             npt.assert_equal(21, raster[raster != raster0])
+
+    @printinfo
+    def test_update_tables(self):
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
+            subgrid.update(-1)
+            quad_cells = np.array([1, 2, 3])
+            subgrid.update_tables("soiltype", quad_cells)
+            subgrid.update_tables("croptype", quad_cells)
+            subgrid.update_tables("maxinterception", quad_cells)
+            subgrid.update_tables("infiltrationrate", quad_cells)
+
+
+    @printinfo
+    def test_draw_and_update_tables(self):
+        geom_json = """
+        { "type": "Polygon", "coordinates": [ [
+            [ 81015.066359097298118, 440929.453467557614204 ],
+            [ 81117.980358958055149, 440700.214556140999775 ],
+            [ 81166.972951597010251, 440713.396766208577901 ],
+            [ 81133.564320785750169, 440811.235749009530991 ],
+            [ 81090.294539064285345, 440949.198693339480087 ],
+            [ 81015.066359097298118, 440929.453467557614204 ]
+        ] ] }
+        """
+
+
+        with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
+            subgrid.update(-1)
+            x0 = subgrid.get_nd('x0p')
+            x1 = subgrid.get_nd('x1p')
+            y0 = subgrid.get_nd('y0p')
+            y1 = subgrid.get_nd('y1p')
+            raster = subgrid.get_nd('soiltype')
+            if raster is None:
+                raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
+            rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
+            quad_grid = make_quad_grid(subgrid)
+            quad_cells = set(quad_grid[row, col]for row, col in zip(rr, cc))
+            subgrid.update_tables('soiltype', quad_cells)
+            self.assertGreater(len(nods), 5)
 
     @printinfo
     def test_vars(self):
@@ -450,7 +492,6 @@ class TestCase(unittest.TestCase):
                     "u1", "u0", "s2", "s1", "s0", "nFlowElem1d", "nFlowElem1dBounds"]
             # we don't want any null pointers for any of the variables
             values_none = [subgrid.get_nd(var) is None for var in vars]
-            print(np.array(vars)[np.array(values_none)])
             self.assertFalse(any(values_none))
 
 
