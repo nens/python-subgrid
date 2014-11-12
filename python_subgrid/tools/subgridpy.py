@@ -12,11 +12,6 @@ import numpy as np
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 
 from python_subgrid.tests.utils import colorlogs
-colorlogs()
-
-# redirect stdout to /dev/null under osx so we get only 1 output stream
-f = open(os.devnull, 'w')
-sys.stderr = f
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tools.scenario import EventContainer
@@ -25,11 +20,7 @@ from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.raingrid import AREA_WIDE_RAIN
 
-
-
 logger = logging.getLogger(__name__)
-
-
 
 def parse_args():
     """
@@ -49,15 +40,27 @@ def parse_args():
     argumentparser.add_argument(
         "--radar",
         help="radar rain from t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
+    argumentparser.add_argument(
+        "--color",
+        help="Color logs", default=False, action='store_true')
     arguments = argumentparser.parse_args()
     return arguments
 
 
 def main():
     """main program"""
-    logger.setLevel(logging.DEBUG)
-    logger.info('Subgridpy')
+
+
     arguments = parse_args()
+
+    if arguments.color:
+        colorlogs()
+        # redirect stdout to /dev/null under osx so we get only 1 output stream
+        f = open(os.devnull, 'w')
+        sys.stderr = f
+
+    logger.info('Subgridpy')
+    logger.setLevel(logging.DEBUG)
 
     if arguments.scenariodir:
         logger.info('Using scenario dir: %s' % arguments.scenariodir)
