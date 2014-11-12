@@ -833,7 +833,8 @@ class SubgridWrapper(object):
                               shape=(len(nodelist),),
                               flags='F')
         n = c_int(len(nodelist))
-        nodelist = np.array(nodelist, dtype='int32', order='fortran')
+        # explictly convert to list, sometimes we get a set.
+        nodelist = np.array(list(nodelist), dtype='int32', order='fortran')
         argtypes = [c_char_p, arraytype, POINTER(c_int)]
         self.library.update_tables.argtypes = argtypes
         self.library.update_tables.restype = c_int
