@@ -99,6 +99,7 @@ def main():
         else:
             # default
             t_end = subgrid.get_nd('tend')
+        logger.info('End time (seconds): %r' % t_end)
 
         t = subgrid.get_nd('t1')  # by reference
         previous_t = -1  # t1 starts at 0
@@ -180,4 +181,3 @@ def main():
         logger.info('v0: %0.1f' % stats['v0_sum'])
         logger.info('v1: %0.1f' % stats['v1_sum'])
         logger.info('v1-v0: %0.1f' % (stats['v1_sum'] - stats['v0_sum']))
-
