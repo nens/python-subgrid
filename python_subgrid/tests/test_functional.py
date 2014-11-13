@@ -477,9 +477,10 @@ class TestCase(unittest.TestCase):
                 raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
             rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
             quad_grid = make_quad_grid(subgrid)
-            quad_cells = set(quad_grid[row, col]for row, col in zip(rr, cc))
+            quad_cells = set(quad_grid[row, col] for row, col in zip(rr, cc))
             subgrid.update_tables('soiltype', quad_cells)
-            self.assertGreater(len(nods), 5)
+            # TODO: create proper assert, what should we check here.
+            self.assertGreater(len(quad_cells), 5)
 
     @printinfo
     def test_vars(self):
