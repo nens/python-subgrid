@@ -1,10 +1,13 @@
+import logging
+
+from tvtk.api import tvtk, write_data
+import enum
 import numpy as np
 import pandas
-from tvtk.api import tvtk, write_data
-import scipy.interpolate
-import enum
 import rtree
-import logging
+import scipy.interpolate
+
+
 logger = logging.getLogger(__name__)
 
 class Reason(enum.Enum):
@@ -14,9 +17,6 @@ class Reason(enum.Enum):
     OUT_OF_TIME = 4
     OUT_OF_STEPS = 5
     STAGNATION = 6
-
-
-import rtree
 
 
 class ParticleSystem(object):
@@ -89,9 +89,7 @@ class ParticleSystem(object):
 
         # quads all the way down
         cell_array = tvtk.CellArray()
-        cell_types = np.array([tvtk.Quad().cell_type for i in range(ncells)])
         cell_idx = np.array([[4] + [i*4 + j for j in range(4)] for i in range(ncells)]).ravel()
-        cell_offsets = np.array([i*5 for i in range(ncells)])
         cell_array.set_cells(ncells, cell_idx)
 
         # fill in the properties
@@ -114,7 +112,6 @@ class ParticleSystem(object):
 
     def reseed(self, pts):
         """update the streamtracer with points from pts"""
-        st = self.tracer
 
         extra_ids = np.arange(self.current_id, self.current_id+pts.shape[0])
         self.current_id += pts.shape[0]

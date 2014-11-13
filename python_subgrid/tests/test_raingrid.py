@@ -1,23 +1,19 @@
 #test_raingrid
 
-import unittest
 import logging
 import os
-import sys
-import numpy as np
-import datetime
-import netCDF4
+import unittest
 
+import netCDF4
+import numpy as np
 
 #from python_subgrid.wrapper import SubgridWrapper
-import python_subgrid.wrapper
-
-from python_subgrid.wrapper import SubgridWrapper
-
 from python_subgrid.raingrid import AreaWideRainGrid
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.test_functional import scenarios
+from python_subgrid.wrapper import SubgridWrapper
+import python_subgrid.wrapper
 
 
 if 'SCENARIO_BASEDIR' in os.environ:
@@ -105,9 +101,9 @@ class TestCase(unittest.TestCase):
 
         url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
         container = RainGridContainer(subgrid)
-        rain_grid1 = RainGrid(
+        RainGrid(
             subgrid, url_template, memcdf_name='1.nc', initial_value=1.)
-        rain_grid2 = RainGrid(
+        RainGrid(
             subgrid, url_template, memcdf_name='2.nc', initial_value=2.)
         container.update()
 

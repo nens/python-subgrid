@@ -3,22 +3,21 @@
 """
 Run subgrid as a python script with colored output
 """
-import os
 import argparse
-import sys
 import logging
+import os
+import sys
+
 import numpy as np
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
-
+from python_subgrid.raingrid import AREA_WIDE_RAIN
+from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.utils import colorlogs
-
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
+from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
-from python_subgrid.tools.scenario import AreaWideGrid
-from python_subgrid.raingrid import RainGridContainer
-from python_subgrid.raingrid import AREA_WIDE_RAIN
+from python_subgrid.wrapper import SubgridWrapper
+
 
 logger = logging.getLogger(__name__)
 

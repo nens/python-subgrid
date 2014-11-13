@@ -1,20 +1,17 @@
 """
 Test the library on desired behavior by running it on several models.
 """
+import os
 import unittest
-import logging
 
 from python_subgrid.tests.utils import colorlogs
-from python_subgrid.tools.scenario import RadarGrid
-from python_subgrid.tools.scenario import Event
 from python_subgrid.tools.scenario import EventContainer
+from python_subgrid.tools.scenario import RadarGrid
 
 colorlogs()
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
-import logging
-import os
 
 
 class TestCase(unittest.TestCase):
@@ -33,7 +30,7 @@ class TestCase(unittest.TestCase):
         pass
 
     def test_smoke(self):
-        event_container = EventContainer()
+        EventContainer()
 
     def test_events(self):
         event_container = EventContainer(self.scenario_path)

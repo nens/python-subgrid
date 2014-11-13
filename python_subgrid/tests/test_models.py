@@ -1,14 +1,16 @@
 """
 Test the library on desired behavior by running it on several models.
 """
-import unittest
-import os
 import logging
-import numpy.testing as npt
+import os
+import unittest
+
 import numpy as np
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+import numpy.testing as npt
+
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+from python_subgrid.wrapper import SubgridWrapper, logger
 
 # We don't want to know about ctypes here
 
@@ -39,6 +41,8 @@ msg = "Scenario models not available {}".format(default_scenario_path)
 
 colorlogs()
 logging.basicConfig()
+# TODO: aargh, this logger re-defines the logger imported above!
+# TODO: And: don't do basicConfig for logging so globally!
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
@@ -331,10 +335,9 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_testcase(self):
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
+            subgrid  # pyflakes
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
-
+            subgrid  # pyflakes
 
 
 if __name__ == '__main__':

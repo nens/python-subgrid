@@ -51,22 +51,22 @@ def main():
         try:
             # Find the grid , if it's empty use grid.grd
             gridfile = parser.get("grid","gridadminfile") or "grid.grd"
-        except ConfigParser.NoSectionError as e:
+        except ConfigParser.NoSectionError:
             # no grid section
             logger.warn("could not find grid section in {}".format(fullpath))
             gridfile = "grid.grd"
-        except ConfigParser.NoOptionError as e:
+        except ConfigParser.NoOptionError:
             logger.warn("could not find gridadminfile in {}".format(fullpath))
             gridfile = "grid.grd"
 
         try:
             # Find the table, if it's empty use table.tbl
             tablefile = parser.get("grid","tabledatafile") or "table.tbl"
-        except ConfigParser.NoSectionError as e:
+        except ConfigParser.NoSectionError:
             # no grid section
             logger.warn("could not find grid section in {}".format(fullpath))
             tablefile = "table.tbl"
-        except ConfigParser.NoOptionError as e:
+        except ConfigParser.NoOptionError:
             logger.exception("could not find grid->tabledatafile in {}".format(fullpath))
             tablefile = "table.tbl"
 

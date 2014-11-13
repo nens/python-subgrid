@@ -8,7 +8,7 @@ import io
 
 from nose.plugins.attrib import attr
 import numpy as np
-import  numpy.testing as npt
+import numpy.testing as npt
 import pandas
 
 from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
@@ -16,10 +16,11 @@ from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 from python_subgrid.plotting import draw_shape_on_raster, make_quad_grid
 
 colorlogs()
+# ^^^ TODO: shouldn't this be in a setUp()? This way it seems very global.
+
 # We don't want to know about ctypes here
 # only in the test_wrapper and the wrapper itself.
 
-import logging
 # Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
@@ -479,6 +480,7 @@ class TestCase(unittest.TestCase):
             quad_grid = make_quad_grid(subgrid)
             quad_cells = set(quad_grid[row, col]for row, col in zip(rr, cc))
             subgrid.update_tables('soiltype', quad_cells)
+            # TODO: 'nods' below is undefined
             self.assertGreater(len(nods), 5)
 
     @printinfo

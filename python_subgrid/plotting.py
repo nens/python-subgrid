@@ -1,13 +1,15 @@
 import logging
 import json
 
+from shapely.geometry import shape
 import numpy as np
 import skimage.draw
-import shapely
-from shapely.geometry import mapping, shape
 
 logging.basicConfig()
 logging.root.setLevel(logging.DEBUG)
+# ^^^ What is this doing at the top level? Everything that imports this gets
+# that setting. TODO
+
 
 def make_quad_grid(subgrid):
     """

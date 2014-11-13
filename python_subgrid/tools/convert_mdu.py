@@ -3,7 +3,6 @@ Convert scriptlets
 * convert_subgrid_mdu: translate an old formatted MDU file (version < 2) to the new v2.1 structure.
 """
 
-import os
 import argparse
 import sys
 import datetime
@@ -11,10 +10,10 @@ import collections
 import ConfigParser
 import logging
 import re
-import numpy as np
 
-from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
+from python_subgrid.utils import MduParserKeepComments
 
+# TODO: move logging setup to the main()
 logging.basicConfig()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -80,7 +79,7 @@ def opt_rename(config, section1, section2, option1, option2):
 
 ########################
 
-# 
+#
 # Allow to use mdu file from any directory
 # Script will be run like this:
 # find . -name *.mdu -exec update-subgrid-mdu {} \;
@@ -120,7 +119,7 @@ def main():
 
 
     # Define the renamings
-    
+
     changes = collections.OrderedDict([
         (("geometry", "ManholeFile"), ("external forcing", "ManholeFile")),
         (("geometry", "FloodIniFile"), ("initialization", "FloodIniFile")),

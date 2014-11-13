@@ -3,26 +3,26 @@
 """
 subgrid model runner
 """
-import datetime
 import logging
 import itertools
 import argparse
 
+from mmi import send_array, recv_array
+from zmq.eventloop import ioloop
 import zmq
 import zmq.eventloop.zmqstream
-from zmq.eventloop import ioloop
-import numpy as np
 
-import python_subgrid.wrapper
 import python_subgrid.plotting
-from mmi import send_array, recv_array
+import python_subgrid.wrapper
 
 logging.basicConfig()
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
+# ^^^ No, no, this should go in the main(). Everything that imports this gets
+# these settings. TODO
 
 ioloop.install()
+# TODO: ^^^ also do this in the main()?
 
 
 INITVARS = {'FlowElem_xcc', 'FlowElem_ycc', 'FlowElemContour_x',
@@ -60,7 +60,8 @@ def parse_args():
         '-g', '--global', dest='globalvariables',
         metavar='G',
         nargs='*',
-        help='variables that can be send back to a reply (not changed during run)',
+        help=('variables that can be send back to a reply ' +
+              '(not changed during run)'),
         default=INITVARS)
     argparser.add_argument(
         '-c', '--config', dest='config',

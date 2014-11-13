@@ -1,19 +1,14 @@
 """
 Test the library on desired behavior by running it on several models.
 """
-import unittest
 import os
-import logging
-import io
-from functools import wraps
+import unittest
 
-from nose.plugins.attrib import attr
 import numpy as np
 import numpy.testing as npt
-import pandas
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
 from python_subgrid.tests.utils import printinfo, scenarios
+from python_subgrid.wrapper import SubgridWrapper, logger
 
 
 #import gc
@@ -219,7 +214,6 @@ class TestCase(unittest.TestCase):
     def test_pump_it_up_is_active(self):
 
         # run both models for a few minutes
-        tstop = 3000
         with SubgridWrapper(mdu=self._mdu_path('1d-democase')) as subgrid:
             subgrid.initmodel()
             df = subgrid.get_nd('pumps')
