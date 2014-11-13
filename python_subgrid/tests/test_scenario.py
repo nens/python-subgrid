@@ -13,7 +13,6 @@ colorlogs()
 # only in the test_wrapper and the wrapper itself.
 
 
-
 class TestCase(unittest.TestCase):
 
     def setUp(self):
@@ -22,7 +21,8 @@ class TestCase(unittest.TestCase):
             self.scenario_path, EventContainer.radar_grids_filename)
         self.area_wide_rain_grid_path = os.path.join(
             self.scenario_path, EventContainer.area_wide_rain_grids_filename)
-        self.radar_url_template = ('http://opendap.nationaleregenradar.nl/'
+        self.radar_url_template = (
+            'http://opendap.nationaleregenradar.nl/'
             'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
             'RAD_TF0005_A_{year}{month}01000000.h5')
 
@@ -58,7 +58,6 @@ class TestCase(unittest.TestCase):
         # end at 1000
         self.assertEquals(len(event_container.events(
             event_object=RadarGrid, sim_time=1000, ends_within=20)), 1)
-
 
     # to test_functional?
     # def test_radar_grid_init(self):

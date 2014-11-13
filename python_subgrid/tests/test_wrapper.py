@@ -48,7 +48,6 @@ class TestCase(unittest.TestCase):
         self.wrapper.library.loadmodel = lambda self: exit_code
         self.assertRaises(RuntimeError, self.wrapper._load_model)
 
-
     def test_annotate_functions1(self):
         with wrapper.SubgridWrapper() as subgrid:
             self.assertEquals(subgrid.update.argtypes,

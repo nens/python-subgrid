@@ -1,5 +1,3 @@
-#test_raingrid
-
 import logging
 import os
 import unittest
@@ -7,7 +5,6 @@ import unittest
 import netCDF4
 import numpy as np
 
-#from python_subgrid.wrapper import SubgridWrapper
 from python_subgrid.raingrid import AreaWideRainGrid
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.raingrid import RainGridContainer
@@ -28,7 +25,7 @@ def memcdf_value(filename):
     """For testing"""
     memcdf = netCDF4.Dataset(filename, mode="r+", diskless=False)
     rainfall_var = memcdf.variables["rainfall"]
-    value = rainfall_var[10,10]
+    value = rainfall_var[10, 10]
     memcdf.close()
     return value
 
@@ -42,7 +39,6 @@ class TestCase(unittest.TestCase):
         return os.path.join(scenario_basedir,
                             scenarios[model_slug]['path'],
                             scenarios[model_slug]['mdu_filename'])
-
 
     def tearDown(self):
         pass
@@ -62,7 +58,10 @@ class TestCase(unittest.TestCase):
             subgrid.update(-1)
 
     def test_opendap_grid(self):
-        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        url_template = (
+            'http://opendap.nationaleregenradar.nl/'
+            'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
+            'RAD_TF0005_A_{year}{month}01000000.h5')
         memcdf_name = 'precipitation.nc'
 
         subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
@@ -99,7 +98,10 @@ class TestCase(unittest.TestCase):
         python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
         subgrid.start()
 
-        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        url_template = (
+            'http://opendap.nationaleregenradar.nl/'
+            'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
+            'RAD_TF0005_A_{year}{month}01000000.h5')
         container = RainGridContainer(subgrid)
         RainGrid(
             subgrid, url_template, memcdf_name='1.nc', initial_value=1.)

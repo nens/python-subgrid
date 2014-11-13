@@ -2,14 +2,18 @@ import psutil
 from functools import wraps
 import logging
 
+
 def colorlogs():
     try:
         from rainbow_logging_handler import RainbowLoggingHandler
         import sys
         # setup `RainbowLoggingHandler`
         logger = logging.root
-        formatter = logging.Formatter("[%(asctime)s] %(name)s %(funcName)s():%(lineno)d\t%(message)s")  # same as default
-        handler = RainbowLoggingHandler(sys.stderr, color_funcName=('black', 'gray', True))
+        formatter = logging.Formatter(
+            "[%(asctime)s] %(name)s %(funcName)s():%(lineno)d\t%(message)s")
+        # ^^^ same as default
+        handler = RainbowLoggingHandler(
+            sys.stderr, color_funcName=('black', 'gray', True))
         handler.setFormatter(formatter)
         logger.addHandler(handler)
     except ImportError:
@@ -18,17 +22,21 @@ def colorlogs():
 
 
 def printinfo(f):
-    """print info of the being called"""
+    """print info of the ??? being called"""
     # needed because it does not show up if the test segfaults
     # this can probably be done easier
     @wraps(f)
     def wrapper(*args, **kwds):
         print("### running test {f}".format(f=f))
-        print("available physical memory before {}".format(psutil.virtual_memory()))
-        print("available swap memory before {}".format(psutil.swap_memory()))
+        print("available physical memory before {}".format(
+            psutil.virtual_memory()))
+        print("available swap memory before {}".format(
+            psutil.swap_memory()))
         result = f(*args, **kwds)
-        print("available physical memory after {}".format(psutil.virtual_memory()))
-        print("available swap memory after {}".format(psutil.swap_memory()))
+        print("available physical memory after {}".format(
+            psutil.virtual_memory()))
+        print("available swap memory after {}".format(
+            psutil.swap_memory()))
 
         return result
     return wrapper
@@ -123,13 +131,12 @@ scenarios = {
         'path': 'brouwersdam',
         'mdu_filename': "brouwersdam.mdu",
     },
-    'duifpolder_slice':{
+    'duifpolder_slice': {
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice.mdu'
     },
-    'duifpolder_2d':{
+    'duifpolder_2d': {
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice_only2d.mdu'
     },
 }
-

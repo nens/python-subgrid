@@ -11,12 +11,8 @@ from python_subgrid.tests.utils import printinfo, scenarios
 from python_subgrid.wrapper import SubgridWrapper, logger
 
 
-#import gc
-#gc.disable()
-
-# We don't want to know about ctypes here
-# only in the test_wrapper and the wrapper itself.
-
+# import gc
+# gc.disable()
 
 EPSILON = 0.00000001
 
@@ -48,11 +44,7 @@ def float_equals(a, b):
     return abs(a-b) < EPSILON
 
 
-
-
-#TODO: get this to work
-#@unittest.skipIf(not models_available, msg)
-class TestCase(unittest.TestCase):
+class NobodyBotheredToGiveThisANameTestCase(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(scenario)
@@ -72,6 +64,7 @@ class TestCase(unittest.TestCase):
             subgrid.initmodel()
             rank = subgrid.get_var_rank('pumps')
             self.assertEqual(rank, 1)
+
     @printinfo
     def test_compound_rank_2donly(self):
         """test compound rank for a model with only 2d"""
@@ -112,7 +105,8 @@ class TestCase(unittest.TestCase):
             subgrid.initmodel()
 
             # add manhole with capacity of 50m3/s
-            subgrid.discharge(80968.2596081587, 443068.9399839948, "flush", 1, 50)
+            subgrid.discharge(80968.2596081587, 443068.9399839948,
+                              "flush", 1, 50)
             # after 10 timesteps, pump should have a discharge of 0.2
             for i in range(22):
                 q = subgrid.get_nd('q', sliced=True)
@@ -314,7 +308,6 @@ class TestCase(unittest.TestCase):
                 orifice = orifices.irow(orifice_idx)
                 print(orifice.to_dict())
 
-
     @printinfo
     def test_set_back_orifice(self):
         """can we change a crest level"""
@@ -335,7 +328,9 @@ class TestCase(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('brouwersdam')) as subgrid:
             # get a data frame with all the orrifce information
             orifices = subgrid.get_nd('orifices')
-            for var in {"crest_level", "crest_width", "branchid", "link_number", "left_calc_point", "right_calc_point"}:
+            for var in {"crest_level", "crest_width", "branchid",
+                        "link_number", "left_calc_point",
+                        "right_calc_point"}:
                 self.assertIn(var, orifices.columns)
 
             for i, orifice in orifices.iterrows():

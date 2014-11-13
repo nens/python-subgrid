@@ -11,9 +11,12 @@ import numpy as np
 import numpy.testing as npt
 import pandas
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
-from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 from python_subgrid.plotting import draw_shape_on_raster, make_quad_grid
+from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+from python_subgrid.wrapper import NotDocumentedError
+from python_subgrid.wrapper import SubgridWrapper
+from python_subgrid.wrapper import logger
+from python_subgrid.wrapper import progresslogger
 
 colorlogs()
 # ^^^ TODO: shouldn't this be in a setUp()? This way it seems very global.
@@ -43,11 +46,6 @@ models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
 
-
-
-
-#TODO: get this to work
-#@unittest.skipIf(not models_available, msg)
 class TestCase(unittest.TestCase):
 
     def setUp(self):
@@ -109,6 +107,7 @@ class TestCase(unittest.TestCase):
 
         # we should have some messages
         self.assertTrue(foundmessage)
+
     @printinfo
     def test_info(self):
         """test if we can print info"""
@@ -122,8 +121,6 @@ class TestCase(unittest.TestCase):
         for i in range(2):
             with SubgridWrapper(mdu=self.default_mdu):
                 print('test load #%r' % i)
-
-
 
     @printinfo
     @unittest.skip("Out of memory")
@@ -181,7 +178,6 @@ class TestCase(unittest.TestCase):
                 subgrid.discharge(
                     x, y,
                     manhole_name, 1, discharge_value)
-
 
     @printinfo
     def test_discard_manhole(self):
@@ -295,7 +291,6 @@ class TestCase(unittest.TestCase):
             subgrid.initmodel()
             self.assertRaises(NotDocumentedError, subgrid.get_nd, 'reinout')
 
-
     @printinfo
     def test_changebathy(self):
 
@@ -334,13 +329,15 @@ class TestCase(unittest.TestCase):
                         idx=subgrid.get_nd('link_idx'))
             df = pandas.DataFrame(data)
             self.assertGreater(df['idx'].iloc[0], 0)
-            # TODO: check end of df, for now it can contain -1 values for 1d2d links
+            # TODO: check end of df, for now it can contain -1 values for 1d2d
+            # links
+
     @printinfo
     @unittest.skip("Model out of date")
     def test_flow_link(self):
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             flow_link = subgrid.get_nd('FlowLink')
-            npt.assert_equal(flow_link[:,-1], [981, 1])
+            npt.assert_equal(flow_link[:, -1], [981, 1])
 
     @printinfo
     def test_floodfill(self):
@@ -419,8 +416,6 @@ class TestCase(unittest.TestCase):
             [ 81015.066359097298118, 440929.453467557614204 ]
         ] ] }
         """
-
-
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.update(-1)
             x0 = subgrid.get_nd('x0p')
@@ -429,11 +424,13 @@ class TestCase(unittest.TestCase):
             y1 = subgrid.get_nd('y1p')
             raster = subgrid.get_nd('soiltype')
             if raster is None:
-                raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
+                raise ValueError("Make sure you are testing with a model " +
+                                 "with soiltype + numlayers > 0")
             # Set value to 1
             raster0 = raster.copy()
 
-            rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
+            rr, cc = draw_shape_on_raster(
+                geom_json, raster, 21, extent=(x0, y0, x1, y1))
             #
             # assume there are values changed
             n = (raster != raster0).sum()
@@ -452,7 +449,6 @@ class TestCase(unittest.TestCase):
             subgrid.update_tables("maxinterception", quad_cells)
             subgrid.update_tables("infiltrationrate", quad_cells)
 
-
     @printinfo
     def test_draw_and_update_tables(self):
         geom_json = """
@@ -465,8 +461,6 @@ class TestCase(unittest.TestCase):
             [ 81015.066359097298118, 440929.453467557614204 ]
         ] ] }
         """
-
-
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.update(-1)
             x0 = subgrid.get_nd('x0p')
@@ -475,8 +469,12 @@ class TestCase(unittest.TestCase):
             y1 = subgrid.get_nd('y1p')
             raster = subgrid.get_nd('soiltype')
             if raster is None:
-                raise ValueError("Make sure you are testing with a model with soiltype + numlayers > 0")
-            rr, cc = draw_shape_on_raster(geom_json, raster, 21, extent=(x0, y0, x1, y1))
+                raise ValueError("Make sure you are testing with a model " +
+                                 "with soiltype + numlayers > 0")
+            rr, cc = draw_shape_on_raster(geom_json,
+                                          raster,
+                                          21,
+                                          extent=(x0, y0, x1, y1))
             quad_grid = make_quad_grid(subgrid)
             quad_cells = set(quad_grid[row, col]for row, col in zip(rr, cc))
             subgrid.update_tables('soiltype', quad_cells)
@@ -491,7 +489,8 @@ class TestCase(unittest.TestCase):
             vars = ["FlowLink", "nodm", "nodn", "nodk",
                     "link_type", "nod_type", "dmax", "dmin", "su",
                     "vol2", "vol1", "vol0", "q", "uc", "vnorm",
-                    "u1", "u0", "s2", "s1", "s0", "nFlowElem1d", "nFlowElem1dBounds"]
+                    "u1", "u0", "s2", "s1", "s0", "nFlowElem1d",
+                    "nFlowElem1dBounds"]
             # we don't want any null pointers for any of the variables
             values_none = [subgrid.get_nd(var) is None for var in vars]
             self.assertFalse(any(values_none))

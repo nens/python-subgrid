@@ -223,7 +223,7 @@ class ParticleSystem(object):
         df = df[columns]
         rows = []
         for particle_i, group in df.groupby('p'):
-            if particle_i<0:
+            if particle_i < 0:
                 continue
             reason = group['reason'].irow(0)
             arr = np.array(group[['x', 'y', 'z']])
@@ -291,7 +291,9 @@ class ParticleSystem(object):
         return np.array(idxs)
 
     def get_alive(self, t=900):
-        """create an index that determines if particles are still alive at time t"""
+        """create an index that determines if particles are still alive at
+        time t
+        """
         if self.tracer.output.cell_data.number_of_arrays == 0:
             return np.array([], dtype='bool')
         arr = self.tracer.output.cell_data.get_array(0).to_array()
