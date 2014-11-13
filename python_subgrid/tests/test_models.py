@@ -1,14 +1,16 @@
 """
 Test the library on desired behavior by running it on several models.
 """
-import unittest
-import os
 import logging
-import numpy.testing as npt
+import os
+import unittest
+
 import numpy as np
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger
-from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+import numpy.testing as npt
+
 from python_subgrid.raingrid import RainGrid
+from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
+from python_subgrid.wrapper import SubgridWrapper, logger
 
 # We don't want to know about ctypes here
 
@@ -39,15 +41,12 @@ msg = "Scenario models not available {}".format(default_scenario_path)
 
 colorlogs()
 logging.basicConfig()
+# TODO: aargh, this logger re-defines the logger imported above!
+# TODO: And: don't do basicConfig for logging so globally!
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 
 
-
-
-
-#TODO: get this to work
-#@unittest.skipIf(not models_available, msg)
 class TestCase(unittest.TestCase):
 
     def setUp(self):
@@ -65,13 +64,13 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_000_load_delfland_then_duifp(self):
         """test load a 1d model twice"""
-        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
+        mdu = self._mdu_path('delfland_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
             logger.info("loaded delfland")
             subgrid.update(-1)
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             logger.info("loaded duifpolder")
             subgrid.update(-1)
-
 
     @printinfo
     def test_001_load_duifpolder(self):
@@ -119,7 +118,8 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_001_run_hhnk(self):
         """test load"""
-        with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')) as subgrid:
+        mdu = self._mdu_path('hhnk_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
             logger.info("loaded hhnk gebiedsbreed")
             for i in xrange(600):
                 subgrid.update(-1)
@@ -205,7 +205,7 @@ class TestCase(unittest.TestCase):
             wkt = subgrid.get_nd('wkt')
         # we should have some coordinate system
         self.assertTrue("GEOGCS" in wkt)
-    #@unittest.skip
+
     @printinfo
     def test_manhole_mozambique(self):
         """load the mozambique model and add a discharge point"""
@@ -269,19 +269,25 @@ class TestCase(unittest.TestCase):
 
     @printinfo
     def test_grid_hhnk(self):
-        """generate grid in hhnk -> fails if old version grid file already exists"""
-        with SubgridWrapper(mdu=self._mdu_path('hhnk_gebiedsbreed')) as subgrid:
+        """generate grid in hhnk -> fails if old version grid file already
+        exists"""
+        mdu = self._mdu_path('hhnk_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
             subgrid.save_grid(os.path.join('admin', 'gridhhnk_hhnk.grd'))
 
     @printinfo
     def test_grid_delfland(self):
         """generate grid in delfland"""
-        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
-            subgrid.save_grid(os.path.join('admin', 'griddelfland_gebiedsbreed.grd'))
+        mdu = self._mdu_path('delfland_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
+            subgrid.save_grid(os.path.join('admin',
+                                           'griddelfland_gebiedsbreed.grd'))
+
     @printinfo
     def test_delfland_before_duip(self):
         """generate grid in delfland"""
-        with SubgridWrapper(mdu=self._mdu_path('delfland_gebiedsbreed')) as subgrid:
+        mdu = self._mdu_path('delfland_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
             subgrid.update(-1)
         with SubgridWrapper(mdu=self._mdu_path('duifp')) as subgrid:
             subgrid.update(-1)
@@ -328,14 +334,15 @@ class TestCase(unittest.TestCase):
                     subgrid.discard_manhole(x + delta, y + delta)
                 # add it again
                 subgrid.update(-1)
+
     @printinfo
     def test_testcase(self):
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
+            subgrid  # pyflakes
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
-            pass
-
+            subgrid  # pyflakes
 
 
 if __name__ == '__main__':
+    # TODO: when is this ever going to get run on its own?
     unittest.main()

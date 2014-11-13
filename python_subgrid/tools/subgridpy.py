@@ -3,24 +3,24 @@
 """
 Run subgrid as a python script with colored output
 """
-import os
 import argparse
-import sys
 import logging
+import os
+import sys
+
 import numpy as np
 
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
-
+from python_subgrid.raingrid import AREA_WIDE_RAIN
+from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.utils import colorlogs
-
-from python_subgrid.wrapper import SubgridWrapper, logger, progresslogger, NotDocumentedError
+from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
-from python_subgrid.tools.scenario import AreaWideGrid
-from python_subgrid.raingrid import RainGridContainer
-from python_subgrid.raingrid import AREA_WIDE_RAIN
+from python_subgrid.wrapper import SubgridWrapper
+
 
 logger = logging.getLogger(__name__)
+
 
 def parse_args():
     """
@@ -49,8 +49,6 @@ def parse_args():
 
 def main():
     """main program"""
-
-
     arguments = parse_args()
 
     if arguments.color:
@@ -85,9 +83,10 @@ def main():
 
     subgrid = SubgridWrapper(mdu=arguments.mdu, set_logger=False)
     subgrid.start()
-    if 1:  # if you wanna see python errors...
 
-    #with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+    # with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
+    if 1:  # Use the line above if you want to see python errors...
+
         subgrid.library.initmodel()
         rain_grid_container = RainGridContainer(subgrid)
         subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
@@ -164,12 +163,15 @@ def main():
         logger.info('Cleaning up...')
         for event in scenario.events():
             if isinstance(event, RadarGrid):
-                logger.info('deleting temp file %s...' % event.memcdf_name)
+                logger.info('deleting temp file %s...',
+                            event.memcdf_name)
                 event.delete_memcdf()
             elif isinstance(event, AreaWideGrid):
-                logger.info('deleting temp file %s...' % event.memcdf_name)
+                logger.info('deleting temp file %s...',
+                            event.memcdf_name)
                 event.delete_memcdf()
-        logger.info('deleting temp file %s...' % rain_grid_container.memcdf_name)
+        logger.info('deleting temp file %s...',
+                    rain_grid_container.memcdf_name)
         rain_grid_container.delete_memcdf()
 
         # testing / stats

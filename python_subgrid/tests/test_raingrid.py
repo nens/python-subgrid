@@ -1,23 +1,16 @@
-#test_raingrid
-
-import unittest
 import logging
 import os
-import sys
-import numpy as np
-import datetime
+import unittest
+
 import netCDF4
-
-
-#from python_subgrid.wrapper import SubgridWrapper
-import python_subgrid.wrapper
-
-from python_subgrid.wrapper import SubgridWrapper
+import numpy as np
 
 from python_subgrid.raingrid import AreaWideRainGrid
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.raingrid import RainGridContainer
 from python_subgrid.tests.test_functional import scenarios
+from python_subgrid.wrapper import SubgridWrapper
+import python_subgrid.wrapper
 
 
 if 'SCENARIO_BASEDIR' in os.environ:
@@ -32,7 +25,7 @@ def memcdf_value(filename):
     """For testing"""
     memcdf = netCDF4.Dataset(filename, mode="r+", diskless=False)
     rainfall_var = memcdf.variables["rainfall"]
-    value = rainfall_var[10,10]
+    value = rainfall_var[10, 10]
     memcdf.close()
     return value
 
@@ -46,7 +39,6 @@ class TestCase(unittest.TestCase):
         return os.path.join(scenario_basedir,
                             scenarios[model_slug]['path'],
                             scenarios[model_slug]['mdu_filename'])
-
 
     def tearDown(self):
         pass
@@ -66,7 +58,10 @@ class TestCase(unittest.TestCase):
             subgrid.update(-1)
 
     def test_opendap_grid(self):
-        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        url_template = (
+            'http://opendap.nationaleregenradar.nl/'
+            'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
+            'RAD_TF0005_A_{year}{month}01000000.h5')
         memcdf_name = 'precipitation.nc'
 
         subgrid = python_subgrid.wrapper.SubgridWrapper(mdu=self.mdu)
@@ -103,11 +98,14 @@ class TestCase(unittest.TestCase):
         python_subgrid.wrapper.logger.setLevel(logging.DEBUG)
         subgrid.start()
 
-        url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+        url_template = (
+            'http://opendap.nationaleregenradar.nl/'
+            'thredds/dodsC/radar/TF0005_A/{year}/{month}/01/'
+            'RAD_TF0005_A_{year}{month}01000000.h5')
         container = RainGridContainer(subgrid)
-        rain_grid1 = RainGrid(
+        RainGrid(
             subgrid, url_template, memcdf_name='1.nc', initial_value=1.)
-        rain_grid2 = RainGrid(
+        RainGrid(
             subgrid, url_template, memcdf_name='2.nc', initial_value=2.)
         container.update()
 

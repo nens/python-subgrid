@@ -18,15 +18,17 @@ input from old network config
 # Script will be run like this:
 # find . -name *.mdu -exec update-subgrid-network {} \;
 
-import os
 import argparse
-import sys
 import datetime
+import os
+import sys
 
 import numpy as np
 import pandas
 
-from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
+from python_subgrid.utils import MduParser
+from python_subgrid.utils import MduParserKeepComments
+from python_subgrid.utils import MultiSectionConfigParser
 
 
 DEFAULTS = {
@@ -136,7 +138,8 @@ def parse_args():
         if argumentparser.get_default(dest) == getattr(arguments, dest):
             basename = os.path.basename(arguments.mdu)
             basename = os.path.splitext(basename)[0]
-            filename = getattr(arguments, dest).replace("MDUBASENAME", basename)
+            filename = getattr(arguments, dest).replace("MDUBASENAME",
+                                                        basename)
             setattr(arguments,
                     dest,
                     filename)
@@ -214,14 +217,20 @@ def main():
 
     commentedmdu = MduParserKeepComments()
     commentedmdu.readfp(open(arguments.mdu))
-    commentedmdu.set("geometry", "CrossSectionFile", arguments.crosssection)
-    commentedmdu.set("geometry", "CrossSectionDefinitionFile", arguments.definition)
-    with open(arguments.mdu , 'w') as mdufile:
+    commentedmdu.set("geometry",
+                     "CrossSectionFile",
+                     arguments.crosssection)
+    commentedmdu.set("geometry",
+                     "CrossSectionDefinitionFile",
+                     arguments.definition)
+    with open(arguments.mdu, 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()
         )
         mdufile.write(comment + "\n")
         commentedmdu.write(mdufile)
+
+
 if __name__ == "__main__":
     main()

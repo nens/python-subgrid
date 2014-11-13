@@ -1,4 +1,5 @@
-import multiprocessing
+# Warning: this file won't work, see the TODO later on in this file
+
 import io
 import logging
 import threading
@@ -11,12 +12,7 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 import zmq
 import zmq.eventloop.zmqstream
 
-from tornado.wsgi import WSGIContainer
-from tornado.httpserver import HTTPServer
-from tornado.ioloop import IOLoop
-
 from flask import Flask, g, Response
-from flask import _app_ctx_stack as stack
 
 
 app = Flask(__name__)
@@ -62,6 +58,7 @@ setInterval(function() {
 def model_listener(ctx):
     """keep pushing data to main context"""
     while True:
+        # TODO: This won't work, 'socket' is undefined
         data, metadata = recv_array(socket)
         ctx.g.data[metadata['name']] = data
         ctx.push()

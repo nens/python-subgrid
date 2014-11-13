@@ -22,7 +22,7 @@ import faulthandler
 
 from ctypes import (
     # Types
-    c_double, c_int, c_char_p, c_bool, c_char, c_float, c_void_p,
+    c_double, c_int, c_char_p, c_bool, c_char, c_float,
     # Complex types
     ARRAY, Structure,
     # Making strings
@@ -358,14 +358,15 @@ SLICES = {
     b'nod_type': np.s_[1:],
     b's1': np.s_[1:],
     b'vol1': np.s_[1:],
-    b'dps': np.s_[1:-1,1:-1],
-    b'soiltype': np.s_[1:-1,1:-1],
-    b'croptype': np.s_[1:-1,1:-1],
-    b'infiltrationrate': np.s_[1:-1,1:-1],
-    b'maxinterception': np.s_[1:-1,1:-1],
-    b'uc': np.s_[:,1:],
+    b'dps': np.s_[1:-1, 1:-1],
+    b'soiltype': np.s_[1:-1, 1:-1],
+    b'croptype': np.s_[1:-1, 1:-1],
+    b'infiltrationrate': np.s_[1:-1, 1:-1],
+    b'maxinterception': np.s_[1:-1, 1:-1],
+    b'uc': np.s_[:, 1:],
     b'zg': np.s_[:, 0],  # First ground water layer
 }
+
 
 class SubgridWrapper(object):
     """Wrapper around the ctypes-loaded Fortran subgrid library.
@@ -426,7 +427,7 @@ class SubgridWrapper(object):
         self.library.set_logger.argtypes = [
             fortran_log_functype
         ]
-        self.library.set_logger(fortran_log_func )
+        self.library.set_logger(fortran_log_func)
 
     def _setprogress(self):
         """subscribe to progress updates"""
@@ -712,7 +713,7 @@ class SubgridWrapper(object):
     # Change sliced to True, once we have a complete list of slices...
     def get_nd(self, name, sliced=False):
         """Return an nd array from subgrid library"""
-        if not name in DOCUMENTED_VARIABLES:
+        if name not in DOCUMENTED_VARIABLES:
             # Enforcing documentation is really the only way to
             # ensure, well, documentation. Irritating, yes, but it
             # works. Document them in the ``DOCUMENTED_VARIABLES``
@@ -839,6 +840,7 @@ class SubgridWrapper(object):
         self.library.update_tables.argtypes = argtypes
         self.library.update_tables.restype = c_int
         return self.library.update_tables(name, nodelist, byref(n))
+
     def __enter__(self):
         """Return the decorated instance upon entering the ``with`` block.
 

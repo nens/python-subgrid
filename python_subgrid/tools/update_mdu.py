@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
-"""
-Convert scriptlet, translate an old formatted MDU file (version < 2) to the new v2.1 structure.
+"""Convert scriptlet, translate an old formatted MDU file (version < 2) to
+the new v2.1 structure.
+
 """
 
 # Change mdu file to new v2.1 MDU File Format
@@ -11,13 +12,11 @@ Convert scriptlet, translate an old formatted MDU file (version < 2) to the new 
 # Script will be run like this:
 # find . -name *.mdu -exec update-subgrid-mdu {} \;
 
-
 import argparse
-import sys
 import datetime
-import collections
+import sys
 
-from python_subgrid.utils import MduParser, MduParserKeepComments, MultiSectionConfigParser
+from python_subgrid.utils import MduParserKeepComments
 
 
 def parse_args():
@@ -30,6 +29,7 @@ def parse_args():
     arguments = argumentparser.parse_args()
 
     return arguments
+
 
 def rename_section(config, section1, section2):
     """rename section1 to section2 in the config object"""
@@ -44,16 +44,16 @@ def rename_section(config, section1, section2):
     config.remove_section(section1)
 
 
-def opt_rename(config, section1, section2, option1, option2):
-    """rename section1, option1  to section2, option2 """
-    try:
-        config.set(section2, option2, config.get(section1, option1, 1))
-    except ConfigParser.NoSectionError:
-        # Create non-existent section
-        config.add_section(section2)
-        opt_rename(config, section1, section2, option1, option2)
-    else:
-        config.remove_option(section1, option1)
+# def opt_rename(config, section1, section2, option1, option2):
+#     """rename section1, option1  to section2, option2 """
+#     try:
+#         config.set(section2, option2, config.get(section1, option1, 1))
+#     except ConfigParser.NoSectionError:
+#         # Create non-existent section
+#         config.add_section(section2)
+#         opt_rename(config, section1, section2, option1, option2)
+#     else:
+#         config.remove_option(section1, option1)
 
 
 def main():
@@ -64,65 +64,91 @@ def main():
     # mdudir = os.path.dirname(arguments.mdu)
     # mduparser = MduParser(defaults=DEFAULTS)
     # mduparser.readfp(open(arguments.mdu))
-
-
     commentedmdu = MduParserKeepComments()
     commentedmdu.readfp(open(arguments.mdu))
 
     commentedmdu.set("model", "FileFormatVersion", "2.1")
 
-    # http://docs.python.org/2/library/collections.html#ordereddict-objects    
-    
-    changes = collections.OrderedDict([
-        (("geometry", "ManholeFile"), ("external forcing", "ManholeFile")),
-        (("geometry", "FloodIniFile"), ("initialization", "FloodIniFile")),
-        (("initialization", "WaterLevelFile"), ("initialization", "WaterLevelIniFile")),
-        (("initialization", "FloodWaterLevel"), ("defaults", "FloodWaterLevel")),
-        (("initialization", "FloodLevelAbsolute"), ("defaults", "FloodLevelAbsolute")),
-        (("initialization", "BathymetryIncrement"), ("defaults", "BathymetryIncrement")),
-        (("initialization", "BathIncAbsolute"), ("defaults", "BathIncAbsolute")),
-        (("initialization", "InfiltrationRateNew"), ("defaults", "InfiltrationRateNew")),
-        (("initialization", "Rainfall"), ("defaults", "RainfallCloudAmount")),
-        (("initialization", "RainfallCloudDiameter"), ("defaults", "RainfallCloudDiameter")),
-        (("Ground Water", ""), ("hydrology", "")),
-        (("hydrology", "GroundwaterLevelFile"), ("hydrology", "GroundWaterLevelIniFile")),
-        (("hydrology", "permability_x"), ("hydrology", "HydraulicConductivity_X")),
-        (("hydrology", "permability_y"), ("hydrology", "HydraulicConductivity_Y")),
-        (("hydrology", "GroundwaterLevelFile"), ("hydrology", "GroundWaterLevelIniFile")),
-        (("output", "LogOut"), ("display", "RedrawEvery")),
-        (("output", "SaveHardCopy"), ("display", "SaveHardCopy")),
-        (("output", "showGrid"), ("display", "showGrid")),
-        (("output", "showLinks"), ("display", "showLinks")),
-        (("output", "Show1DNetwork"), ("display", "Show1DNetwork")),
-        (("output", "ShowStructures"), ("display", "ShowStructures")),
-        (("output", "ShowNetworkCRS"), ("display", "ShowNetworkCRS")),
-        (("output", "ShowNodNumbers"), ("display", "ShowNodNumbers")),
-        (("output", "Show1DNodNum"), ("display", "Show1DNodNum")),
-        (("colors", "showInterception"), ("display", "showInterception")),
-        (("colors", "ShowUZslice"), ("display", "ShowUZslice")),
-        (("colors", "sliceUZcolor"), ("display", "sliceUZcolor")),
-        (("colors", "showChanSelect"), ("display", "showChanSelect")),
-        (("colors", "showChanMinY"), ("display", "showChanMinY")),
-        (("colors", "showChanMaxY"), ("display", "showChanMaxY"))
-    ])
-#
-#
+    # http://docs.python.org/2/library/collections.html#ordereddict-objects
+    # changes = collections.OrderedDict([
+    #     (("geometry", "ManholeFile"),
+    #      ("external forcing", "ManholeFile")),
+    #     (("geometry", "FloodIniFile"),
+    #      ("initialization", "FloodIniFile")),
+    #     (("initialization", "WaterLevelFile"),
+    #      ("initialization", "WaterLevelIniFile")),
+    #     (("initialization", "FloodWaterLevel"),
+    #      ("defaults", "FloodWaterLevel")),
+    #     (("initialization", "FloodLevelAbsolute"),
+    #      ("defaults", "FloodLevelAbsolute")),
+    #     (("initialization", "BathymetryIncrement"),
+    #      ("defaults", "BathymetryIncrement")),
+    #     (("initialization", "BathIncAbsolute"),
+    #      ("defaults", "BathIncAbsolute")),
+    #     (("initialization", "InfiltrationRateNew"),
+    #      ("defaults", "InfiltrationRateNew")),
+    #     (("initialization", "Rainfall"),
+    #      ("defaults", "RainfallCloudAmount")),
+    #     (("initialization", "RainfallCloudDiameter"),
+    #      ("defaults", "RainfallCloudDiameter")),
+    #     (("Ground Water", ""),
+    #      ("hydrology", "")),
+    #     (("hydrology", "GroundwaterLevelFile"),
+    #      ("hydrology", "GroundWaterLevelIniFile")),
+    #     (("hydrology", "permability_x"),
+    #      ("hydrology", "HydraulicConductivity_X")),
+    #     (("hydrology", "permability_y"),
+    #      ("hydrology", "HydraulicConductivity_Y")),
+    #     (("hydrology", "GroundwaterLevelFile"),
+    #      ("hydrology", "GroundWaterLevelIniFile")),
+    #     (("output", "LogOut"),
+    #      ("display", "RedrawEvery")),
+    #     (("output", "SaveHardCopy"),
+    #      ("display", "SaveHardCopy")),
+    #     (("output", "showGrid"),
+    #      ("display", "showGrid")),
+    #     (("output", "showLinks"),
+    #      ("display", "showLinks")),
+    #     (("output", "Show1DNetwork"),
+    #      ("display", "Show1DNetwork")),
+    #     (("output", "ShowStructures"),
+    #      ("display", "ShowStructures")),
+    #     (("output", "ShowNetworkCRS"),
+    #      ("display", "ShowNetworkCRS")),
+    #     (("output", "ShowNodNumbers"),
+    #      ("display", "ShowNodNumbers")),
+    #     (("output", "Show1DNodNum"),
+    #      ("display", "Show1DNodNum")),
+    #     (("colors", "showInterception"),
+    #      ("display", "showInterception")),
+    #     (("colors", "ShowUZslice"),
+    #      ("display", "ShowUZslice")),
+    #     (("colors", "sliceUZcolor"),
+    #      ("display", "sliceUZcolor")),
+    #     (("colors", "showChanSelect"),
+    #      ("display", "showChanSelect")),
+    #     (("colors", "showChanMinY"),
+    #      ("display", "showChanMinY")),
+    #     (("colors", "showChanMaxY"),
+    #      ("display", "showChanMaxY"))
+    # ])
+
     # todo: for loop across dict/or list? To be processed in order!
     # foreach
     #    if key1 == "" and key2 == "":
     #       rename_section(commentedmdu, sec1, sec2)
     #    else
     #       opt_rename(commentedmdu, sec1, sec2, key1, key2)
-            # TODO:  need to catch NoOptionError from config.get??
+    #        # TODO:  need to catch NoOptionError from config.get??
 
-    
-    with open(arguments.mdu , 'w') as mdufile:
+    with open(arguments.mdu, 'w') as mdufile:
         comment = "# mdu file changed by {} at {}".format(
             sys.argv[0],
             datetime.datetime.now()
         )
         mdufile.write(comment + "\n")
         commentedmdu.write(mdufile)
+
 
 if __name__ == "__main__":
     main()

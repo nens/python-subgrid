@@ -3,13 +3,13 @@ Read scenario files
 
 *.json
 """
-import os
+import datetime
+import iso8601
 import json
 import logging
-import string
+import os
 import random
-import iso8601
-import datetime
+import string
 
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.raingrid import AreaWideRainGrid
@@ -17,16 +17,17 @@ from python_subgrid.raingrid import AreaWideRainGrid
 
 logger = logging.getLogger(__name__)
 
+
 def random_string(length):
     return ''.join(
-        random.choice(string.ascii_lowercase) 
+        random.choice(string.ascii_lowercase)
         for _ in range(length))
 
 
 class Event(object):
     expected_fields = set([
-        'sim_time_start', # time start in seconds
-        'sim_time_end',  # can be None
+        'sim_time_start',  # time start in seconds
+        'sim_time_end',   # can be None
         ])
 
     def __init__(self, *args, **kwargs):
@@ -43,10 +44,10 @@ class Event(object):
 
 class RadarGrid(Event):
     expected_fields = set([
-        'sim_time_start', # time start in seconds
+        'sim_time_start',  # time start in seconds
         'sim_time_end',  # can be None
         'radar_dt',  # radar datetime at sim_time_start
-        'sync',   # not used
+        'sync',  # not used
         'multiplier',  # not used
         'type',  # not used
         ])
@@ -61,8 +62,8 @@ class RadarGrid(Event):
         self.subgrid = subgrid
         self.radar_url_template = radar_url_template
         self.rain_grid = RainGrid(
-            subgrid, url_template=radar_url_template, 
-            memcdf_name=self.memcdf_name,  
+            subgrid, url_template=radar_url_template,
+            memcdf_name=self.memcdf_name,
             size_x=500, size_y=500, initial_value=0.0)
         self.rain_grid_dt = self.radar_dt
 
@@ -81,13 +82,13 @@ class RadarGrid(Event):
 
     def __str__(self):
         return 'rain grid %s (%r-%r)' % (
-            self.radar_dt.strftime('%Y-%m-%d'), 
+            self.radar_dt.strftime('%Y-%m-%d'),
             self.sim_time_start, self.sim_time_end)
 
 
 class AreaWideGrid(Event):
     expected_fields = set([
-        'sim_time_start', # time start in seconds
+        'sim_time_start',  # time start in seconds
         'sim_time_end',  # can be None
         'rain_definition',  # which "ontwerpbui"?
         'type',  # not used
@@ -108,7 +109,7 @@ class AreaWideGrid(Event):
         """Update grid and apply. Return whether the grid has changed"""
         lookup_time = int(sim_time - self.sim_time_start)
         changed = self.rain_grid.update(
-            rain_definition=self.rain_definition, 
+            rain_definition=self.rain_definition,
             time_seconds=lookup_time)
         return changed
 
@@ -133,12 +134,12 @@ class EventContainer(object):
         if path is not None:
             self.from_path(path)
 
-    def events(self, event_object=None, sim_time=None, 
-            start_within=None, ends_within=None):
+    def events(self, event_object=None, sim_time=None,
+               start_within=None, ends_within=None):
         """
         return event(s) for given sim_time, or return all events
 
-        option: start_within: typically the timestep size or delta time, 
+        option: start_within: typically the timestep size or delta time,
           sim_time_start should be with within this time from sim_sime
         """
         if sim_time is not None:
@@ -149,13 +150,13 @@ class EventContainer(object):
                     if not isinstance(e, event_object):
                         continue
                 if start_within is not None:
-                    if (e.sim_time_start >= sim_time and 
+                    if (e.sim_time_start >= sim_time and
                         e.sim_time_start < sim_time + start_within):
 
                         result.append(e)
                     continue
                 if ends_within is not None:
-                    if (e.sim_time_end is not None and 
+                    if (e.sim_time_end is not None and
                         e.sim_time_end <= sim_time and
                         e.sim_time_end > sim_time - ends_within):
 
@@ -164,11 +165,11 @@ class EventContainer(object):
 
                 # normal
                 if ((e.sim_time_start <= sim_time) and
-                    (e.sim_time_end is None or 
+                    (e.sim_time_end is None or
                      e.sim_time_end > sim_time)):
 
                     result.append(e)
-                    
+
             return result
         else:
             return self._events
@@ -226,4 +227,3 @@ class EventContainer(object):
 #             if os.path.exists(fn):
 #                 logger.info('Reading %s...' % fn)
 #                 self.radar_grids.from_file(fn)
-        
