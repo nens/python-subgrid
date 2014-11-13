@@ -43,6 +43,10 @@ def parse_args():
     argumentparser.add_argument(
         "--color",
         help="Color logs", default=False, action='store_true')
+    argumentparser.add_argument(
+        "--verbose",
+        help="Verbose output (including subgrid output)",
+        default=False, action='store_true')
     arguments = argumentparser.parse_args()
     return arguments
 
@@ -81,7 +85,7 @@ def main():
 
     radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
 
-    subgrid = SubgridWrapper(mdu=arguments.mdu, set_logger=False)
+    subgrid = SubgridWrapper(mdu=arguments.mdu, set_logger=arguments.verbose)
     subgrid.start()
 
     # with SubgridWrapper(mdu=arguments.mdu, set_logger=False) as subgrid:
