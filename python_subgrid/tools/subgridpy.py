@@ -45,6 +45,7 @@ def parse_args():
         help="Color logs", default=False, action='store_true')
     argumentparser.add_argument(
         "--verbose",
+        # USE WITH CARE: THE LOGGING MIGHT BREAK FORTRAN IN CERTAIN CIRCUMSTANCES
         help="Verbose output (including subgrid output)",
         default=False, action='store_true')
     arguments = argumentparser.parse_args()
