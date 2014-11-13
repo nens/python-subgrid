@@ -71,7 +71,8 @@ setup(
             '{0} = python_subgrid.tools.update_tables:main'.format(
                 'update-subgrid-tables'),
             '{0} = python_subgrid.tools.subgridpy:main'.format(
-                'subgridpy')
+                'subgridpy'),
+            'simplesubgrid = python_subgrid.tools.simple:main',
         ]
     }
 )
