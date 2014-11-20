@@ -306,16 +306,16 @@ FUNCTIONS = [
         'argtypes': [c_char_p],
         'restype': c_int
     },
-    # {
-    #     'name': 'read_restart',
-    #     'argtypes': [c_char_p],
-    #     'restype': c_int,
-    # },
-    # {
-    #     'name': 'write_restart',
-    #     'argtypes': [c_char_p],
-    #     'restype': c_int,
-    # },
+    {
+        'name': 'read_restart',
+        'argtypes': [c_char_p],
+        'restype': c_int,
+    },
+    {
+        'name': 'write_restart',
+        'argtypes': [c_char_p],
+        'restype': c_int,
+    },
     {
         'name': 'save_tables',
         'argtypes': [c_char_p],
@@ -325,7 +325,12 @@ FUNCTIONS = [
         'name': 'save_grid',
         'argtypes': [c_char_p],
         'restype': None,
-    }
+    },
+    {
+        'name': 'set_output_directory',
+        'argtypes': [c_char_p],
+        'restype': None,
+    },
 ]
 
 
@@ -400,7 +405,9 @@ class SubgridWrapper(object):
     MAXSTRLEN = 1024
     MAXDIMS = 6
 
-    def __init__(self, mdu=None, sharedmem=False, set_logger=True):
+    def __init__(self, mdu=None, sharedmem=False, set_logger=True,
+                 set_progress=False,
+                 output_dir=None):
         """Initialize the class.
 
         The ``mdu`` argument should be the path to a model's ``*.mdu``
@@ -417,6 +424,8 @@ class SubgridWrapper(object):
         self.original_dir = os.getcwd()
         self.sharedmem = sharedmem
         self.set_logger = set_logger
+        self.set_progress = set_progress
+        self.output_dir = output_dir
 
     def _setlogger(self):
         """subscribe to fortran log messages"""
@@ -568,8 +577,11 @@ class SubgridWrapper(object):
         self.library = self._load_library()
         if self.set_logger:
             self._setlogger()
-        self._setprogress()
+        if self.set_progress:
+            self._setprogress()
         self._annotate_functions()
+        if self.output_dir:
+            self.set_output_directory(self.output_dir)
         self.library.startup()  # Fortran init function.
         if self.mdu:
             self._load_model()

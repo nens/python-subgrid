@@ -209,21 +209,69 @@ class EventContainer(object):
             result.append('  event         : %s' % str(e))
         return result
 
+def apply_events(subgrid, scenario, rain_grid_container):
+    """Apply events that will occur during the current timestep."""
+    t1 = subgrid.get_nd('t1')
+    t0 = subgrid.get_nd('t0')
+    dt = subgrid.get_nd('dt')
 
-# class Scenario(object):
-#     """
-#     Holder for all scenario events
-#     """
-#     area_wide_rain_grids_filename = 'area_wide_rain_grids.json'
-#     radar_grids_filename = 'radar_grids.json'
+    sim_time = float(t1)
+    previous_t = float(t0)
+    radar_url_template = 'http://opendap.nationaleregenradar.nl/thredds/dodsC/radar/TF0005_A/{year}/{month}/01/RAD_TF0005_A_{year}{month}01000000.h5'
+    radar_grid_changed = False
+    # starting scenario events
+    events_init = scenario.events(
+        sim_time=sim_time, start_within=sim_time - previous_t)
+    for event in events_init:
+        logger.info('Init event: %s' % str(event))
+        if isinstance(event, RadarGrid):
+            event.init(subgrid, radar_url_template)
+            rain_grid_container.register(event.memcdf_name)
+        elif isinstance(event, AreaWideGrid):
+            event.init(subgrid)
+            rain_grid_container.register(event.memcdf_name)
 
-#     def __init__(self, path=None):
-#         self.radar_grids = RadarGrids()
-#         if path is not None:
-#             # self.area_wide_rain_grids = AreaWideRainGrids.from_file(
-#             #     os.path.join(path, 'area_wide_rain_grids.json'))
+    # finished scenario events
+    events_finish = scenario.events(
+        sim_time=sim_time, ends_within=dt)
+    for event in events_finish:
+        logger.info('Finish event: %s' % str(event))
+        if isinstance(event, RadarGrid):
+            rain_grid_container.unregister(event.memcdf_name)
+            radar_grid_changed = True
+        elif isinstance(event, AreaWideGrid):
+            rain_grid_container.unregister(event.memcdf_name)
+            radar_grid_changed = True
 
-#             fn = os.path.join(path, self.radar_grids_filename)
-#             if os.path.exists(fn):
-#                 logger.info('Reading %s...' % fn)
-#                 self.radar_grids.from_file(fn)
+    # active scenario events
+    events = scenario.events(sim_time=sim_time)
+    for event in events:
+        # logger.info('Update event: %s' % str(event))
+        if isinstance(event, RadarGrid):
+            changed = event.update(sim_time)
+            if changed:
+                radar_grid_changed = True
+        if isinstance(event, AreaWideGrid):
+            changed = event.update(sim_time)
+            if changed:
+                radar_grid_changed = True
+    if radar_grid_changed:
+        # update container
+        rain_grid_container.update()
+
+
+def clean_events(scenario, rain_grid_container):
+    """Clean up events and corresponding files."""
+    logger.info('Cleaning up...')
+    for event in scenario.events():
+        if isinstance(event, RadarGrid):
+            logger.info('deleting temp file %s...',
+                        event.memcdf_name)
+            event.delete_memcdf()
+        elif isinstance(event, AreaWideGrid):
+            logger.info('deleting temp file %s...',
+                        event.memcdf_name)
+            event.delete_memcdf()
+            logger.info('deleting temp file %s...',
+                        rain_grid_container.memcdf_name)
+            rain_grid_container.delete_memcdf()

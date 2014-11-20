@@ -10,7 +10,7 @@ import sys
 
 from python_subgrid.tests.utils import colorlogs
 from python_subgrid.tools.scenario import apply_events, clean_events
-from python_subgrid.tools.scenario import AREA_WIDE_RAIN, RainGridContainer
+from python_subgrid.raingrid import AREA_WIDE_RAIN, RainGridContainer
 from python_subgrid.tools.scenario import AreaWideGrid
 from python_subgrid.tools.scenario import EventContainer
 from python_subgrid.tools.scenario import RadarGrid
@@ -35,6 +35,9 @@ def parse_args():
     argumentparser.add_argument(
         "--bui",
         help="ontwerpbui from t=0", type=int)
+    argumentparser.add_argument(
+        "--outputdir",
+        help="directory for output files")
     argumentparser.add_argument(
         "--radar",
         help="radar rain from t=0, dt in iso8601 (2013-10-13T00:00:00Z)")
@@ -83,12 +86,18 @@ def main():
     for line in scenario.summary():
         logger.info(line)
 
-    subgrid = SubgridWrapper(mdu=arguments.mdu, set_logger=arguments.verbose)
+
+    subgrid = SubgridWrapper(mdu=arguments.mdu,
+                             set_logger=arguments.verbose,
+                             output_dir=arguments.outputdir)
+
     subgrid.start()
-    subgrid.library.initmodel()
+    # Should not be needed
+    # subgrid.library.initmodel()
 
     rain_grid_container = RainGridContainer(subgrid)
-    subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
+    if arguments.radar:
+        subgrid.subscribe_dataset(rain_grid_container.memcdf_name)
 
     if arguments.tend:
         t_end = arguments.tend
@@ -99,7 +108,6 @@ def main():
 
     t = subgrid.get_nd('t1')  # by reference
     while t < t_end:
-        logger.info('Doing time %s', t)
         apply_events(subgrid, scenario, rain_grid_container)
         subgrid.update(-1)
         t = subgrid.get_nd('t1')  # by reference
