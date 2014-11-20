@@ -121,9 +121,8 @@ logging.basicConfig()
 logger.setLevel(logging.DEBUG)
 
 
-def fortran_log(level_p, message):
+def fortran_log(f_level, message):
     """python logger to be called from fortran"""
-    f_level = level_p
     level = LEVELS_F2PY[f_level]
     logger.log(level, message)
 # define the type of the fortran function
