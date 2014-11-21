@@ -92,7 +92,7 @@ scenarios = {
         'mdu_filename': 'Fopp_default.mdu'
     },
     'hhnk_gebiedsbreed': {
-        'path': 'hhnk_gebiedsbreed',
+        'path': 'hhnk-gebiedsbreed',
         'mdu_filename': 'hhnk_hhnk.mdu'
     },
     'hhnk': {
@@ -138,5 +138,9 @@ scenarios = {
     'duifpolder_2d': {
         'path': 'duifpolder_slice',
         'mdu_filename': 'duifpolder_slice_duif_slice_only2d.mdu'
+    },
+    'testcase_1d_levee': {
+        'path': 'testcase_1d_levee',
+        'mdu_filename': 'testcase_1d_levee.mdu'
     },
 }

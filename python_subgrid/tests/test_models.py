@@ -10,16 +10,11 @@ import numpy.testing as npt
 
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
-from python_subgrid.wrapper import SubgridWrapper, logger
+from python_subgrid.wrapper import SubgridWrapper
 
-# We don't want to know about ctypes here
-
-# only in the test_wrapper and the wrapper itself.
-
-
-# Use DelflandiPad by default for now
 DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
+
 # By default, we look for scenario dirs in the current working directory. This
 # means you need to create symlinks to them.
 # Handiest is to use the ``update_testcases.sh`` script to check out
@@ -38,16 +33,10 @@ default_scenario_path = os.path.join(scenario_basedir,
 models_available = os.path.exists(default_scenario_path)
 msg = "Scenario models not available {}".format(default_scenario_path)
 
-
-colorlogs()
-logging.basicConfig()
-# TODO: aargh, this logger re-defines the logger imported above!
-# TODO: And: don't do basicConfig for logging so globally!
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
 
 
-class TestCase(unittest.TestCase):
+class ModelsTestCase(unittest.TestCase):
 
     def setUp(self):
         self.default_mdu = self._mdu_path(scenario)
@@ -123,6 +112,50 @@ class TestCase(unittest.TestCase):
             logger.info("loaded hhnk gebiedsbreed")
             for i in xrange(600):
                 subgrid.update(-1)
+
+    @printinfo
+    def test_levee_update_hhnk(self):
+        """test load"""
+        mdu = self._mdu_path('hhnk_gebiedsbreed')
+        with SubgridWrapper(mdu=mdu) as subgrid:
+            logger.info("loaded hhnk gebiedsbreed")
+            for i in xrange(20):
+                subgrid.update(-1)
+            mode = 1
+            value = -3.0
+            size = 45.0
+            yc = 511341.52044967
+            xc = 121118.42793780172
+            subgrid.changebathy(xc, yc, size, value, mode)
+            yc = 511350.66269208747
+            xc = 121159.93573375398
+            subgrid.changebathy(xc, yc, size, value, mode)
+
+    @printinfo
+    def test_1d_levee(self):
+        """test load"""
+        mdu = self._mdu_path('testcase_1d_levee')
+        with SubgridWrapper(mdu=mdu) as subgrid:
+            logger.info("loaded 1d levee testcase")
+            for i in xrange(100):
+                subgrid.update(-1)
+            mode = 1
+            value = 30
+            size = 45.0
+            xc = 147790
+            yc = 527080
+            node = 231
+            s1_pre = subgrid.get_nd('s1')[node].copy()
+            subgrid.changebathy(xc, yc, size, value, mode)
+            # update corresponding tables
+            levee_idx = np.array([46, 47])
+            dlev = subgrid.get_nd('dlev')
+            dlev[levee_idx] = value
+            subgrid.update_tables('dlev', levee_idx + 1)
+            for i in range(100):
+                subgrid.update(-1)
+            s1_post = subgrid.get_nd('s1')[node].copy()
+            npt.assert_allclose(s1_post, -1.4, rtol=0.01)
 
     @printinfo
     def test_001_run_beemster(self):
@@ -344,5 +377,7 @@ class TestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # TODO: when is this ever going to get run on its own?
+    # run test from command line
+    colorlogs()
+    logging.basicConfig(level=logging.DEBUG)
     unittest.main()
