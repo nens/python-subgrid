@@ -405,9 +405,9 @@ class SubgridWrapper(object):
     MAXSTRLEN = 1024
     MAXDIMS = 6
 
-    def __init__(self, mdu=None, sharedmem=False, set_logger=True,
-                 set_progress=False,
-                 output_dir=None):
+    def __init__(
+        self, mdu=None, sharedmem=False, set_logger=True,
+        set_progress=False, output_dir=None):
         """Initialize the class.
 
         The ``mdu`` argument should be the path to a model's ``*.mdu``
