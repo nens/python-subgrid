@@ -86,7 +86,7 @@ class TestCase(unittest.TestCase):
     @printinfo
     def test_progress(self):
         """test progress handler"""
-        subgrid = SubgridWrapper(mdu=self.default_mdu)
+        subgrid = SubgridWrapper(mdu=self.default_mdu, set_progress=True)
         foundmessage = False
 
         # Create a new handler
