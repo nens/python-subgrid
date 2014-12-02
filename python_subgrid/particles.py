@@ -34,6 +34,8 @@ class ParticleSystem(object):
         self.grid = self.make_grid()
         self.particles = self.make_particles()
         self.tracer = self.make_tracer()
+        self.velocities = {}
+        self.behaviour = {}
 
     def make_particles(self):
         """just an empty polydata, with an empty set of indices"""
@@ -101,7 +103,7 @@ class ParticleSystem(object):
         return grid
 
     def update_particles(self, pts):
-        """set the particle points and ids"""
+        """set the particle points and ids and possibly a velocity (u, v)"""
         if self.particles.points is None:
             self.particles.points = pts
         else:
@@ -112,8 +114,12 @@ class ParticleSystem(object):
         self.source_ids = ids
         self.particles.modified()
 
-    def reseed(self, pts):
-        """update the streamtracer with points from pts"""
+    def reseed(self, pts, velocity=None, behaviour=None):
+        """
+        update the streamtracer with points from pts
+        velocity is a tuple of u,v
+        behaviour is a function that returns a new txyz, given the txyz
+        """
 
         extra_ids = np.arange(self.current_id, self.current_id+pts.shape[0])
         self.current_id += pts.shape[0]
@@ -146,6 +152,16 @@ class ParticleSystem(object):
         self.source_ids = new_ids
 
         self.particles.modified()
+
+        # keep track of the velocity per particle
+        if velocity is not None:
+            for id_i in extra_ids:
+                self.velocities[id_i] = velocity
+        if behaviour is not None:
+            for id_i in extra_ids:
+                self.behaviour[id_i] = behaviour
+
+
 
     def update_grid(self, i=0):
         grid = self.grid
@@ -236,7 +252,19 @@ class ParticleSystem(object):
             f = scipy.interpolate.interp1d(x, arr, axis=0, bounds_error=True)
             t = np.linspace(0, t_stop, num=16)
             x, y, z = np.atleast_2d(f(t).T)
-            for t_i, x_i, y_i, z_i in zip(t, x, y, z):
+
+            # add velocity
+            velocity = self.velocities.get(particle_i, (0, 0))
+            x += t * velocity[0]
+            y += t * velocity[1]
+
+            # add behaviour
+            txyz = np.c_[t, x, y, z]
+            # change the particle using a behaviour function
+            behaviour = self.behaviour.get(particle_i, lambda txyz: txyz)
+            txyz = behaviour(txyz)
+
+            for t_i, x_i, y_i, z_i in txyz:
                 # TODO hack in time properly
                 row = dict(t=t_i + self.current_i * 900, x=x_i, y=y_i, z=z_i,
                            particle=particle_i, reason=reason)
@@ -262,7 +290,9 @@ class ParticleSystem(object):
 
         # create an rtree for fast lookup
         # ids should be as long as number of points in particles
-        assert len(self.source_ids) == self.particles.number_of_points, "%s should be %s" % (len(self.source_ids),  self.particles.number_of_points)
+        msg = "%s should be %s" % (len(self.source_ids),
+                                   self.particles.number_of_points)
+        assert len(self.source_ids) == self.particles.number_of_points, msg
 
         # ids of the source points
         tree = rtree.Rtree()
@@ -286,7 +316,19 @@ class ParticleSystem(object):
         # lookup all locations of the particles in the ids
         idxs = []
         for line_i in lines:
-            idx = tree.nearest(tuple(line_i[:2])).next()
+            # find the particle that is closest, max of 10 locations
+            for idx in tree.nearest(tuple(line_i[:2]), num_results=10):
+                if idx in idxs:
+                    # if we already found this, keep looking
+                    continue
+                else:
+                    # found one
+                    break
+            else:
+                # oops, we can't find a single particle here that we haven't used already
+                idx = iter(tree.nearest(tuple(line_i[:2]))).next()
+                logging.warn('Could not find particle for %s, reusing %s', line_i, idx)
+            # add it to the list
             idxs.append(idx)
         return np.array(idxs)
 
