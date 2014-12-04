@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.20 (unreleased)
+0.20 (2014-12-04)
 -----------------
 
 - Made subgridpy prettier.
