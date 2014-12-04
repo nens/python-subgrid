@@ -5,7 +5,11 @@ Changelog of python-subgrid
 0.20 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Made subgridpy prettier.
+
+- Added option Outputdir (use with subgrid 0.7-5 or higher).
+
+- Updated tests.
 
 
 0.19 (2014-08-27)
@@ -25,7 +29,7 @@ will not build. `sudo easy_install -U six`
 
 - Added draw_shape_on_raster in plotting.
 
-- Point repos in update_testcases.sh to production model databank 
+- Point repos in update_testcases.sh to production model databank
   (hg.lizard.net).
 
 - Added features to subgridpy, the offline python subgrid runner:
