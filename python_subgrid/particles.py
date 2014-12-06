@@ -1,16 +1,24 @@
+"""
+Particle module that seeds particles in an unstructured or quadtree grid.
+"""
+
 import logging
 
-from tvtk.api import tvtk, write_data
-import enum
 import numpy as np
 import pandas
-import rtree
 import scipy.interpolate
+# enum34
+import enum
+# mayavi
+from tvtk.api import tvtk, write_data
+# for spatial matching
+import rtree
 
-
+# Use a logger named to the module
 logger = logging.getLogger(__name__)
 
 
+# Reason for termination
 class Reason(enum.Enum):
     OUT_OF_DOMAIN = 1
     NOT_INITIALIZED = 2
@@ -18,22 +26,30 @@ class Reason(enum.Enum):
     OUT_OF_TIME = 4
     OUT_OF_STEPS = 5
     STAGNATION = 6
+    # this is extra for living partciles
+    DEAD = 11
 
 
 class ParticleSystem(object):
-    """A VTK based particle system"""
+    """A VTK based particle system with custom particle behaviour"""
     def __init__(self, ds):
 
         # store a reference to the dataset
         self.ds = ds
         # id administration of particles
+        # Needed because VTK does not store particle identification
         self.source_ids = np.array([], dtype='int64')
+        # next id to be used for a particle
         self.current_id = 0
         # current timestep
         self.current_i = 0
+        # computational grid
         self.grid = self.make_grid()
+        # Current locations of the particles
         self.particles = self.make_particles()
+        # Streamtracer for current timestep
         self.tracer = self.make_tracer()
+        # Custom velocities and behaviour per partcil
         self.velocities = {}
         self.behaviour = {}
 
@@ -44,33 +60,55 @@ class ParticleSystem(object):
 
     def make_tracer(self):
         """create a data object to store particles"""
-
         grid = self.grid
-
+        # This drops unlinked polygons
         # Clean the polydata
+        # If you do this for quadtrees you'll lose half of the particles
+        # The better way would be to setup an AMR, but that only
+        # works from >vtk6
         clean = tvtk.CleanPolyData()
         clean.input = grid
+        # gives a topological sound grid
         clean.update()
-        # Connect the grid
+        # We need to convert to point data for interpolation of velocities.
+        # This assumes vectors are cell centered
         cell2pointgrid = tvtk.CellDataToPointData()
         cell2pointgrid.input = clean.output
         cell2pointgrid.update()
 
         # Create a stream tracer
+        # We want to use the particle class that also can interpolate over time
+        # But it is not working as expected so we'll use the streamtracer
+        # This gives the same results if the velocity field is stationary
+        # If the velocity field is not stationary you have to reduce
+        # your timestep
         st = tvtk.StreamTracer()
+
+        # We attach 2 data source
         # Set the points in the streamer
         st.source = self.particles
         # Set the corner velocities
         st.input = cell2pointgrid.output
 
+        # You can compute up to 2km per timestep (8km/hr for )
         l = 2000  # max propagation
         n = 200  # max number of steps
-        st.maximum_propagation = l  # 1km max propagation
+
+        st.maximum_propagation = l
+        # In m
         st.integration_step_unit = 1
+        # Minimum 10m per step
         st.minimum_integration_step = (l/n)
+        # Maximum 100m per step
         st.maximum_integration_step = 10*(l/n)
+        # Maximum 200 steps
         st.maximum_number_of_steps = n
+        # Maximum error 1cm
         st.maximum_error = 1e-2
+        # We use a path integration. You could argue that you need a
+        # particle tracking algorithm that matches the numerical grid
+        # (in our case edge velocities
+        # and integration over a cell instead of over a line)
         st.integrator_type = 'runge_kutta45'
         return st
 
@@ -92,7 +130,9 @@ class ParticleSystem(object):
         pts = np.c_[X.ravel(), Y.ravel(), Z.ravel()]
 
         # quads all the way down
+        # quads with different resolutions actually don't work so well
         cell_array = tvtk.CellArray()
+        # For unstructured grids you need to count the number of edges per cell
         cell_idx = np.array([[4] + [i*4 + j for j in range(4)]
                              for i in range(ncells)]).ravel()
         cell_array.set_cells(ncells, cell_idx)
@@ -103,11 +143,14 @@ class ParticleSystem(object):
         return grid
 
     def update_particles(self, pts):
-        """set the particle points and ids and possibly a velocity (u, v)"""
+        """set the particle points and generate ids"""
+        # If we don't have particles yet add them
         if self.particles.points is None:
             self.particles.points = pts
         else:
+            # or set them
             self.particles.points.from_array(pts)
+        # generate new id's
         ids = np.arange(self.current_id, self.current_id + pts.shape[0])
         # update the current id
         self.current_id += pts.shape[0]
@@ -161,8 +204,6 @@ class ParticleSystem(object):
             for id_i in extra_ids:
                 self.behaviour[id_i] = behaviour
 
-
-
     def update_grid(self, i=0):
         grid = self.grid
         ds = self.ds
@@ -198,6 +239,7 @@ class ParticleSystem(object):
         return df
 
     def get_lines(self):
+        """convert the streamlines to a data frame"""
         line_ids = self.get_ids()
 
         start = 0
@@ -227,45 +269,59 @@ class ParticleSystem(object):
         return df
 
     def df2particles(self, df_points, df_lines, t_stop):
+        """merge points, lines and cut off at a stop time"""
         columns = ['line', 'line_idx', 'n', 'point_idx', 'x', 'y', 'z',
                    'IntegrationTime', 'reason', 'p']
         if df_points.empty or df_lines.empty:
             columns = ['t', 'x', 'y', 'z', 'particle', 'reason']
             df = pandas.DataFrame(columns=columns)
             return df
+        # Combine the lines and points
         df = df_lines.merge(df_points,
                             right_on='point_idx',
                             left_on='point_idx')
         df = df[columns]
         rows = []
+        # For each particle
         for particle_i, group in df.groupby('p'):
+            # Not sure when this happens
             if particle_i < 0:
                 continue
+            # Get the reason at t=0
             reason = group['reason'].irow(0)
+            # Lookup the coordinates
             arr = np.array(group[['x', 'y', 'z']])
             x = np.array(group['IntegrationTime'])
 
-            # extrapolate
+            # extrapolate if we don't reach t_stop
             if x[-1] < t_stop:
                 x = np.append(x, [t_stop])
                 arr = np.append(arr, arr[-1][np.newaxis, :], axis=0)
+            # interpolate in the current timestep (for reduced output size)
             f = scipy.interpolate.interp1d(x, arr, axis=0, bounds_error=True)
+            # we only need 16 points
             t = np.linspace(0, t_stop, num=16)
+            # return the recomputed times
+            # interpolated over position as function of integrationtime
             x, y, z = np.atleast_2d(f(t).T)
 
-            # add velocity
+            # add velocity if given
             velocity = self.velocities.get(particle_i, (0, 0))
             x += t * velocity[0]
             y += t * velocity[1]
 
-            # add behaviour
+            # add behaviour if given
             txyz = np.c_[t, x, y, z]
             # change the particle using a behaviour function
+            # TODO: add reason and deaths
             behaviour = self.behaviour.get(particle_i, lambda txyz: txyz)
             txyz = behaviour(txyz)
 
+            # create a new data frame
             for t_i, x_i, y_i, z_i in txyz:
                 # TODO hack in time properly
+                # 900 -> always 15min, also check resolution and tracer
+                # settings
                 row = dict(t=t_i + self.current_i * 900, x=x_i, y=y_i, z=z_i,
                            particle=particle_i, reason=reason)
                 rows.append(row)
@@ -276,6 +332,7 @@ class ParticleSystem(object):
         """extract the particles from a streamtracer"""
         df_points = self.get_points()
         df_lines = self.get_lines()
+        # Combine, interpolate, behave and return
         df = self.df2particles(df_points, df_lines, t_stop=t_stop)
         return df
 
@@ -300,12 +357,13 @@ class ParticleSystem(object):
                                     self.particles.points.to_array()):
             tree.add(i, (x_i, y_i))
 
+        # lookup lines and points
         lines = st.output.lines.data.to_array()
         points = st.output.points.to_array()
         rows = []
         start = 0
         for i in range(st.output.lines.number_of_cells):
-            """loop over al lines"""
+            # loop over al lines
             n = lines[start]
             idx = lines[start+1]
             coord = points[idx]
@@ -325,9 +383,11 @@ class ParticleSystem(object):
                     # found one
                     break
             else:
-                # oops, we can't find a single particle here that we haven't used already
+                # oops, we can't find a single particle here that
+                # we haven't used already
                 idx = iter(tree.nearest(tuple(line_i[:2]))).next()
-                logging.warn('Could not find particle for %s, reusing %s', line_i, idx)
+                msg = 'Could not find particle for %s, reusing %s'
+                logging.warn(msg, line_i, idx)
             # add it to the list
             idxs.append(idx)
         return np.array(idxs)
