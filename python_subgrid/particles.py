@@ -18,18 +18,6 @@ import rtree
 logger = logging.getLogger(__name__)
 
 
-# Reason for termination
-class Reason(enum.Enum):
-    OUT_OF_DOMAIN = 1
-    NOT_INITIALIZED = 2
-    UNEXPECTED_VALUE = 3
-    OUT_OF_TIME = 4
-    OUT_OF_STEPS = 5
-    STAGNATION = 6
-    # this is extra for living partciles
-    DEAD = 11
-
-
 class ParticleSystem(object):
     """A VTK based particle system with custom particle behaviour"""
     def __init__(self, ds):
@@ -312,10 +300,16 @@ class ParticleSystem(object):
 
             # add behaviour if given
             txyz = np.c_[t, x, y, z]
+
             # change the particle using a behaviour function
-            # TODO: add reason and deaths
-            behaviour = self.behaviour.get(particle_i, lambda txyz: txyz)
-            txyz = behaviour(txyz)
+            def default_behaviour(txyz):
+                """return current reason and txyz"""
+                # use reason from outer scope
+                return txyz, reason
+
+            behaviour = self.behaviour.get(particle_i, default_behaviour)
+            txyz, reason = behaviour(txyz)
+
 
             # create a new data frame
             for t_i, x_i, y_i, z_i in txyz:
@@ -374,8 +368,8 @@ class ParticleSystem(object):
         # lookup all locations of the particles in the ids
         idxs = []
         for line_i in lines:
-            # find the particle that is closest, max of 10 locations
-            for idx in tree.nearest(tuple(line_i[:2]), num_results=10):
+            # find the particle that is closest, max of 100 locations
+            for idx in tree.nearest(tuple(line_i[:2]), num_results=100):
                 if idx in idxs:
                     # if we already found this, keep looking
                     continue

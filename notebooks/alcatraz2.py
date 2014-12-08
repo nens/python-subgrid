@@ -1,5 +1,9 @@
 import logging
 import datetime
+import functools
+
+# enum34
+import enum
 
 import pandas
 import netCDF4
@@ -10,6 +14,51 @@ import dateutil.rrule
 
 import pyprind
 import python_subgrid.particles
+
+
+# Reason for termination
+class Reason(enum.Enum):
+    # VTK termination reasons
+    OUT_OF_DOMAIN = 1
+    NOT_INITIALIZED = 2
+    UNEXPECTED_VALUE = 3
+    OUT_OF_TIME = 4
+    OUT_OF_STEPS = 5
+    STAGNATION = 6
+    # this is extra for living particles
+    DEATH = 11
+    ESCAPE = 12
+
+
+def behaviour(txyz, velocity, targets, survivaltime=60*60*5, i0=0):
+    """swim with velocity to a target in the target list"""
+    # determine target at t0
+    x, y = txyz[0, 1], txyz[0, 2]
+    dt = txyz[-1, 0] - txyz[0, 0]
+
+    distance = np.sqrt((targets['x_utm'] - x)**2 + (targets['y_utm'] - y)**2)
+    name = distance.argmin()
+    target = targets.ix[name]
+
+    # Default reason
+    reason = Reason.OUT_OF_TIME.value
+
+    # Make sure we don't overshoot
+    if distance.ix[name]/dt <= velocity:
+        velocity = min(distance.ix[name]/dt, velocity)
+        reason = Reason.ESCAPE.value
+
+    angle = np.arctan2(target['y_utm'] - y, target['x_utm'] - x)
+    dx = np.cos(angle) * velocity
+    dy = np.sin(angle) * velocity
+    # add the velocity to the path
+    txyz[:, 1] += dx * txyz[:, 0]
+    txyz[:, 2] += dy * txyz[:, 0]
+
+    if (txyz[-1, 0] - (i0 * 900)) > survivaltime:
+        reason = Reason.DEATH.value
+    return txyz, reason
+
 
 def num2deg(xtile, ytile, zoom):
     """convert x,y zoom number to a lat/long"""
@@ -81,24 +130,7 @@ if __name__ == "__main__":
     locations['x_utm'] = [xyz_i[0] for xyz_i in xyz]
     locations['y_utm'] = [xyz_i[1] for xyz_i in xyz]
     locations = locations.set_index('name')
-    print locations
 
-    def behaviour(txyz):
-        # determine target at t0
-        velocity = 0.3
-        x, y = txyz[0,1], txyz[0,2]
-
-        targets = locations[locations.index != 'alcatraz']
-        distance = np.sqrt((targets['x_utm'] - x)**2 + (targets['y_utm'] - y)**2)
-        name = distance.argmin()
-        target = targets.ix[name]
-        angle = np.arctan2(target['y_utm'] - y, target['x_utm'] - x)
-        dx = np.cos(angle) * velocity
-        dy = np.sin(angle) * velocity
-        # add the velocity to the path
-        txyz[:,1] += dx * txyz[:,0]
-        txyz[:,2] += dy * txyz[:,0]
-        return txyz
 
     # we're using this area
     ll, ur = num2deg(1308, 3167, 13), num2deg(1314, 3163, 13)
@@ -110,10 +142,8 @@ if __name__ == "__main__":
     ur_utm = wgs2utm.TransformPoint(ur[0], ur[1])
 
     ll, ur, ll_osm, ur_osm, ll_utm, ur_utm
-    # we'll use the version with a sepia color
-    # (for contrast with the blue lines)
-    img = plt.imread('sfo_13_1308_1314_3163_3167-sepia.png')
 
+    # Model input
     filename = '/Users/baart_f/models/sfo/sfo-3di/subgrid_map_15min.nc'
     ds = netCDF4.Dataset(filename)
     times = netCDF4.num2date(ds.variables['time'][:],
@@ -135,9 +165,13 @@ if __name__ == "__main__":
         datetime.datetime(1962, 6, 12, 4, 0),
         inc=True
     )
+    targets = locations[locations.index != 'alcatraz']
+
+    behaviour = functools.partial(behaviour, velocity=0.25, targets=targets)
     for i, t in enumerate(selection):
         prbar.update()
         if t in swimmers:
+            behaviour = functools.partial(behaviour, i0=i)
             seed_alcatraz(system, behaviour=behaviour)
         else:
             seed_domain(system)
@@ -148,4 +182,4 @@ if __name__ == "__main__":
     df = pandas.concat(dfs)
     df.drop_duplicates(cols=['particle', 't'], inplace=True)
     df.sort(columns=['particle', 't'], inplace=True)
-    df.to_hdf('parts5.h5', 'particles')
+    df.to_hdf('parts6.h5', 'particles')
