@@ -3,6 +3,7 @@ Particle module that seeds particles in an unstructured or quadtree grid.
 """
 
 import logging
+import itertools
 
 import numpy as np
 import pandas
@@ -358,17 +359,25 @@ class ParticleSystem(object):
         start = 0
         for i in range(st.output.lines.number_of_cells):
             # loop over al lines
+            # number of points in line
             n = lines[start]
+            # idx of first point
             idx = lines[start+1]
+            # coordinates of first point
             coord = points[idx]
+            # next point
             start += (n + 1)
             rows.append(coord)
         lines = np.array(rows)
+
 
         # lookup all locations of the particles in the ids
         idxs = []
         for line_i in lines:
             # find the particle that is closest, max of 100 locations
+            # This is a bit tricky because if particles start piling up this can break.
+            # We're looking in increasing number of particles to match them up
+            # This looks like double work, but it's not as bad as it looks
             for idx in tree.nearest(tuple(line_i[:2]), num_results=100):
                 if idx in idxs:
                     # if we already found this, keep looking

@@ -1,6 +1,7 @@
 import logging
 import datetime
 import functools
+import itertools
 
 # enum34
 import enum
@@ -9,9 +10,10 @@ import pandas
 import netCDF4
 import numpy as np
 import osgeo.osr
-import matplotlib.pyplot as plt
 import dateutil.rrule
 
+import tables
+import docopt
 import pyprind
 import python_subgrid.particles
 
@@ -30,7 +32,7 @@ class Reason(enum.Enum):
     ESCAPE = 12
 
 
-def behaviour(txyz, velocity, targets, survivaltime=60*60*5, i0=0):
+def behaviour(txyz, velocity, targets, survivaltime=60*60*5, i0=0, mindistance=150):
     """swim with velocity to a target in the target list"""
     # determine target at t0
     x, y = txyz[0, 1], txyz[0, 2]
@@ -42,6 +44,10 @@ def behaviour(txyz, velocity, targets, survivaltime=60*60*5, i0=0):
 
     # Default reason
     reason = Reason.OUT_OF_TIME.value
+
+    # No land in sight (foggy night)
+    if distance[name] > mindistance:
+        return txyz, reason
 
     # Make sure we don't overshoot
     if distance.ix[name]/dt <= velocity:
@@ -95,6 +101,40 @@ def seed_domain(system, n_total=2000):
 
 
 if __name__ == "__main__":
+    doc = """
+    Alcatraz Escape
+
+    Usage:
+        alcatraz2.py [--seed]
+        alcatraz2.py behaviour <speed> [--visibility=<m>] [--seed]
+        alcatraz2.py velocity <u> <v> [--seed]
+        alcatraz2.py --version
+
+    Options:
+        -h --help     Show this screen.
+        --version     Show version.
+        --visibility=<m>  Visibility [default: 800].
+        --seed        Seed the domain with extra particles
+    """
+    arguments = docopt.docopt(doc, version='Alcatraz Escape 1.0')
+    print(arguments)
+
+    visibility = float(arguments['--visibility'])
+
+    use_velocity = arguments['velocity']
+    u = arguments['<u>']
+    v = arguments['<v>']
+    if use_velocity:
+        u = float(u)
+        v = float(v)
+
+    use_behaviour = arguments['behaviour']
+    speed = arguments['<speed>']
+    if use_behaviour:
+        speed = float(speed)
+
+    seed = arguments['--seed']
+
     logging.basicConfig()
     logging.root.setLevel(logging.WARNING)
 
@@ -113,9 +153,17 @@ if __name__ == "__main__":
     # define the location of the Alcatraz escape location
     locations = []
     locations.append(dict(name='alcatraz', lon=-122.4239052, lat=37.8279125))
-    locations.append(dict(name='point_blunt', lat=37.852489, lon=-122.419121))
+    # locations.append(dict(name='point_blunt', lat=37.852489, lon=-122.419121))
     locations.append(dict(name='golden_gate', lat=37.831936, lon=-122.472733))
-    locations.append(dict(name='fishermans_warf', lat=37.810781, lon=-122.412790))
+    # locations.append(dict(name='fishermans_warf', lat=37.810781, lon=-122.412790))
+    locations.append(dict(name='a', lat=37.832079, lon=-122.472916))
+    locations.append(dict(name='b', lat=37.825529, lon=-122.479080))
+    locations.append(dict(name='c', lat=37.825900, lon=-122.482869))
+    locations.append(dict(name='d', lat=37.826160, lon=-122.486745))
+    locations.append(dict(name='e', lat=37.822314, lon=-122.495721))
+    locations.append(dict(name='f', lat=37.819975, lon=-122.499629))
+    locations.append(dict(name='g', lat=37.820970, lon=-122.504606))
+    locations.append(dict(name='h', lat=37.815442, lon=-122.528458))
     locations = pandas.DataFrame(locations)
 
     xyz = wgs2osm.TransformPoints(
@@ -167,14 +215,25 @@ if __name__ == "__main__":
     )
     targets = locations[locations.index != 'alcatraz']
 
-    behaviour = functools.partial(behaviour, velocity=0.25, targets=targets)
+    behaviour = functools.partial(behaviour,
+                                  velocity=speed,
+                                  targets=targets,
+                                  mindistance=visibility)
+    if use_velocity:
+        velocity = (u, v)
+    else:
+        velocity = None
     for i, t in enumerate(selection):
         prbar.update()
         if t in swimmers:
-            behaviour = functools.partial(behaviour, i0=i)
-            seed_alcatraz(system, behaviour=behaviour)
+            if use_behaviour:
+                behaviour = functools.partial(behaviour, i0=i)
+            else:
+                behaviour = None
+            seed_alcatraz(system, behaviour=behaviour, velocity=velocity)
         else:
-            seed_domain(system)
+            if seed:
+                seed_domain(system)
         system.update_grid(i=i)
         system.tracer.update()
         df = system.get_particles()
@@ -182,4 +241,28 @@ if __name__ == "__main__":
     df = pandas.concat(dfs)
     df.drop_duplicates(cols=['particle', 't'], inplace=True)
     df.sort(columns=['particle', 't'], inplace=True)
-    df.to_hdf('parts6.h5', 'particles')
+    # Add the particles to the file
+    filename = 'parts.h5'
+
+    # Create a new group
+    f = tables.open_file(filename, 'a')
+    for i in itertools.count():
+        name = 'particles_%d' % (i,)
+        if name in f.root._v_children:
+            continue
+        else:
+            break
+    f.close()
+    # Store the table
+    df.to_hdf(filename, name)
+    # Add the parameters
+    f = tables.open_file(filename, 'a')
+    f.set_node_attr("/" + name, 'visibility', visibility)
+    f.set_node_attr("/" + name, 'speed', speed)
+    f.set_node_attr("/" + name, 'u', u)
+    f.set_node_attr("/" + name, 'v', v)
+    f.set_node_attr("/" + name, 'velocity', velocity)
+    f.set_node_attr("/" + name, 'use_behaviour', use_behaviour)
+    f.set_node_attr("/" + name, 'use_velocity', use_velocity)
+    f.set_node_attr("/" + name, 'seed', seed)
+    f.close()
