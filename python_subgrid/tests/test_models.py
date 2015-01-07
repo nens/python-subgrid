@@ -11,6 +11,7 @@ import numpy.testing as npt
 from python_subgrid.raingrid import RainGrid
 from python_subgrid.tests.utils import printinfo, scenarios, colorlogs
 from python_subgrid.wrapper import SubgridWrapper
+from python_subgrid.plotting import make_quad_grid
 
 DEFAULT_SCENARIO = 'delfland_gebiedsbreed'
 scenario = os.environ.get('SCENARIO', DEFAULT_SCENARIO)
@@ -375,6 +376,34 @@ class ModelsTestCase(unittest.TestCase):
         with SubgridWrapper(mdu=self._mdu_path('testcase')) as subgrid:
             subgrid  # pyflakes
 
+    @printinfo
+    def test_1d_levee_bathy(self):
+        """test load"""
+        mdu = self._mdu_path('testcase_1d_levee')
+        with SubgridWrapper(mdu=mdu) as subgrid:
+            logger.info("loaded 1d levee testcase")
+            for i in xrange(100):
+                subgrid.update(-1)
+            mode = 1
+            value = 30
+            size = 45.0
+            xc = 147790
+            yc = 527080
+            node = 231
+            dps_pre = subgrid.get_nd('dps').copy()
+            subgrid.changebathy(xc, yc, size, value, mode)
+            dps_post = subgrid.get_nd('dps').copy()
+
+            quad_grid = make_quad_grid(subgrid)
+            nods = set(quad_grid[100:110, 100:110].ravel())
+            dps_pre = subgrid.get_nd('dps')
+            dps_pre[100:110, 100:110] = dps_pre[100:110, 100:110] + 5.0
+
+            subgrid.update_tables('dps', list(nods))
+            for i in xrange(100):
+                subgrid.update(-1)
+            dps_post = subgrid.get_nd('dps').copy()
+            npt.assert_allclose(dps_post, dps_pre, rtol=0.01)
 
 if __name__ == '__main__':
     # run test from command line
