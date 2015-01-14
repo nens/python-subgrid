@@ -205,8 +205,9 @@ if __name__ == "__main__":
                             width=100, track_time=True)
 
     rrule = dateutil.rrule.rrule(
-        dateutil.rrule.HOURLY,
-        dtstart=datetime.datetime(1962, 6, 11, 19, 0)
+        dateutil.rrule.MINUTELY,
+        dtstart=datetime.datetime(1962, 6, 11, 19, 0),
+        interval=30
     )
     swimmers = rrule.between(
         datetime.datetime(1962, 6, 11, 19, 0),
