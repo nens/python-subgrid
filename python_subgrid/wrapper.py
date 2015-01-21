@@ -356,7 +356,9 @@ NEED_COPYING = {b'link_branchid', b'link_chainage', b'link_idx', b'link_type'
 # Add variables here that are indexed 0 based or n+1 based in fortran and where
 # the extra dimension should not be returned
 # Not used by default yet. (Use sliced=True in get_nd)
+# These should match with the info in extracted_variables.json
 SLICES = {
+    b'u1': np.s_[1:],
     b'FlowElem_xcc': np.s_[1:],
     b'FlowElem_ycc': np.s_[1:],
     b'nod_type': np.s_[1:],
