@@ -5,7 +5,9 @@ Changelog of python-subgrid
 0.21 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Expose friction parameters (fricttype, const_friction, and frictcoefuser)
+- Default slice for velocities on interfaces (u1) and expose number of u, v velocity points (liutot, livtot)
+
 
 
 0.20 (2014-12-04)
