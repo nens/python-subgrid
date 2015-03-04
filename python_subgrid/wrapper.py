@@ -268,11 +268,11 @@ FUNCTIONS = [
     },
     {
         'name': 'discharge',
-        'argtypes': [POINTER(c_double),
-                     POINTER(c_double),
-                     c_char_p,
-                     POINTER(c_int),
-                     POINTER(c_double)],
+        'argtypes': [POINTER(c_double),   # x
+                     POINTER(c_double),   # y
+                     c_char_p,            # c_manhole
+                     POINTER(c_int),      # itype
+                     POINTER(c_double)],  # value
         'restype': c_int,
     },
     {
