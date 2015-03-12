@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.21 (unreleased)
+0.21 (2015-03-12)
 -----------------
 
 - Expose friction parameters (fricttype, const_friction, and frictcoefuser) corresponds with model reversion 1738.
