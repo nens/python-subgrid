@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 Findings:
-- dps transpose questionable? Does it matter?
+- dps transpose questionable? Does it matter? It was not used anyway.
 - Range endpoint is exclusive.
 - Coordinates are now topleft coordinates instead of centers
 - Fetched data is of correct date and location
@@ -61,7 +61,7 @@ def sandbox():
     rain_grid = RainGrid(subgrid=subgrid, url_template=url_template)
 
     rain_grid.update(Datetime(2014, 7, 28, 10))
-    logger.debug('done.')
+    logger.debug('Done.')
 
 
 def get_parser():
