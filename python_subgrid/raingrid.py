@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+
 from __future__ import division
 
 import datetime
 import logging
+import math
 import os
 import urllib
 import urlparse
@@ -93,7 +95,7 @@ class RainGrid(object):
         self.memcdf_name = memcdf_name
         self.diskless = False
 
-        # Read pixels in model to create grid for rain
+        # Read pixels in model to inspect bathymetry width, height and bbox
         width = subgrid.get_nd('imax') + 1
         height = subgrid.get_nd('jmax') + 1
 
@@ -107,6 +109,18 @@ class RainGrid(object):
         y1 = y2 - height * dy
 
         self.bbox = x1, x2, y1, y2
+
+        # determine width and height for a smaller grid with same aspect
+
+        area = 512 * 512
+        aspect = width / height
+
+        width = int(math.sqrt(area * aspect))
+        height = int(area / width)
+
+        dx = (x2 - x1) / width
+        dy = (y2 - y1) / height
+
         self.width = width
         self.height = height
 
