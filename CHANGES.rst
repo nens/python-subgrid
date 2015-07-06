@@ -5,7 +5,7 @@ Changelog of python-subgrid
 0.22 (unreleased)
 -----------------
 
-- Nothing changed yet.
+- Raingrid now fetches rain from raster-server and interpolates not anymore.
 
 
 0.21 (2015-03-12)
