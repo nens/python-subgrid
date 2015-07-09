@@ -6,6 +6,7 @@ import datetime
 import logging
 import math
 import os
+import tempfile
 import urllib
 import urlparse
 
@@ -56,17 +57,15 @@ def get_rain(bbox, width, height, datetime,
                                      path=urlparse.urljoin(server, 'data'))
         logger.info('Loading rain data from %s...' % url)
 
-        # receive tif into gdal vsimem
-        vsi_path = '/vsimem/rain.tif'
-        vsi_file = gdal.VSIFOpenL(str(vsi_path), b'w')
+        # receive tif into temporary file
+        fileno, path = tempfile.mkstemp()
         url_file = urllib.urlopen(url)
-        size = int(url_file.info().get('content-length'))
-        gdal.VSIFWriteL(url_file.read(), size, 1, vsi_file)
-        gdal.VSIFCloseL(vsi_file)
+        os.write(fileno, url_file.read())
+        os.close(fileno)
 
-        # fetch array and free vsimem storage
-        rain = gdal.Open(vsi_path).ReadAsArray()
-        gdal.Unlink(vsi_path)
+        # read array and remove tempfile
+        rain = gdal.Open(path).ReadAsArray()
+        os.remove(path)
         return rain
 
 
