@@ -58,7 +58,7 @@ def get_rain(bbox, width, height, datetime,
         logger.info('Loading rain data from %s...' % url)
 
         # receive tif into temporary file
-        fileno, path = tempfile.mkstemp()
+        fileno, path = tempfile.mkstemp(suffix='.tif')
         url_file = urllib.urlopen(url)
         os.write(fileno, url_file.read())
         os.close(fileno)
