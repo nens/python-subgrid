@@ -57,9 +57,15 @@ class HTTPHandler(tornado.web.RequestHandler):
         self.set_header("Content-Type", "application/octet-stream")
         self.write(self.message)
 
+class MainHTTPHandler(tornado.web.RequestHandler):
+    def get(self):
+        self.set_header("Content-Type", "text/html")
+        self.write('<h1>Ok</h1>')
+
 def app():
     # register socket
     application = tornado.web.Application([
+        (r"/", MainHTTPHandler),
         (r"/echo", WebSocket, dict(url='echo')),
         (r"/publish", WebSocket, dict(url='publish')),
         # todo use an id scheme to attach to multiple models
