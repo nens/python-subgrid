@@ -10,35 +10,48 @@ import tornado.web
 import tornado.websocket
 
 
-logging.basicConfig(level=logging.WARNING)
+logging.basicConfig(level=logging.DEBUG)
 
 logger = logging.getLogger(__name__)
 
 
-class WebSocket(tornado.websocket.WebSocketHandler):
+class PubWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, **kwargs):
         tornado.websocket.WebSocketHandler.__init__(
             self, application, request, **kwargs)
-        self.url = None
 
+    def initialize(self):
+        pass
+
+    def open(self, *args, **kwargs):
+        logger.debug("websocket opened")
+        def sender():
+            # just keep on looping
+            logger.info('starting to send')
+            counter = itertools.count()
+            for i in counter:
+                time.sleep(1)
+                msg = {
+                    "now": datetime.datetime.now().isoformat(),
+                    "i": i
+                }
+                logger.debug('sending', msg)
+                self.write_message(json.dumps(msg))
+        self.thread = threading.Thread(target=sender)
+        self.thread.start()
+    def on_close(self):
+        logger.debug("websocket closed")
+
+class EchoWebSocket(tornado.websocket.WebSocketHandler):
+    def __init__(self, application, request, **kwargs):
+        tornado.websocket.WebSocketHandler.__init__(
+            self, application, request, **kwargs)
     def initialize(self, url):
-        self.url = url
+        pass
 
-    def open(self):
-        logger.debug("websocket opened ")
-        if (self.url == 'publish'):
-            def sender():
-                # just keep on looping
-                counter = itertools.counter()
-                for i in counter:
-                    time.sleep(1)
-                    msg = {
-                        "now": datetime.datetime.now().isoformat(),
-                        "i": i
-                    }
-                    self.write_message(json.dumps(msg))
-            self.thread = threading.Thread(target=sender)
-            self.thread.start()
+    def open(self, *args, **kwargs):
+        logger.debug("websocket opened")
+
     def on_message(self, message):
         # unicode, metadata message
         self.write_message(message)
@@ -66,8 +79,8 @@ def app():
     # register socket
     application = tornado.web.Application([
         (r"/", MainHTTPHandler),
-        (r"/echo", WebSocket, dict(url='echo')),
-        (r"/publish", WebSocket, dict(url='publish')),
+        (r"/echo", EchoWebSocket),
+        (r"/publish", PubWebSocket),
         # todo use an id scheme to attach to multiple models
         (r"/empty", HTTPHandler, dict(size=0)),
         (r"/100MB", HTTPHandler, dict(size=100))
