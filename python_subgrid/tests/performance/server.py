@@ -32,7 +32,7 @@ class PubWebSocket(tornado.websocket.WebSocketHandler):
             for i in counter:
                 time.sleep(1)
                 msg = {
-                    "now": datetime.datetime.now().isoformat(),
+                    "now": datetime.datetime.utcnow().isoformat(),
                     "i": i
                 }
                 logger.debug('sending', msg)
