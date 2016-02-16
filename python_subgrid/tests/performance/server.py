@@ -100,6 +100,25 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def on_close(self):
         logger.debug("websocket closed")
 
+class RequestReplyWebSocket(tornado.websocket.WebSocketHandler):
+    def __init__(self, application, request, **kwargs):
+        tornado.websocket.WebSocketHandler.__init__(
+            self, application, request, **kwargs)
+    def initialize(self, size):
+        self.size = size
+        message = '1' * 1000 * 1000
+        self.message = size * message
+
+    def open(self, *args, **kwargs):
+        logger.debug("websocket opened")
+
+    def on_message(self, message):
+        # unicode, metadata message
+        self.write_message(self.message)
+
+    def on_close(self):
+        logger.debug("websocket closed")
+
 
 class HTTPHandler(tornado.web.RequestHandler):
     def initialize(self, size):
@@ -121,6 +140,7 @@ def app():
     application = tornado.web.Application([
         (r"/", MainHTTPHandler),
         (r"/echo", EchoWebSocket),
+        (r"/echo100", RequestReplyWebSocket, dict(size=1)),
         (r"/publish", PubWebSocket),
         (r"/pub100", Pub100WebSocket),
         # todo use an id scheme to attach to multiple models
