@@ -35,11 +35,10 @@ class PubWebSocket(tornado.websocket.WebSocketHandler):
                     "now": datetime.datetime.utcnow().isoformat(),
                     "i": i
                 }
-                logger.debug('sending', msg)
                 try:
                     self.write_message(json.dumps(msg))
                 except:
-                    logging.exception("stop sending")
+                    logger.exception("stop sending")
                     break
 
         self.thread = threading.Thread(target=sender)
@@ -63,8 +62,7 @@ class Pub100WebSocket(tornado.websocket.WebSocketHandler):
         message = '1' * 1000 * 1000
         msg = {
             "now": '%s',
-            "i": i,
-            "message": self.message
+            "message": message
         }
         msg = json.dumps(msg)
         def sender():
@@ -73,7 +71,6 @@ class Pub100WebSocket(tornado.websocket.WebSocketHandler):
             counter = itertools.count()
             for i in counter:
                 time.sleep(1)
-                logger.debug('sending', msg)
                 try:
                     self.write_message(
                         msg % (datetime.datetime.utcnow().isoformat(), )
