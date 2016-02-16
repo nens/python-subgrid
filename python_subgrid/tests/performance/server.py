@@ -36,7 +36,51 @@ class PubWebSocket(tornado.websocket.WebSocketHandler):
                     "i": i
                 }
                 logger.debug('sending', msg)
-                self.write_message(json.dumps(msg))
+                try:
+                    self.write_message(json.dumps(msg))
+                except:
+                    logging.exception("stop sending")
+                    break
+
+        self.thread = threading.Thread(target=sender)
+        self.thread.start()
+    def on_close(self):
+        logger.debug("websocket closed")
+
+
+class Pub100WebSocket(tornado.websocket.WebSocketHandler):
+    def __init__(self, application, request, **kwargs):
+        tornado.websocket.WebSocketHandler.__init__(
+            self, application, request, **kwargs)
+
+
+    def initialize(self):
+        pass
+
+    def open(self, *args, **kwargs):
+        logger.debug("websocket opened")
+        # message, fill in the rest later
+        message = '1' * 1000 * 1000
+        msg = {
+            "now": '%s',
+            "i": i,
+            "message": self.message
+        }
+        msg = json.dumps(msg)
+        def sender():
+            # just keep on looping
+            logger.info('starting to send')
+            counter = itertools.count()
+            for i in counter:
+                time.sleep(1)
+                logger.debug('sending', msg)
+                try:
+                    self.write_message(
+                        msg % (datetime.datetime.utcnow().isoformat(), )
+                    )
+                except:
+                    logger.exception("stop sending")
+                    break
         self.thread = threading.Thread(target=sender)
         self.thread.start()
     def on_close(self):
@@ -81,9 +125,11 @@ def app():
         (r"/", MainHTTPHandler),
         (r"/echo", EchoWebSocket),
         (r"/publish", PubWebSocket),
+        (r"/pub100", Pub100WebSocket),
         # todo use an id scheme to attach to multiple models
         (r"/empty", HTTPHandler, dict(size=0)),
-        (r"/100MB", HTTPHandler, dict(size=100))
+        # 1 MB for now
+        (r"/100MB", HTTPHandler, dict(size=1))
     ])
     return application
 
