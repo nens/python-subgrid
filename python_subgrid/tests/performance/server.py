@@ -46,7 +46,7 @@ class EchoWebSocket(tornado.websocket.WebSocketHandler):
     def __init__(self, application, request, **kwargs):
         tornado.websocket.WebSocketHandler.__init__(
             self, application, request, **kwargs)
-    def initialize(self, url):
+    def initialize(self):
         pass
 
     def open(self, *args, **kwargs):
