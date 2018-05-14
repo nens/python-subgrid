@@ -2,7 +2,7 @@ Changelog of python-subgrid
 ===================================================
 
 
-0.24 (unreleased)
+0.24 (2018-05-14)
 -----------------
 
 - Explicitly set typemap char value to 'S1'.
