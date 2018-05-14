@@ -85,7 +85,7 @@ CTYPESMAP = {
 # map c types to numpy types
 TYPEMAP = {
     b"bool": "bool",
-    b"char": "S",
+    b"char": "S1",
     b"double": "double",
     b"float": "float32",
     b"int": "int32"
